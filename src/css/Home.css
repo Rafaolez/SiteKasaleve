@@ -1,0 +1,30 @@
+.MenuHome{
+    background-color: black;
+}
+.TDbuttons{
+    width: 50%;
+    background-color: orange;
+   
+}
+.PTmensagem{
+    width: 50%;
+    background-color: teal;
+    margin-left: auto;
+   
+}
+.TelaMeio{
+    display: flex;
+    width: 100%;
+}
+.BTN{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+    background-color: green;
+    margin: auto;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+}

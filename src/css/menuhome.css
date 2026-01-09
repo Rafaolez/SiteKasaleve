@@ -1,0 +1,27 @@
+.logo{
+    width: 10px;
+    width: 15%;
+}
+.cima{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #3a3a3a;
+}
+.BTNLogin{
+    font-size: 1.3rem;
+    color: #000000;
+    background-color: rgb(255, 255, 255);
+    margin-left: auto;
+    width: 8rem;
+    height: 3rem;
+    border-radius: 10px;
+}
+.divButton {
+    display: flex;
+    justify-content: space-around;
+    background-color: #3a3a3a;
+    padding: 20px;
+    width: 185%;
+}
