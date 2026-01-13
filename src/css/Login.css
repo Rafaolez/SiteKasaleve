@@ -1,0 +1,42 @@
+body{
+    background-image: url(./../Imagens/Papel_de_fundo_Login.png);
+    background-attachment: initial;
+    /*Resolver essa parada*/
+}
+.INPUT {
+    width: 35rem;
+    height: 60px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    border: 0px solid;
+    background-color: #bbbaba;
+    color: white;
+    align-items: center;
+}
+
+input::placeholder {
+    color: #e9e9e9;
+    font-size: 2rem;
+}
+
+.CXINPUT {
+    background-color: wheat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+}
+
+.CXPrincipal {
+    background-color: wheat;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: blue;
+}
+
+.CXBTNLogin {
+    background-color: tomato;
+    width: 50%;
+}
