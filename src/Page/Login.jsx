@@ -5,7 +5,7 @@ import "../css/Login.css";
 
 function Login() {
     return (
-        <>
+        <div className="body">
             <BTNVolta />
             <div className="CXPrincipal">
                 <div className="LogoLogin">
@@ -20,7 +20,7 @@ function Login() {
                     <button className="INPUT BTNLogin" onClick={console.log} >Entrar</button>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 export default Login;

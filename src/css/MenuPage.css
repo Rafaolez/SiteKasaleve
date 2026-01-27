@@ -1,0 +1,24 @@
+.logo{
+    height: 3.5rem;
+    width: 8%;
+    padding: 1rem;
+}
+.cima{
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #3a3a3a;
+    height: 60px;
+}
+.text{
+    text-decoration: none;
+}
+.text0{
+    color: white;
+    font-size: 20px;
+    padding: 1rem;
+}
+.CaminhoPage{
+    margin-right: auto;
+}
