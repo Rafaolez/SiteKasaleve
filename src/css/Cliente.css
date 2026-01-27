@@ -2,3 +2,32 @@
     color: white;
     background-color: blue;
 }
+.BTNPC{
+    color: black;
+    font-size: 1.5rem;
+    padding: 1rem;
+}
+.CaixaBTN{
+    display: flex;
+    background-color: lightgreen;
+}
+.Conteudo{
+    display: flex;
+    justify-content: center;
+    background-color: maroon;
+    width: 75%;
+    margin-inline: auto;
+}
+
+.Nome{
+    background-color: lightsalmon;
+}
+.CPF{
+    background-color: lightblue;
+}
+.Status{
+    background-color: lightyellow;
+}
+.Btn321{
+    background-color: lightcoral;
+}
