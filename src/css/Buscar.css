@@ -1,0 +1,27 @@
+.lista-resultados {
+  list-style: none;
+  padding: 0;
+  margin-top: 8px;
+  background: #111;
+  border-radius: 8px;
+}
+
+.item {
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+}
+
+.item:hover {
+  background: #2a2a2a;
+}
+.InputBusca{
+    width: 35vh;
+    height: 2rem;
+    border-radius: 5px;
+    border: 0px solid;
+    background-color: #bbbaba;
+    color: white;   
+
+
+}
