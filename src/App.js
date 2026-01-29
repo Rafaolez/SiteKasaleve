@@ -1,12 +1,14 @@
 import logo from './logo.svg';
 import './css/App.css';
 import AppRautes from './routes.js';
-
+import AuthProvider from './Page/Context/AuthContext.js';
 
 function App() {
   return (
     <div className="App">
-      <AppRautes />
+      <AuthProvider>
+        <AppRautes />
+      </AuthProvider>
     </div>
   );
 }

@@ -10,10 +10,10 @@ function Home() {
       <div className='TelaMeio'>
 
         <div className='TDbuttons'>
-          <Link className='text' to="/clienti"><button className='Cliente BTN'  >Cadastro de Cliente</button></Link>
-          <Link className='text' to={"/"}><button route={'/clienti'} className='Orcamento BTN'>Orçamento</button></Link>
-          <Link className='text' to={"/"}><button className='Foto BTN'>Fotos</button></Link>
-          <Link className='text' to={"/"}><button className='Produto BTN'>Cadastro de Produto</button></Link>
+          <Link className='text' to="/clienti"><button className='ClienteH BTN'  >Cadastro de Cliente</button></Link>
+          <Link className='text' to={"/"}><button route={'/clienti'} className='OrcamentoH BTN'>Orçamento</button></Link>
+          <Link className='text' to={"/"}><button className='FotoH BTN'>Fotos</button></Link>
+          <Link className='text' to={"/cadastroPro"}><button className='ProdutoH BTN'>Cadastro de Produto</button></Link>
         </div>
         <div className="PTmensagem">
           <h2>Welcome to the Home Page!</h2>

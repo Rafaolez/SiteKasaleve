@@ -1,0 +1,102 @@
+.Produto {
+    border-radius: 5rem;
+    background-color: rgb(182, 182, 182);
+    width: 95%;
+    justify-content: center;
+    margin-inline: auto;
+}
+
+.ConteudiProduto {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.ConteudoProdutoApi {
+    display: flex;
+    justify-content: center;
+    margin-inline: auto;
+}
+
+.Btn321Produto {
+   /* background-color: lightcoral;*/
+    width: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: outset;
+}
+
+.BTNCP {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    border: 0px solid;
+    border-radius: 0.2rem;
+    width: 6rem;
+    height: 2.5rem;
+    font-size: 1rem;
+}
+
+.PR {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: x-large;
+    border-bottom: outset;
+}
+
+.FotoProduto {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: outset;
+    /*background-color: aqua;*/
+}
+
+.FotoProdtText {
+    width: 15%;
+}
+
+.ImgProdct {
+    width: 8rem;
+    height: 8rem;
+    border-radius: 1rem;
+}
+
+.ProdutoNamePro {
+   /* background-color: lightsalmon;*/
+    height: 10rem;
+
+}
+
+.ProdutoNameText {
+    width: 20%;
+}
+
+.Price {
+   /* background-color: lightblue;*/
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    height: 10rem;
+
+}
+
+.PriceText {
+    width: 15%;
+}
+
+.DescricaoPro {
+    /*background-color: lightyellow;*/
+    height: 10rem;
+    display: flex;
+    align-items: unset;
+    justify-content: center;
+    overflow: auto;
+}
+
+.DescricaoText {
+    width: 30%;
+}
