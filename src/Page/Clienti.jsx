@@ -52,10 +52,11 @@ async function getCliente() {
         <div className='ConteudoName'>
           <div className='CL Nome'><h3>Nome do Cliente</h3></div>
           <hr />
-          <div className='CL CPF'><h3>Email</h3></div>
+          <div className='CL CPF'><h3>CPF/CNPJ</h3></div>
           <hr />
           <div className='CL Status'><h3>Status</h3></div>
           <hr />
+          <div className=' Btn321'></div>
         </div>
 
         {client.map(item => (

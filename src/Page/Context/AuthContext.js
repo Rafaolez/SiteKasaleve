@@ -5,7 +5,7 @@ export const AuthContext = createContext(0);
 
 function AuthProvider({ children }) {
 
-    const [loggedin, setLoggedin] = useState(false);
+    const [loggedin, setLoggedin] = useState(true);
     const [id, setId] = useState()
     const [error, setError] = useState(null);
     const [user, SetUser] = useState(false);
