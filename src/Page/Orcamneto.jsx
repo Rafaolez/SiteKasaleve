@@ -2,25 +2,27 @@ import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
 import "../css/Orcamneto.css";
 import React, { useState } from 'react';
+import IMG1 from "../Imagens/IMG_Foto_Mesa.jpg";
+import IMG2 from "../Imagens/IMG_Foto_Sofa.jpg";
+import FTList from "../components/FTList";
 
 function Orcamneto() {
-     const [isHovered, setIsHovered] = useState(false);
+  const [hovered, setHovered] = useState(null);
 
   return (
     <>
-    {card.map(item => (
-      <div key={item.id} className={`card ${isHovered ? 'hovered' : ''}`}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)} >
-        <h3>{item.title}</h3>
-        {isHovered && (
-          <div className="card-info">
-            <p>{item.description}</p>
-          </div>
-        )}
+      <div className="FotoCaixamaior">
+        <FTList
+          categoria="mesas"
+          hovered={hovered}
+          setHovered={setHovered}
+          link="https://www.mercadolivre.com.br/"
+          img={IMG1} 
+          titulo="Fotos de Mesa e Cadeiras" 
+        />
+
+        <FTList categoria="sofa" hovered={hovered} setHovered={setHovered} link="https://www.mercadolivre.com.br/" img={IMG2} titulo="Fotos de Sofá" />
       </div>
-    ))}
-    
     </>
   );
 }
