@@ -1,18 +1,20 @@
 import React from 'react';
 import "../css/FTList.css";
 
-function FTList({categoria, hovered, setHovered, link, img, titulo }) {
+function FTList({ link, img, titulo, Imgedescricao }) {
   return (
-     <div className={`card ${hovered === categoria ? 'hovered' : 'CXFT'}`}
-              onMouseEnter={() => setHovered(categoria)}
-              onMouseLeave={() => setHovered(null)} >
-              <a href={link} target="_blank" rel="noopener noreferrer"><img src={img} alt={titulo} className="IMGFT" /></a>
-              {hovered === categoria && (
-                <div className="card-info">
-                  <h3> {titulo} </h3>
-                </div>
-              )}
-            </div>
+    <a 
+      href={link} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="card"
+    >
+        <img src={img} alt={Imgedescricao} className="IMGFT" loading="lazy" />
+
+        <div className="card-info">
+            <h3>{titulo}</h3>
+        </div>
+    </a>
   );
 }
 export default FTList;

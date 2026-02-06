@@ -1,8 +1,0 @@
-.FotoCaixamaior {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  background-color: tomato;
-  width: 90%;
-}

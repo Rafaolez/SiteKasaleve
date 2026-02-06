@@ -1,51 +1,23 @@
-.CXFT {
-    height: 20rem;
-    width: 20rem;
-    background-color: #cfcfcf;
-    margin-top: 1rem;
-    border-radius: 2rem;
-}
-
-.FotoCaixamaior {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
-    background-color: tomato;
-    width: 90%;
-}
-
 .CXConteudoFoto {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     flex-direction: column;
+    flex-wrap: nowrap;
+
 }
 
-.IMGFT {
-    width: 20rem;
-    height: 20rem;
-    border-radius: 2rem;
+.CXFotos {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: auto;
+    flex-direction: row;
+   
+    width: 90%;
+    flex-wrap: wrap;
 }
-
-.card {
-    border-radius: 2px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;/* Transição suave */
-    cursor: pointer;
-    background-image: url(../Imagens/Fundo_das_Fotos.png);
-    background-color: #6d6c6cb6;
-    overflow: hidden;
-}
-
-.card.hovered {
-    transform: scale(1.2);
-    /* Cresce 10% */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.616);
-    /* Sombra para dar profundidade */
-}
-
-.card-info {
-    margin-top: 15px;
-    opacity: 1;
-    transition: opacity 0.5s ease;
+.FotoCaixamaior{
+    margin-top: 1rem;
+    margin-bottom: 2rem;
 }
