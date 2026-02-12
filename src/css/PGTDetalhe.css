@@ -1,0 +1,89 @@
+.CXDetalhe {
+    margin-inline: auto;
+    padding: 0.5rem;
+}
+
+.CXDetalhe254 {
+    margin-left: auto;
+    display: flex;
+}
+
+.CXDetalheBTNS {
+    width: 90%;
+    margin-inline: auto;
+    padding: 1rem;
+}
+
+.BTNCDDDD0 {
+    margin: 1rem;
+    border: 0px solid;
+    border-radius: 0.2rem;
+    width: 6rem;
+    height: 2.5rem;
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 25rem;
+    height: 3rem;
+    border-radius: 0.5rem;
+}
+
+.CXDetalhe254 {
+    font-size: 1rem;
+    align-items: center;
+    margin-left: 8rem;
+    /*background-color: lightpink;*/
+}
+
+.CXTDetalhe {
+    width: 85%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 5rem;
+    margin-inline: auto;
+    box-shadow: 10px 10px 5px #99a0a3;
+}
+
+.CXTTTD {
+    width: 100%;
+    background-color: #EEF6FF;
+    background-size: cover;
+    height: 100vh;
+    margin: 0;
+    position: fixed;
+    min-width: 100%;
+    min-height: 100%;
+    background-image: url(./../Imagens/Capturadetela2026-02-12111736.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.ED0 {
+    background-color: #3B77C9;
+    color: white;
+}
+
+.EX0 {
+    background-color: #E45C60;
+    color: white;
+}
+
+h4 {
+    padding: 0.3rem;
+}
+
+.CXDetalheInfo0 {
+    justify-content: center;
+    margin-right: 8rem;
+}
+
+.HRLinha {
+    border: 0.5px solid #ccc;
+    margin: auto;
+    width: 87%;
+}
+.Text{
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}

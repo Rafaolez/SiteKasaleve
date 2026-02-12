@@ -9,7 +9,12 @@ function AuthProvider({ children }) {
     const [id, setId] = useState()
     const [error, setError] = useState(null);
     const [user, SetUser] = useState(false);
+    const [client, setCliente] = React.useState([]);
+    const [IdPegaCliente, setIdPegaCliente] = useState(null);
+      const clienteSelecionado = client.find( item => item.id === IdPegaCliente);
 
+
+    //Função de login
 
     async function Login(username, password) {
         // lógica de login
@@ -44,6 +49,18 @@ function AuthProvider({ children }) {
         }
     }
 
+    //DeltalhePGCliente
+
+    async function getCliente() {
+        try {
+          const res = await fetch('https://fakestoreapi.com/users');
+          const json = await res.json();
+          setCliente(json);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
     return (
         <AuthContext.Provider value={{
             loggedin: loggedin,
@@ -53,6 +70,11 @@ function AuthProvider({ children }) {
             setLoggedin,
             id: id,
 
+            client,
+            getCliente,
+            setIdPegaCliente,
+            IdPegaCliente,
+            clienteSelecionado,
         }}>
             {children}
         </AuthContext.Provider>

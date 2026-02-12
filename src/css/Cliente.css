@@ -15,7 +15,7 @@
 }
 
 .ConteudiGeral {
-    border-radius: 5rem;
+    border-radius: 1rem;
     background-color: rgb(182, 182, 182);
     width: 80%;
     justify-content: center;
@@ -78,37 +78,3 @@
 
 
 /*Nova Appa*/
-.CXDetalhe{
-    background-color: midnightblue;
-    width: 90%;
-    margin-inline: auto;
-    margin-top: 5rem;
-    display: flex;
-}
-
-.CXDetalhe254{
-    font-size: 1.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 25%;
-}
-
-.CXDetalheBTNS{
-    width: 90%;
-    margin-inline: auto;
-    background-color: lime;
-}
-.BTNCD{
-    margin: 1rem;
-    border: 0px solid;
-    border-radius: 0.2rem;
-    width: 6rem;
-    height: 2.5rem;
-    font-size: 1rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    width: 30rem;
-    height: 3rem;
-    border-radius: 0.5rem;
-}

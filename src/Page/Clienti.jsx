@@ -2,30 +2,18 @@ import '../css/Cliente.css';
 import BTNVolta from '../components/BTNVolta';
 import MenuPage from '../components/MenuPage';
 import Buscar from '../components/Buscar';
-import PGBTDetalhe from '../components/PGBTDetalhe';
+import PGBTDetalhe from './PGBTDetalhe';
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from "./Context/AuthContext";
+import { Link } from 'react-router-dom';
 
 function Clienti() {
-  const { loggedin } = useContext(AuthContext);
-  const [client, setCliente] = React.useState([]);
-  const [test, setTest] = React.useState(true);
-  const [IdPegaCliente, setIdPegaCliente] = useState(null);
-
-  const clienteSelecionado = client.find(
-    item => item.id === IdPegaCliente
-  );
+  const { loggedin, getCliente, client, setIdPegaCliente } = useContext(AuthContext);
+  
+  const [AddCliente, setAddCliente] = useState(true);
 
 
-  async function getCliente() {
-    try {
-      const res = await fetch('https://fakestoreapi.com/users');
-      const json = await res.json();
-      setCliente(json);
-    } catch (err) {
-      console.log(err);
-    }
-  }
+  
 
   useEffect(() => {
     getCliente();
@@ -44,14 +32,14 @@ function Clienti() {
   return (
     <>
 
-      {test ?
+      {AddCliente ?
         <div className='Pia'>
           <MenuPage />
 
           <div className='CaixaBTN'>
             <BTNVolta />
             <div>
-              <span className="BTNPC 0">Cadastro de Cliente</span>
+              <button onClick={() => { setAddCliente(false) }} className='BTNC DE'>Add</button>
               <Buscar />
             </div>
           </div>
@@ -82,7 +70,7 @@ function Clienti() {
                 </div>
                 <hr />
                 <div className='Btn321'>
-                  <button onClick={() => { setTest(false); setIdPegaCliente(item.id); }} className='BTNC DE'>Detalhes</button>
+                  <Link className='text' to={"/Detalhe"}><button route={'/Detalhe'} onClick={() => { setIdPegaCliente(item.id) }} className='BTNC DE'>Detalhes</button></Link>
                   <button className='BTNC ED'>Editar</button>
                   <button className='BTNC EX'>Excluir</button>
                 </div>
@@ -92,46 +80,10 @@ function Clienti() {
         </div>
         :
         <div>
-          <h1>Detalhes do Cliente</h1>
-          <p>Aqui você pode encontrar informações detalhadas sobre o cliente selecionado.</p>
-          <button onClick={() => setTest(true)} className='BTNC Voltar'>Voltar</button>
-
-          <div>
-            {clienteSelecionado && (
-              <div className='CXDetalhe'>
-                <div className='CXDetalheInfo CXDetalhe254'>
-                  {clienteSelecionado.name.firstname} {clienteSelecionado.name.lastname}
-                </div>
-
-                <hr/>
-
-                <div className='CXDetalheCPF CXDetalhe254'>
-                  {clienteSelecionado.email}
-                </div>
-
-                <hr/>
-
-                <div className='CXDetalheStatus CXDetalhe254'>
-                  Ativo
-                </div>
-
-                <hr/>
-
-                <div className='CXDetalheOutro CXDetalhe254'>
-                  <h1>Endereço: efjoejoe efojeofj</h1>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className='CXDetalheBTNS'>
-            <button onClick={() => setTest(true)} className='BTNCD Voltar'>Voltar</button>
-            <button className='BTNCD ED'>Editar</button>
-            <button className='BTNCD EX'>Excluir</button>
-          </div>
-
+          <h1>Add Cliente</h1>
+          <button onClick={() => setAddCliente(true)} className='BTNCD Voltar'>Voltar</button>
         </div>
-      }
+      } 
 
 
     </>
