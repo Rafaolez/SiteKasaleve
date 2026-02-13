@@ -45,18 +45,13 @@
 
 .CXTTTD {
     width: 100%;
-    background-color: #EEF6FF;
+    background-color: #f5faff;
     background-size: cover;
     height: 100vh;
     margin: 0;
     position: fixed;
     min-width: 100%;
     min-height: 100%;
-    background-image: url(./../Imagens/Capturadetela2026-02-12111736.png);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
 }
 
 .ED0 {
