@@ -1,0 +1,119 @@
+.titulo {
+    width: 100%;
+    background-color: aquamarine;
+    display: flex;
+    justify-content: center;
+}
+
+.caixamaiorprod {
+    width: 90%;
+    background-color: cadetblue;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-content: space-evenly;
+
+}
+
+.caixaproduto {
+    width: 20%;
+    height: 21rem;
+    border-radius: 0.5rem;
+    background-color: chocolate;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 1px;
+}
+
+.btncarrinho {
+    width: 10rem;
+    height: 3rem;
+    border-radius: 5%;
+    font-size: 1.5rem;
+    background-color: rgb(255, 153, 0);
+    color: white;
+    border-color: aliceblue;
+}
+
+.imgproduto {
+    width: 13rem;
+    height: 11rem;
+    border-radius: 0.5rem;
+}
+
+
+/*Tela dois Carrinho*/
+
+.caixaPaiMenucarringo {
+    /*background-color: royalblue;*/
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.caixaBTNcarrinho {
+    background-color: saddlebrown;
+    color: white;
+}
+
+.btncomprarvolta {
+    width: 10rem;
+    height: 5rem;
+    border-radius: 4%;
+    font-size: 1.5rem;
+    background-color: rgb(0, 0, 0);
+    color: white;
+}
+
+.caixaH1carrinho {
+    /* background-color: red;*/
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.CoresCarrinho {
+    background-color: blue;
+    width: 50%;
+
+}
+
+.EscritsInputCor {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.EscritsInputSelectCor {
+    background-color: rgb(255, 0, 0);
+    width: 10rem;
+    height: 3rem;
+    color: white;
+    font-size: 1.5rem;
+    margin-top: 2rem;
+}
+
+.imgCarrocelCarrinho {
+    width: 50%;
+    height: 40rem;
+    background-color: yellowgreen;
+}
+
+.imgprodutoDetalhesCarrinho {
+    width: 13rem;
+    height: 11rem;
+    border-radius: 0.5rem;
+    background-color: brown;
+}
+
+.caixaPaiImgDetalhesCarrinho {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(199, 99, 119);
+}
+
+.Inputittt {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: center;
+}

@@ -6,6 +6,7 @@ import CradastroPro from './Page/CadastroPro.jsx';
 import Foto from './Page/Foto.jsx';
 import Orcamneto from './Page/Orcamneto.jsx'
 import PGBTDetalhe from './Page/PGBTDetalhe.jsx';
+import Carrinho from './Page/Carrinho.jsx'; 
 
 function AppRautes() {
     return (
@@ -19,6 +20,7 @@ function AppRautes() {
                 <Route path="/Foto" element={<Foto/>} />
                 <Route path="/Orcamneto" element={<Orcamneto/>} />
                 <Route path="/Detalhe" element={<PGBTDetalhe/>} />
+                <Route path="/Carrinho" element={<Carrinho/>} />
             </Routes>
         </BrowserRouter>
 

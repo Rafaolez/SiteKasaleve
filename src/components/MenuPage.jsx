@@ -1,8 +1,25 @@
 import { Link } from "react-router-dom";
 import Logo from '../Imagens/LogoKasaLeveBranca.png';
 import "../css/MenuPage.css";
+import React, {useContext } from 'react';
+import { AuthContext } from "../Page/Context/AuthContext";
 
 function MenuPage() {
+
+    const { loggedin} = useContext(AuthContext); 
+
+    if (!loggedin) {
+    return (
+      <div className="cima">
+                <img src={Logo} alt="Logo" className="logo" />
+                <div className="CaminhoPage">
+                    <Link className='text' to={"/Foto"}><screen className='FotoMP text0MP'>Fotos</screen></Link>
+                </div>
+            </div>
+
+    );
+  }
+
     return (
         <>
             <div className="cima">

@@ -14,6 +14,7 @@ function Home() {
           <Link className='text' to={"/Orcamneto"}><button route={'/clienti'} className='OrcamentoH BTN'>Orçamento</button></Link>
           <Link className='text' to={"/Foto"}><button className='FotoH BTN'>Fotos</button></Link>
           <Link className='text' to={"/cadastroPro"}><button className='ProdutoH BTN'>Cadastro de Produto</button></Link>
+          <Link className='text' to={"/Carrinho"}><button className='CarrinhoH BTN'>Carrinho</button></Link>
         </div>
         <div className="PTmensagem">
           <h2>Welcome to the Home Page!</h2>
