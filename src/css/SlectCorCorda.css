@@ -1,0 +1,27 @@
+.selectHeader{
+border:1px solid, #f3f3f3;
+padding:10px;
+cursor:pointer;
+display:flex;
+gap:5rem;
+align-items:center;
+font-size: 2rem;
+width: 30rem;
+background-color: #f3f3f3;
+}
+
+.selectLista{
+border:1px solid #ccc;
+}
+
+.selectItem{
+display:flex;
+align-items:center;
+gap:25px;
+padding:8px;
+cursor:pointer;
+}
+
+.selectItem:hover{
+background:#f3f3f3;
+}

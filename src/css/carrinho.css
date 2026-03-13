@@ -44,6 +44,14 @@
 
 /*Tela dois Carrinho*/
 
+/*.caixaMaeCarrinhoV{
+    width: 100%;
+    height: 100vh;
+    background-color: rgb(255, 0, 0);
+    display: flex;
+    flex-direction: column;
+}*/
+
 .caixaPaiMenucarringo {
     /*background-color: royalblue;*/
     display: flex;
@@ -72,8 +80,8 @@
 }
 
 .CoresCarrinho {
-    background-color: blue;
     width: 50%;
+    background-color: royalblue;
 
 }
 
@@ -88,20 +96,27 @@
     height: 3rem;
     color: white;
     font-size: 1.5rem;
-    margin-top: 2rem;
+    margin: 10rem;
 }
 
 .imgCarrocelCarrinho {
     width: 50%;
     height: 40rem;
     background-color: yellowgreen;
+
+}
+.caixasolitariatest{
+     width: 50%;
+    height: 40rem;
+    background-color: rgb(174, 50, 205);
 }
 
 .imgprodutoDetalhesCarrinho {
-    width: 13rem;
-    height: 11rem;
+    width: 40rem;
+    height: 35rem;
     border-radius: 0.5rem;
     background-color: brown;
+    position: static;
 }
 
 .caixaPaiImgDetalhesCarrinho {
@@ -109,6 +124,8 @@
     justify-content: center;
     align-items: center;
     background-color: rgb(199, 99, 119);
+    width: 95%;
+    padding: 2rem;
 }
 
 .Inputittt {
@@ -116,4 +133,24 @@
     flex-wrap: nowrap;
     flex-direction: column;
     align-items: center;
+}
+
+.corescores{
+    width: 5rem;
+    height: 3rem;
+}
+.option{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  cursor:pointer;
+}
+
+.option img{
+  width:30px;
+  height:30px;
+  border-radius:4px;
+}
+.escritaSledt{
+    font-size: 1.5rem;
 }

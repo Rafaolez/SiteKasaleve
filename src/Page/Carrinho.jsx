@@ -1,5 +1,6 @@
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
+import SlectCorCorda from "../components/SlectCorCorda";
 import "../css/carrinho.css";
 import React, { useState } from 'react';
 
@@ -45,37 +46,17 @@ function Carrinho() {
                             <div className="imgCarrocelCarrinho">
                                 <img src="https://assets.betalabs.net/production/flexform/item-images/42935cae51c7b264fa8e85d5b5667838.png" alt="Produto 1" className="imgprodutoDetalhesCarrinho" />
                             </div>
+                            
 
                             <div className="CoresCarrinho">
                                 <p>Escolha as Cores do Produto X:</p>
                                 <div className="Inputittt">
-                                    <label className="EscritsInputCor">
-                                        Seleciona a Cor do Aluminio:
-                                        <select className="EscritsInputSelectCor" name="SelecioinaCor">
-                                            <option value="Cor1">Cor 1</option>
-                                            <option value="Cor2">Cor 2</option>
-                                            <option value="Cor3">Cor 3</option>
-                                        </select>
-                                    </label>
-
-                                    <label className="EscritsInputCor">
-                                        Seleciona a Cor do Aluminio:
-                                        <select className="EscritsInputSelectCor" name="SelecioinaCor">
-                                            <option value="Cor1">Cor 1</option>
-                                            <option value="Cor2">Cor 2</option>
-                                            <option value="Cor3">Cor 3</option>
-                                        </select>
-                                    </label>
-
-                                    <label className="EscritsInputCor">
-                                        Seleciona a Cor do Aluminio:
-                                        <select className="EscritsInputSelectCor" name="SelecioinaCor">
-                                            <option value="Cor1">Cor 1</option>
-                                            <option value="Cor2">Cor 2</option>
-                                            <option value="Cor3">Cor 3</option>
-                                        </select>
-                                    </label>
-
+                                    <p className="escritaSledt">Cor da Corda Nautica</p>
+                                    <SlectCorCorda />
+                                    <p className="escritaSledt">Cor do Tecido</p>
+                                    <SlectCorCorda />
+                                    <p className="escritaSledt">Cor do Aluminio</p>
+                                    <SlectCorCorda />
                                 </div>
                             </div>
                         </div>
