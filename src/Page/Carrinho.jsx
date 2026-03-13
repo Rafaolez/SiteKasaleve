@@ -46,10 +46,10 @@ function Carrinho() {
                             <div className="imgCarrocelCarrinho">
                                 <img src="https://assets.betalabs.net/production/flexform/item-images/42935cae51c7b264fa8e85d5b5667838.png" alt="Produto 1" className="imgprodutoDetalhesCarrinho" />
                             </div>
-                            
+
 
                             <div className="CoresCarrinho">
-                                <p>Escolha as Cores do Produto X:</p>
+                                <string className="EscritsInputCor">Escolha as Cores do Produto X:</string>
                                 <div className="Inputittt">
                                     <p className="escritaSledt">Cor da Corda Nautica</p>
                                     <SlectCorCorda />
@@ -60,7 +60,7 @@ function Carrinho() {
                                 </div>
                             </div>
                         </div>
-                        <button className="btnVerCorEsco">Ver Cor Escolhida</button>
+                        {/*<button className="btnVerCorEsco">Ver Cor Escolhida</button>*/}
                     </div>
 
 
