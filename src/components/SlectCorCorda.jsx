@@ -32,7 +32,7 @@ onClick={()=>setAberto(!aberto)}
 
 {cor ? (
 <>
-<img src={cor.img} width="200"/>
+<img src={cor.img} className="selectImagem"/>
 {cor.nome}
 </>
 ):"Selecionar cor da Corda Nautica"}
@@ -53,7 +53,7 @@ setAberto(false)
 }}
 >
 
-<img src={item.img} width="120"/>
+<img src={item.img} className="selectImagem"/>
 <span>{item.nome}</span>
 
 </div>
