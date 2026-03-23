@@ -1,7 +1,8 @@
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
 import "../css/Foto.css";
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from "./Context/AuthContext";
 import FTList from "../components/FTList";
 import IMG1 from "../Imagens/IMG_Foto_Mesa.jpg";
 import IMG2 from "../Imagens/IMG_Foto_Sofa.jpg";
@@ -21,6 +22,13 @@ import IMG15 from "../Imagens/IMG_Foto_TipoDeTampo.jpg";
 
 function Foto() {
     const [hovered, setHovered] = useState(null);
+    const { loggedin } = useContext(AuthContext);
+
+    const mapLegends = [
+        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "Julio" },
+        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "cleber" },
+        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "Clientes" },
+    ];
 
     const fotos = [
         {
@@ -121,6 +129,34 @@ function Foto() {
         },
     ];
 
+    if (!loggedin) {
+        return (
+            <>
+                <MenuPage />
+                <div>
+                    <BTNVolta />
+                </div>
+                <div className="CXPrincipalFoto">
+                    <div className="CXConteudoFoto">
+                        <h2>Galeria de Fotos</h2>
+                        <p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>
+                        <div className="CXFotos">
+                            {fotos.map(foto => (
+                                <FTList
+                                    key={foto.categoria}
+                                    {...foto}
+                                    hovered={hovered}
+                                    setHovered={setHovered}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </>
+        )
+    }
+
+
     return (
         <>
             <MenuPage />
@@ -131,6 +167,19 @@ function Foto() {
                 <div className="CXConteudoFoto">
                     <h2>Galeria de Fotos</h2>
                     <p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>
+                    <div className="Map">
+                        <div className="MapDescricao">
+                            {produtos.map((item, index) => (
+                                <div key={index}>
+                                    <img src={item.img} className="selectImagem" />
+                                    <span>{item.Representanti}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="MapSolido">
+                            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=12hSX1JocMHr9eSijxOLa3Dby_7uNPIw&ehbc=2E312F" width="640" height="480"></iframe>
+                        </div>
+                    </div>
                     <div className="CXFotos">
                         {fotos.map(foto => (
                             <FTList
