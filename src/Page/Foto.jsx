@@ -19,15 +19,22 @@ import IMG12 from "../Imagens/IMG_Foto_ProjetoEspecial.png";
 import IMG13 from "../Imagens/LogoKasaLeveBranca.png";
 import IMG14 from "../Imagens/IMG_Foto_Cores.jpg";
 import IMG15 from "../Imagens/IMG_Foto_TipoDeTampo.jpg";
+import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 
 function Foto() {
     const [hovered, setHovered] = useState(null);
     const { loggedin } = useContext(AuthContext);
+    const [filtro, setFiltro] = useState(null);
+
+    const pontos = [
+        { lat: -23.55, lng: -46.63, cor: "red", nome: "Julio" },
+        { lat: -23.56, lng: -46.64, cor: "blue", nome: "cleber" },
+        { lat: -23.57, lng: -46.65, cor: "green", nome: "Clientes" },
+    ];
 
     const mapLegends = [
-        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "Julio" },
-        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "cleber" },
-        { img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format", Representanti: "Clientes" },
+        { cor: "rgb(2, 136, 209)", Representanti: "Massari" },
+        { cor: "rgb(230, 81, 0)", Representanti: "Evandro" },
     ];
 
     const fotos = [
@@ -140,6 +147,7 @@ function Foto() {
                     <div className="CXConteudoFoto">
                         <h2>Galeria de Fotos</h2>
                         <p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>
+                        <iframe src="https://www.google.com/maps/d/embed?mid=13Csr1fSAnAYu9WhtCJUBPDYigEItLug&ehbc=2E312F" width="640" height="480"></iframe>
                         <div className="CXFotos">
                             {fotos.map(foto => (
                                 <FTList
@@ -169,15 +177,37 @@ function Foto() {
                     <p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>
                     <div className="Map">
                         <div className="MapDescricao">
-                            {produtos.map((item, index) => (
-                                <div key={index}>
-                                    <img src={item.img} className="selectImagem" />
-                                    <span>{item.Representanti}</span>
+                            {/*<button className="MapLimparFiltro" onClick={() => setFiltro(null)}>Limpar Filtro</button>*/}
+                            {mapLegends.map((item, index) => (
+                                <div className="MapCaixaDescricao" onClick={() => setFiltro(filtro === item.cor ? null : item.cor)}key={index}>
+                                    <div className="MapLegendaCor" style={{ backgroundColor: item.cor }}></div>
+                                    <span className="MapLegendaDeco">{item.Representanti}</span>
                                 </div>
                             ))}
                         </div>
                         <div className="MapSolido">
-                            <iframe src="https://www.google.com/maps/d/u/0/embed?mid=12hSX1JocMHr9eSijxOLa3Dby_7uNPIw&ehbc=2E312F" width="640" height="480"></iframe>
+                          
+                          <iframe src="https://www.google.com/maps/d/u/0/embed?mid=12hSX1JocMHr9eSijxOLa3Dby_7uNPIw&ehbc=2E312F" width="640" height="480"></iframe>
+                          
+                           {/* <LoadScript googleMapsApiKey="SUA_API_KEY">
+                                <GoogleMap
+                                    mapContainerStyle={{ width: '640px', height: '480px' }}
+                                    center={{ lat: -23.55, lng: -46.63 }}
+                                    zoom={8}
+                                >
+                                    {pontos
+                                        .filter(p => !filtro || p.cor === filtro)
+                                        .map((p, i) => (
+                                            <Marker
+                                                key={i}
+                                                position={{ lat: p.lat, lng: p.lng }}
+                                                icon={{
+                                                    url: `http://maps.google.com/mapfiles/ms/icons/${p.cor}-dot.png`
+                                                }}
+                                            />
+                                        ))}
+                                </GoogleMap>
+                            </LoadScript>*/}
                         </div>
                     </div>
                     <div className="CXFotos">

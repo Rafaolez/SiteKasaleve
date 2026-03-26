@@ -13,11 +13,62 @@
     justify-content: space-around;
     margin: auto;
     flex-direction: row;
-   
+
     width: 90%;
     flex-wrap: wrap;
 }
-.FotoCaixamaior{
+
+.FotoCaixamaior {
     margin-top: 1rem;
     margin-bottom: 2rem;
+}
+
+
+.Map {
+    width: 90%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.MapDescricao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    overflow: auto;
+    height: 27rem;
+}
+
+.MapLegendaCor {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.MapLegendaDeco {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #000000;
+    display: block;
+    /* tira esse inherit safado */
+}
+
+.MapCaixaDescricao {
+    margin-bottom: 1rem;
+    width: 10rem;
+
+    display: flex;
+    align-items: center;
+    /* alinha vertical */
+    justify-content: flex-start;
+    /* alinha tudo à esquerda */
+
+    gap: 8px;
+    /* espaço entre cor e texto */
+    padding: 6px 10px;
+
+    flex-wrap: nowrap;
+    /* NÃO deixa quebrar linha */
 }
