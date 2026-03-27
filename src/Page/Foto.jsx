@@ -26,11 +26,11 @@ function Foto() {
     const { loggedin } = useContext(AuthContext);
     const [filtro, setFiltro] = useState(null);
 
-    const pontos = [
+   {/* const pontos = [
         { lat: -23.55, lng: -46.63, cor: "red", nome: "Julio" },
         { lat: -23.56, lng: -46.64, cor: "blue", nome: "cleber" },
         { lat: -23.57, lng: -46.65, cor: "green", nome: "Clientes" },
-    ];
+    ];*/}
 
     const mapLegends = [
         { cor: "rgb(2, 136, 209)", Representanti: "Massari" },

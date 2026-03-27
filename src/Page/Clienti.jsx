@@ -39,7 +39,7 @@ function Clienti() {
           <div className='CaixaBTN'>
             <BTNVolta />
             <div>
-              <button onClick={() => { setAddCliente(false) }} className='BTNC DE'>Add</button>
+              <button onClick={() => { setAddCliente(false) }} className='BTNAddCima'>Add</button>
               <Buscar />
             </div>
           </div>
