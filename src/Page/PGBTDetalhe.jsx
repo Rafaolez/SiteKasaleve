@@ -37,7 +37,7 @@ function PGBTDetalhe() {
 
                     <div className='CXDetalheBTNS'>
                     <Link className='text' to="/clienti"><button className='BTNCDDDD0 Voltar'>Voltar</button></Link>
-                    <button className='BTNCDDDD0 ED0'>Editar</button>
+                    <Link className='text' to="/editarCliente"><button className='BTNCDDDD0 ED0'>Editar</button></Link>
                     <button className='BTNCDDDD0 EX0'>Excluir</button>
                 </div>
                 </div>

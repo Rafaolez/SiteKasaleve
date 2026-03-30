@@ -33,8 +33,9 @@ function Foto() {
     ];*/}
 
     const mapLegends = [
-        { cor: "rgb(2, 136, 209)", Representanti: "Massari" },
+        { cor: "rgb(2, 136, 209)", Representanti: "Nassari" },
         { cor: "rgb(230, 81, 0)", Representanti: "Evandro" },
+        { cor: "rgb(1, 87, 155)", Representanti: "Bruno Fernandes de Carvalho"}
     ];
 
     const fotos = [

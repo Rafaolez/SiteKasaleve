@@ -70,8 +70,8 @@ function Clienti() {
                 </div>
                 <hr />
                 <div className='Btn321'>
-                  <Link className='text' to={"/Detalhe"}><button route={'/Detalhe'} onClick={() => { setIdPegaCliente(item.id) }} className='BTNC DE'>Detalhes</button></Link>
-                  <button className='BTNC ED'>Editar</button>
+                  <Link className='text' to={"/DetalheCliente"}><button route={'/Detalhe'} onClick={() => { setIdPegaCliente(item.id) }} className='BTNC DE'>Detalhes</button></Link>
+                  <Link className='text' to={"/editarCliente"}><button className='BTNC ED' route={'/editarCliente'} onClick={() => { setIdPegaCliente(item.id) }}>Editar</button></Link>
                   <button className='BTNC EX'>Excluir</button>
                 </div>
               </div>
