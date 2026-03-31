@@ -50,6 +50,7 @@ function AuthProvider({ children }) {
     }
 
     //DeltalhePGCliente
+// Tenho que mudar a API pois essa não funfa mais e estou desenvolvendo a minha ! 
 
     async function getCliente() {
         try {

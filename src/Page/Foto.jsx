@@ -33,9 +33,12 @@ function Foto() {
     ];*/}
 
     const mapLegends = [
-        { cor: "rgb(2, 136, 209)", Representanti: "Nassari" },
+        { cor: "rgb(2, 136, 209)", Representanti: "Jean & Jorge" },
         { cor: "rgb(230, 81, 0)", Representanti: "Evandro" },
-        { cor: "rgb(1, 87, 155)", Representanti: "Bruno Fernandes de Carvalho"}
+        { cor: "rgb(1, 87, 155)", Representanti: "Bruno F."},
+        { cor: "rgb(136, 14, 79)", Representanti: "Risovaldo" },
+        { cor: "rgb(66, 66, 66)", Representanti: "Jacson" },
+        { cor: "rgb(9, 113, 56)", Representanti: "Juliano P." },
     ];
 
     const fotos = [
@@ -174,8 +177,8 @@ function Foto() {
             </div>
             <div className="CXPrincipalFoto">
                 <div className="CXConteudoFoto">
-                    <h2>Galeria de Fotos</h2>
-                    <p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>
+                    {/*<h2>Galeria de Fotos</h2>*/}
+                    {/*<p>Aqui você pode visualizar todas as fotos relacionadas aos seus projetos e clientes.</p>*/}
                     <div className="Map">
                         <div className="MapDescricao">
                             {/*<button className="MapLimparFiltro" onClick={() => setFiltro(null)}>Limpar Filtro</button>*/}
@@ -188,7 +191,7 @@ function Foto() {
                         </div>
                         <div className="MapSolido">
                           
-                          <iframe src="https://www.google.com/maps/d/u/0/embed?mid=12hSX1JocMHr9eSijxOLa3Dby_7uNPIw&ehbc=2E312F" width="640" height="480"></iframe>
+                          <iframe src="https://www.google.com/maps/d/u/0/embed?mid=12hSX1JocMHr9eSijxOLa3Dby_7uNPIw&ehbc=2E312F" width="1060" height="670"></iframe>
                           
                            {/* <LoadScript googleMapsApiKey="SUA_API_KEY">
                                 <GoogleMap
