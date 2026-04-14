@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
+import '../css/Buscar.css';
 
 function BTNVolta() {
     return (
         <div style={styles.DivBTNVolta}>
-            <Link style={styles.BTNVolta} to={"/"}>⬅</Link>
+            <button className="btnVolta">
+                <Link to={"/"}>← Voltar</Link>
+            </button>
         </div>
 
     );
@@ -11,20 +14,22 @@ function BTNVolta() {
 export default BTNVolta;
 
 const styles = {
-    BTNVolta: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '2.5rem',
-        color: '#000000ff',
-        textDecoration: 'none',
-        fontSize: '2.4rem',
-        borderRadius: '10px',
-    },
-    DivBTNVolta: {
-        display: 'flex',
-        marginTop: '1rem',
-        width: '15%',
-        display: 'flex',
+DivBTNVolta: {
+    display: 'flex',
+    marginTop: '1rem',
+    width: '15%',
+    display: 'flex',
     }
 }
+
+{/*.btn-back {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all .18s;
+}*/}

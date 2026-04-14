@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:wght@400;500&display=swap');
 .lista-resultados {
   list-style: none;
   padding: 0;
@@ -24,4 +25,16 @@
     color: white;   
 
 
+}
+.btnVolta{
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all .18s;
+  text-decoration: none;
 }
