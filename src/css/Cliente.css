@@ -225,7 +225,7 @@ body {
 
 .table-head {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr  16rem;
+  grid-template-columns: 2fr 1fr 1fr  20rem;
   padding: 13px 24px;
   background: var(--surface-alt);
   border-bottom: 1px solid var(--border);
@@ -238,7 +238,7 @@ body {
 
 .table-row {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr  16rem;
+  grid-template-columns: 2fr 1fr 1fr  20rem;
   padding: 14px 24px;
   border-bottom: 1px solid var(--border);
   align-items: center;

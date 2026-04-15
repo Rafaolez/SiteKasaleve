@@ -1,4 +1,157 @@
 import "../css/PGBTEditarC.css";
+import React, { useState, useContext } from 'react';
+import { AuthContext } from "./Context/AuthContext";
+import { Link } from 'react-router-dom';
+
+function InputField({ icon, label, value, onChange, type = "text", placeholder }) {
+    return (
+        <div className="input-field">
+            <label className="input-field__label">
+                <span className="input-field__icon">{icon}</span>
+                {label}
+            </label>
+            <input
+                className="input-field__input"
+                type={type}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+            />
+        </div>
+    );
+}
+
+function PGBTEditar() {
+    const { clienteSelecionado } = useContext(AuthContext);
+
+    const [form, setForm] = useState({
+        firstname: clienteSelecionado?.name?.firstname ?? '',
+        lastname:  clienteSelecionado?.name?.lastname  ?? '',
+        email:     clienteSelecionado?.email           ?? '',
+        status:    clienteSelecionado?.status          ?? 'Ativo',
+        endereco:  clienteSelecionado?.endereco        ?? '',
+    });
+
+    if (!clienteSelecionado) {
+        return (
+            <div className="detail-page">
+                <div className="detail-empty">
+                    <span>◎</span>
+                    <p>Nenhum cliente selecionado.</p>
+                    <Link to="/clienti">
+                        <button className="btn-back">← Voltar</button>
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const set = (field) => (e) => setForm(prev => ({ ...prev, [field]: e.target.value }));
+    const fullName = `${form.firstname} ${form.lastname}`.trim();
+
+    return (
+        <div className="detail-page">
+            <div className="detail-container">
+
+                {/* ── Header ── */}
+                <div className="detail-header">
+                    <p className="detail-header__eyebrow">Gestão de Clientes</p>
+                    <h1 className="detail-header__title">Editar Cliente</h1>
+                    <p className="detail-header__sub">
+                        Alterando informações de <strong>{clienteSelecionado.name.firstname} {clienteSelecionado.name.lastname}</strong>
+                    </p>
+                </div>
+
+                {/* ── Card ── */}
+                <div className="detail-card">
+
+                    {/* Hero */}
+                    <div className="detail-card__hero">
+                        <div className="detail-avatar">
+                            {form.firstname[0]}{form.lastname[0]}
+                        </div>
+                        <div>
+                            <h2 className="detail-card__name">{fullName || '—'}</h2>
+                            <span className="badge badge--ativo">
+                                <span className="badge__dot" /> Ativo
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="detail-divider" />
+
+                    {/* Form */}
+                    <div className="edit-form">
+
+                        <div className="edit-form__row">
+                            <InputField
+                                icon="👤"
+                                label="Primeiro Nome"
+                                value={form.firstname}
+                                onChange={set('firstname')}
+                                placeholder="Ex: João"
+                            />
+                            <InputField
+                                icon="👤"
+                                label="Segundo Nome"
+                                value={form.lastname}
+                                onChange={set('lastname')}
+                                placeholder="Ex: Silva"
+                            />
+                        </div>
+
+                        <div className="edit-form__preview">
+                            Nome completo: <strong>{fullName || '—'}</strong>
+                        </div>
+
+                        <InputField
+                            icon="✉️"
+                            label="E-mail"
+                            value={form.email}
+                            onChange={set('email')}
+                            type="email"
+                            placeholder="Ex: joao@email.com"
+                        />
+
+                        <InputField
+                            icon="📋"
+                            label="Status"
+                            value={form.status}
+                            onChange={set('status')}
+                            placeholder="Ex: Ativo"
+                        />
+
+                        <InputField
+                            icon="📍"
+                            label="Endereço"
+                            value={form.endereco}
+                            onChange={set('endereco')}
+                            placeholder="Ex: Rua das Flores, 123"
+                        />
+                    </div>
+
+                    <div className="detail-divider" />
+
+                    {/* Actions */}
+                    <div className="detail-actions">
+                        <Link to="/clienti" className="link-clean">
+                            <button className="btn-action btn-action--back">← Voltar</button>
+                        </Link>
+                        <button className="btn-action btn-action--save">💾 Salvar</button>
+                        <button className="btn-action btn-action--delete">🗑 Excluir</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default PGBTEditar;
+
+
+
+{/*import "../css/PGBTEditarC.css";
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from "./Context/AuthContext";
 import { Link } from 'react-router-dom';
@@ -52,4 +205,4 @@ function PGBTEditar() {
         </>
     );
 }
-export default PGBTEditar;
+export default PGBTEditar;*/}
