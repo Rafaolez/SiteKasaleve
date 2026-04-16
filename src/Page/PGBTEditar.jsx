@@ -21,6 +21,13 @@ function InputField({ icon, label, value, onChange, type = "text", placeholder }
     );
 }
 
+function PGBTSalvar() {
+    const setSalvar = () => {
+        // Lógica para salvar as alterações do cliente
+        alert('Cliente salvo com sucesso!');
+    }
+}
+
 function PGBTEditar() {
     const { clienteSelecionado } = useContext(AuthContext);
 
@@ -137,7 +144,7 @@ function PGBTEditar() {
                         <Link to="/clienti" className="link-clean">
                             <button className="btn-action btn-action--back">← Voltar</button>
                         </Link>
-                        <button className="btn-action btn-action--save">💾 Salvar</button>
+                        <button className="btn-action btn-action--save" onClick={PGBTSalvar}>💾 Salvar</button>
                         <button className="btn-action btn-action--delete">🗑 Excluir</button>
                     </div>
 

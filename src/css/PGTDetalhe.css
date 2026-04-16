@@ -51,6 +51,7 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 40px 5% 80px;
+  flex-direction: row;
 }
 
 .detail-container {
