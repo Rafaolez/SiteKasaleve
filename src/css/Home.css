@@ -1,4 +1,283 @@
-.MenuHome{
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:ital,wght@0,400;1,400;1,500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f2f2f2;
+  --surface:   #ffffff;
+  --border:    #e0e0e0;
+  --text:      #1a1a1a;
+  --btn-bg:    #737373;
+  --btn-hover: #555555;
+  --btn-text:  #ffffff;
+  --font-body: 'Sora', sans-serif;
+  --font-serif:'Lora', serif;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fadeLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ════════════════════════
+   PAGE WRAPPER
+════════════════════════ */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ════════════════════════
+   SPLIT LAYOUT
+════════════════════════ */
+.home-split {
+  display: grid;
+  grid-template-columns: 47% 53%;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ════════════════════════
+   ESQUERDA
+════════════════════════ */
+.home-left {
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 48px;
+}
+
+.home-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.home-nav__link {
+  text-decoration: none;
+  animation: fadeLeft 0.35s ease both;
+}
+
+/* ── Botão refinado ── */
+.home-nav__btn {
+  width: 100%;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 8px;
+  padding: 15px 24px;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: var(--font-body);
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  /* sombra sutil igual ao print */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+
+  transition:
+    background   0.2s ease,
+    box-shadow   0.2s ease,
+    transform    0.15s ease;
+}
+
+/* linha de destaque na esquerda no hover */
+.home-nav__btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.home-nav__btn:hover {
+  background: var(--btn-hover);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.24);
+  transform: translateY(-1px);
+}
+.home-nav__btn:hover::before {
+  opacity: 0.5;
+}
+
+.home-nav__btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+
+/* ════════════════════════
+   DIREITA
+════════════════════════ */
+.home-right {
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease both;
+}
+
+.home-right__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* overlay igual ao print: escurece levemente */
+.home-right__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  z-index: 1;
+}
+
+/* texto central */
+.home-right__content {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 52px;
+  text-align: center;
+  gap: 18px;
+}
+
+.home-right__quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 22px;
+  font-weight: 400;
+  color: #ffffff;
+  line-height: 1.4;
+  max-width: 360px;
+}
+
+.home-right__body {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.88);
+  line-height: 1.75;
+  max-width: 340px;
+}
+
+/* badge igual ao print */
+.home-right__badge {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.90);
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.home-right__badge-icon {
+  font-size: 16px;
+  color: #555;
+}
+
+/* ════════════════════════
+   RESPONSIVO
+════════════════════════ */
+
+/* Tablet */
+@media (max-width: 900px) {
+  .home-split {
+    grid-template-columns: 45% 55%;
+  }
+  .home-left {
+    padding: 32px 28px;
+  }
+  .home-nav {
+    max-width: 260px;
+  }
+  .home-nav__btn {
+    font-size: 14px;
+    padding: 13px 18px;
+  }
+  .home-right__quote {
+    font-size: 19px;
+  }
+  .home-right__body {
+    font-size: 13px;
+  }
+}
+
+/* Mobile: empilha vertical */
+@media (max-width: 600px) {
+  .home-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: auto;
+  }
+  .home-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .home-left {
+    padding: 32px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .home-nav {
+    max-width: 100%;
+  }
+  .home-right {
+    min-height: 55vw;
+  }
+  .home-right__content {
+    padding: 28px 24px;
+  }
+  .home-right__quote {
+    font-size: 17px;
+  }
+  .home-right__body {
+    font-size: 13px;
+    max-width: 100%;
+  }
+  .home-right__badge {
+    font-size: 12px;
+    padding: 8px 14px;
+    bottom: 14px;
+  }
+}
+
+
+
+
+/*.MenuHome{
     background-color: black;
 }
 .TDbuttons{
@@ -31,7 +310,7 @@
 .text{
     text-decoration: none;
 }
-
+*/
 /* 
 
                                 𓆩༒︎𓆪
