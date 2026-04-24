@@ -1,6 +1,7 @@
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
 import "../css/Foto.css";
+import "../css/MaeDtodos.css";
 import React, { useState, useContext } from 'react';
 import { AuthContext } from "./Context/AuthContext";
 import FTList from "../components/FTList";
@@ -73,7 +74,7 @@ function Foto() {
                                     hovered={hovered}
                                     setHovered={setHovered}
                                 />
-                            ))}
+                            ))}""
                         </div>
                     </section>
                 </div>
