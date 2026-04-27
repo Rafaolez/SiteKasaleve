@@ -1,0 +1,453 @@
+/* ════════════════════════════════════════
+   Orcamento.css
+   Gerador de orçamento — estilo papel A4
+════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:wght@400;500&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --paper:      #ffffff;
+  --bg:         #e8e8e4;
+  --border:     #d0d0cc;
+  --border-tbl: #c8c8c4;
+  --text:       #1a1a1a;
+  --text-muted: #666660;
+  --text-light: #999994;
+  --accent:     #1a1a1a;
+  --red:        #c0392b;
+  --green:      #2d7d52;
+  --shadow:     0 4px 24px rgba(0,0,0,0.13);
+  --font:       'Sora', sans-serif;
+  --font-serif: 'Lora', serif;
+  --radius:     4px;
+}
+
+/* ── Fundo e papel ── */
+.orc-bg {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 40px 16px 80px;
+  display: flex;
+  justify-content: center;
+  font-family: var(--font);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A4: 210mm ≈ 794px */
+.orc-paper {
+  background: var(--paper);
+  width: 100%;
+  max-width: 794px;
+  padding: 48px 52px;
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─────────────────────────
+   CABEÇALHO
+───────────────────────── */
+.orc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.orc-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.orc-logo__name {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: var(--text);
+  line-height: 1;
+}
+
+.orc-logo__tag {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.orc-logo__dot {
+  color: var(--red);
+  font-size: 14px;
+}
+
+.orc-header__info {
+  text-align: right;
+}
+
+.orc-header__num {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.orc-header__num strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.orc-header__date {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+/* ─────────────────────────
+   DIVISOR
+───────────────────────── */
+.orc-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+/* ─────────────────────────
+   METADADOS (Validade / Vendedor)
+───────────────────────── */
+.orc-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
+/* ─────────────────────────
+   SEÇÕES
+───────────────────────── */
+.orc-section { display: flex; flex-direction: column; gap: 12px; }
+
+.orc-section__title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ─────────────────────────
+   CAMPOS
+───────────────────────── */
+.orc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.orc-field--full {
+  grid-column: 1 / -1;
+}
+
+.orc-field label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.orc-field input,
+.orc-field select,
+.orc-field textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: var(--font);
+  color: var(--text);
+  background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+  resize: none;
+  width: 100%;
+}
+
+.orc-field input:focus,
+.orc-field select:focus,
+.orc-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(26,26,26,0.07);
+}
+
+.orc-field input[readonly] {
+  background: #f8f8f6;
+  color: var(--text-muted);
+  cursor: default;
+}
+
+/* ─────────────────────────
+   GRID CLIENTE
+───────────────────────── */
+.orc-cliente-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px 20px;
+}
+
+/* ─────────────────────────
+   TABELA DE ITENS
+───────────────────────── */
+.orc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.orc-table th,
+.orc-table td {
+  border: 1px solid var(--border-tbl);
+  padding: 7px 8px;
+  vertical-align: middle;
+}
+
+.orc-table thead tr {
+  background: #f5f5f2;
+}
+
+.orc-table th {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.orc-table tbody tr:nth-child(even) {
+  background: #fafaf8;
+}
+
+.orc-table tbody tr:hover {
+  background: #f0f0ec;
+}
+
+/* Colunas */
+.col-num   { width: 36px; }
+.col-prod  { width: 220px; }
+.col-desc  { }
+.col-qtd   { width: 52px; }
+.col-unit  { width: 90px; }
+.col-total { width: 90px; }
+.col-del   { width: 30px; }
+
+.center { text-align: center !important; }
+.right  { text-align: right !important; font-variant-numeric: tabular-nums; }
+
+/* Inputs dentro da tabela */
+.orc-table td select,
+.orc-table td input[type="text"],
+.orc-table td input[type="number"] {
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-family: var(--font);
+  color: var(--text);
+  width: 100%;
+  padding: 2px 4px;
+  outline: none;
+}
+
+.orc-table td select:focus,
+.orc-table td input:focus {
+  background: #fffff8;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px rgba(26,26,26,0.09);
+}
+
+.orc-table td input[type="number"] {
+  text-align: center;
+  -moz-appearance: textfield;
+}
+.orc-table td input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+.orc-btn-del {
+  background: none;
+  border: none;
+  color: #bbb;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: color .15s, background .15s;
+  line-height: 1;
+}
+.orc-btn-del:hover { color: var(--red); background: #fdf0ee; }
+
+.orc-btn-add {
+  align-self: flex-start;
+  margin-top: 8px;
+  background: none;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: var(--font);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+.orc-btn-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: #f5f5f0;
+}
+
+/* ─────────────────────────
+   TOTAIS
+───────────────────────── */
+.orc-totais {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.orc-totais__row {
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.orc-totais__row span:last-child {
+  font-variant-numeric: tabular-nums;
+  min-width: 110px;
+  text-align: right;
+}
+
+.orc-totais__row--final {
+  border-top: 1.5px solid var(--border);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ─────────────────────────
+   DOIS COLUNAS
+───────────────────────── */
+.orc-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ─────────────────────────
+   ASSINATURA
+───────────────────────── */
+.orc-assinatura {
+  padding: 8px 0 4px;
+}
+
+.orc-assinatura__linha {
+  display: flex;
+  justify-content: space-around;
+}
+
+.orc-assinatura__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 200px;
+}
+
+.orc-assinatura__traço {
+  width: 100%;
+  border-top: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.orc-assinatura__slot span {
+  font-size: 10px;
+  color: var(--text-light);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────
+   RODAPÉ / EXPORTAR
+───────────────────────── */
+.orc-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.orc-btn-export {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 13px 36px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition: background .18s, transform .18s, box-shadow .18s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.16);
+}
+.orc-btn-export:hover:not(:disabled) {
+  background: #333330;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+}
+.orc-btn-export:disabled,
+.orc-btn-export--loading {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.orc-footer__hint {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+/* ─────────────────────────
+   RESPONSIVE
+───────────────────────── */
+@media print {
+  .orc-bg      { background: none; padding: 0; }
+  .orc-paper   { box-shadow: none; padding: 20mm; max-width: 100%; }
+  .orc-btn-add,
+  .orc-btn-del,
+  .orc-btn-export,
+  .orc-footer  { display: none; }
+}
+
+@media (max-width: 680px) {
+  .orc-paper       { padding: 28px 20px; }
+  .orc-header      { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .orc-header__info{ text-align: left; }
+  .orc-meta        { grid-template-columns: 1fr; }
+  .orc-cliente-grid{ grid-template-columns: 1fr; }
+  .orc-two-col     { grid-template-columns: 1fr; }
+  .orc-totais__row { width: 100%; }
+
+  /* Tabela scrollável no mobile */
+  .orc-section { overflow-x: auto; }
+  .orc-table   { min-width: 560px; }
+
+  .orc-assinatura__linha { flex-direction: column; align-items: center; gap: 32px; }
+}
