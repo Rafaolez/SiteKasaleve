@@ -61,9 +61,9 @@ function CradastroPro() {
         p.category.toLowerCase().includes(search.toLowerCase())
     );
 
-    return (
+    return (<><MenuPage />
         <div className="detail-page">
-                <MenuPage />
+
             <div className="products-container">
 
                 {/* ── Header ── */}
@@ -186,6 +186,7 @@ function CradastroPro() {
                 <p className="table-count">{filtered.length} de {produto.length} produtos</p>
             </div>
         </div>
+    </>
     );
 }
 
