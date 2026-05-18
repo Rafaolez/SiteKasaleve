@@ -23,6 +23,8 @@ const API_PRODUTOS = [
   { id: 8, nome: 'Tapete Exterior 2x3m', preco: 750.00 },
 ];
 
+
+
 const FRETE_PERCENT = 0.085;
 
 const ITEM_VAZIO = { id: Date.now(), produtoId: '', descricao: '', qtd: 1, unitario: 0 };

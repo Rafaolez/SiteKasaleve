@@ -8,6 +8,7 @@ import Orcamneto from './Page/Orcamneto.jsx'
 import PGBTDetalhe from './Page/PGBTDetalhe.jsx';
 import PGBTEditar from './Page/PGBTEditar.jsx';
 import Carrinho from './Page/Carrinho.jsx'; 
+import IA from './Page/IA.jsx';
 
 function AppRautes() {
     return (
@@ -23,6 +24,7 @@ function AppRautes() {
                 <Route path="/DetalheCliente" element={<PGBTDetalhe/>} />
                 <Route path="/Carrinho" element={<Carrinho/>} />
                 <Route path="/editarCliente" element={<PGBTEditar/>} />
+                <Route path="/Monitoramento/IA" element={<IA />} />
 
                 
             </Routes>

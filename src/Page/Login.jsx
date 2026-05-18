@@ -2,6 +2,7 @@ import "../css/Login.css";
 import { AuthContext } from "./Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect, useContext } from 'react';
+import Logo from "../Imagens/logomarcaKasalevePretp.jpeg"
 
 function Login() {
     const { Login, error, loggedin } = useContext(AuthContext);
@@ -37,7 +38,7 @@ function Login() {
                 {/* Logo */}
                 <div className="login-logo">
                     <img
-                        src="https://i.ibb.co/0j2V7vD/Logo.png"
+                        src={Logo}
                         alt="Logo"
                         className="login-logo__img"
                     />
