@@ -9,6 +9,7 @@ import PGBTDetalhe from './Page/PGBTDetalhe.jsx';
 import PGBTEditar from './Page/PGBTEditar.jsx';
 import Carrinho from './Page/Carrinho.jsx'; 
 import IA from './Page/IA.jsx';
+import Tarefas from './Page/Tarefas.jsx';
 
 function AppRautes() {
     return (
@@ -25,7 +26,7 @@ function AppRautes() {
                 <Route path="/Carrinho" element={<Carrinho/>} />
                 <Route path="/editarCliente" element={<PGBTEditar/>} />
                 <Route path="/Monitoramento/IA" element={<IA />} />
-
+                <Route path="/Tarefas" element={<Tarefas />} />
                 
             </Routes>
         </BrowserRouter>

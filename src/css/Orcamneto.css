@@ -1,30 +1,81 @@
-/* ════════════════════════════════════════
-   Orcamento.css
-   Gerador de orçamento — estilo papel A4
-════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:wght@400;500&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --paper:      #ffffff;
-  --bg:         #e8e8e4;
-  --border:     #d0d0cc;
-  --border-tbl: #c8c8c4;
-  --text:       #1a1a1a;
-  --text-muted: #666660;
-  --text-light: #999994;
-  --accent:     #1a1a1a;
-  --red:        #c0392b;
-  --green:      #2d7d52;
-  --shadow:     0 4px 24px rgba(0,0,0,0.13);
-  --font:       'Sora', sans-serif;
-  --font-serif: 'Lora', serif;
-  --radius:     4px;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* ── Fundo e papel ── */
+:root {
+  --paper: #ffffff;
+  --bg: #e8e8e4;
+  --border: #d0d0cc;
+  --border-tbl: #c8c8c4;
+  --text: #1a1a1a;
+  --text-muted: #666660;
+  --text-light: #999994;
+  --accent: #1a1a1a;
+  --green: #2d7d52;
+  --green-bg: #edf7f2;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --blue: #2563eb;
+  --blue-bg: #eff4ff;
+  --shadow: 0 4px 24px rgba(0, 0, 0, 0.13);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.16);
+  --radius: 12px;
+  --radius-sm: 6px;
+  --font: 'Sora', sans-serif;
+  --font-serif: 'Lora', serif;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px)
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0)
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0
+  }
+
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(.94)
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1)
+  }
+}
+
+/* ════════════════════════════
+   FUNDO PAPEL
+════════════════════════════ */
 .orc-bg {
   min-height: 100vh;
   background: var(--bg);
@@ -32,11 +83,9 @@
   display: flex;
   justify-content: center;
   font-family: var(--font);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
 }
 
-/* A4: 210mm ≈ 794px */
+/* ── Papel A4 ── */
 .orc-paper {
   background: var(--paper);
   width: 100%;
@@ -47,18 +96,149 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  animation: fadeUp .4s ease both;
 }
 
-/* ─────────────────────────
-   CABEÇALHO
-───────────────────────── */
-.orc-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+.orc-paper--narrow {
+  max-width: 640px;
+}
+
+.orc-back-link {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 7px 16px;
+  font-size: 12px;
+  font-family: var(--font);
+  cursor: pointer;
   margin-bottom: 20px;
+  transition: all .18s;
 }
 
+.orc-back-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ════════════════════════════
+   GATE (tela de escolha)
+════════════════════════════ */
+.orc-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 32px;
+  animation: fadeIn .4s ease;
+  width: 100%;
+  padding: 24px;
+}
+
+.orc-gate__logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.orc-gate__card {
+  background: var(--paper);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  padding: 52px 48px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  animation: popIn .35s cubic-bezier(.34, 1.56, .64, 1) both;
+}
+
+.orc-gate__card--confirm {
+  max-width: 420px;
+  padding: 44px 40px;
+}
+
+.orc-gate__icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.orc-gate__title {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.orc-gate__question {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.orc-gate__btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.orc-gate__btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.orc-gate__btn--sim {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+}
+
+.orc-gate__btn--sim:hover {
+  background: #333330;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.orc-gate__btn--nao {
+  background: var(--paper);
+  color: var(--text);
+  border: 1.5px solid var(--border);
+}
+
+.orc-gate__btn--nao:hover {
+  border-color: var(--accent);
+}
+
+.orc-gate__btn--ghost {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  font-weight: 400;
+}
+
+.orc-gate__btn--ghost:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+/* ════════════════════════════
+   LOGO
+════════════════════════════ */
 .orc-logo {
   display: flex;
   flex-direction: column;
@@ -88,6 +268,86 @@
   font-size: 14px;
 }
 
+/* ════════════════════════════
+   CAIXA SALVAR CLIENTE
+════════════════════════════ */
+.orc-salvar-box {
+  background: var(--blue-bg);
+  border: 1px solid #c8d9ff;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.orc-salvar-box__icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.orc-salvar-box__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.orc-salvar-box__sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.orc-salvar-box__btns {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.orc-salvar-btn {
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  border: none;
+  transition: all .18s;
+}
+
+.orc-salvar-btn--sim {
+  background: var(--green);
+  color: #fff;
+}
+
+.orc-salvar-btn--sim:hover {
+  background: #24673f;
+  transform: translateY(-1px);
+}
+
+.orc-salvar-btn--nao {
+  background: var(--paper);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.orc-salvar-btn--nao:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ════════════════════════════
+   CABEÇALHO DO ORÇAMENTO
+════════════════════════════ */
+.orc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
 .orc-header__info {
   text-align: right;
 }
@@ -108,28 +368,34 @@
   margin-top: 2px;
 }
 
-/* ─────────────────────────
-   DIVISOR
-───────────────────────── */
+.orc-header__subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  align-self: flex-end;
+}
+
 .orc-divider {
   border: none;
   border-top: 1px solid var(--border);
   margin: 18px 0;
 }
 
-/* ─────────────────────────
-   METADADOS (Validade / Vendedor)
-───────────────────────── */
-.orc-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 24px;
+/* ════════════════════════════
+   SEÇÕES
+════════════════════════════ */
+.orc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* ─────────────────────────
-   SEÇÕES
-───────────────────────── */
-.orc-section { display: flex; flex-direction: column; gap: 12px; }
+.orc-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
 .orc-section__title {
   font-size: 10px;
@@ -140,9 +406,40 @@
   margin-bottom: 4px;
 }
 
-/* ─────────────────────────
+.orc-section__hint {
+  font-size: 11px;
+  color: var(--text-light);
+  margin-top: -8px;
+}
+
+/* ── Botão editar ── */
+.orc-btn-editar {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all .18s;
+  font-weight: 500;
+}
+
+.orc-btn-editar:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.orc-btn-editar--on {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* ════════════════════════════
    CAMPOS
-───────────────────────── */
+════════════════════════════ */
 .orc-field {
   display: flex;
   flex-direction: column;
@@ -151,6 +448,10 @@
 
 .orc-field--full {
   grid-column: 1 / -1;
+}
+
+.orc-field--col2 {
+  grid-column: span 2;
 }
 
 .orc-field label {
@@ -165,7 +466,7 @@
 .orc-field select,
 .orc-field textarea {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 8px 10px;
   font-size: 13px;
   font-family: var(--font);
@@ -181,27 +482,53 @@
 .orc-field textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(26,26,26,0.07);
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.07);
 }
 
-.orc-field input[readonly] {
-  background: #f8f8f6;
-  color: var(--text-muted);
-  cursor: default;
+.orc-readonly {
+  background: #f8f8f6 !important;
+  color: var(--text-muted) !important;
+  cursor: default !important;
 }
 
-/* ─────────────────────────
-   GRID CLIENTE
-───────────────────────── */
+.orc-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+
 .orc-cliente-grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 10px 20px;
 }
 
-/* ─────────────────────────
-   TABELA DE ITENS
-───────────────────────── */
+.orc-novo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+.orc-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.orc-cep-spinner {
+  font-size: 11px;
+  color: var(--text-light);
+}
+
+.orc-cep-erro {
+  font-size: 11px;
+  color: var(--red);
+  margin-top: 2px;
+}
+
+/* ════════════════════════════
+   TABELA
+════════════════════════════ */
 .orc-table {
   width: 100%;
   border-collapse: collapse;
@@ -236,19 +563,39 @@
   background: #f0f0ec;
 }
 
-/* Colunas */
-.col-num   { width: 36px; }
-.col-prod  { width: 220px; }
-.col-desc  { }
-.col-qtd   { width: 52px; }
-.col-unit  { width: 90px; }
-.col-total { width: 90px; }
-.col-del   { width: 30px; }
+.col-num {
+  width: 36px;
+}
 
-.center { text-align: center !important; }
-.right  { text-align: right !important; font-variant-numeric: tabular-nums; }
+.col-prod {
+  width: 220px;
+}
 
-/* Inputs dentro da tabela */
+.col-qtd {
+  width: 52px;
+}
+
+.col-unit {
+  width: 90px;
+}
+
+.col-total {
+  width: 90px;
+}
+
+.col-del {
+  width: 30px;
+}
+
+.center {
+  text-align: center !important;
+}
+
+.right {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+
 .orc-table td select,
 .orc-table td input[type="text"],
 .orc-table td input[type="number"] {
@@ -266,14 +613,17 @@
 .orc-table td input:focus {
   background: #fffff8;
   border-radius: 3px;
-  box-shadow: 0 0 0 2px rgba(26,26,26,0.09);
+  box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.09);
 }
 
 .orc-table td input[type="number"] {
   text-align: center;
   -moz-appearance: textfield;
 }
-.orc-table td input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+.orc-table td input[type="number"]::-webkit-inner-spin-button {
+  display: none;
+}
 
 .orc-btn-del {
   background: none;
@@ -286,7 +636,11 @@
   transition: color .15s, background .15s;
   line-height: 1;
 }
-.orc-btn-del:hover { color: var(--red); background: #fdf0ee; }
+
+.orc-btn-del:hover {
+  color: var(--red);
+  background: var(--red-bg);
+}
 
 .orc-btn-add {
   align-self: flex-start;
@@ -297,19 +651,20 @@
   font-size: 12px;
   font-family: var(--font);
   padding: 6px 14px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: border-color .15s, color .15s, background .15s;
 }
+
 .orc-btn-add:hover {
   border-color: var(--accent);
   color: var(--accent);
   background: #f5f5f0;
 }
 
-/* ─────────────────────────
+/* ════════════════════════════
    TOTAIS
-───────────────────────── */
+════════════════════════════ */
 .orc-totais {
   display: flex;
   flex-direction: column;
@@ -340,18 +695,9 @@
   color: var(--text);
 }
 
-/* ─────────────────────────
-   DOIS COLUNAS
-───────────────────────── */
-.orc-two-col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-/* ─────────────────────────
+/* ════════════════════════════
    ASSINATURA
-───────────────────────── */
+════════════════════════════ */
 .orc-assinatura {
   padding: 8px 0 4px;
 }
@@ -382,9 +728,9 @@
   text-transform: uppercase;
 }
 
-/* ─────────────────────────
-   RODAPÉ / EXPORTAR
-───────────────────────── */
+/* ════════════════════════════
+   EXPORTAR
+════════════════════════════ */
 .orc-footer {
   display: flex;
   flex-direction: column;
@@ -397,7 +743,7 @@
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
   padding: 13px 36px;
   font-size: 14px;
   font-weight: 600;
@@ -405,16 +751,18 @@
   letter-spacing: 0.4px;
   cursor: pointer;
   transition: background .18s, transform .18s, box-shadow .18s;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.16);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
 }
+
 .orc-btn-export:hover:not(:disabled) {
   background: #333330;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
 }
+
 .orc-btn-export:disabled,
 .orc-btn-export--loading {
-  opacity: 0.55;
+  opacity: .55;
   cursor: not-allowed;
   transform: none;
 }
@@ -424,30 +772,95 @@
   color: var(--text-light);
 }
 
-/* ─────────────────────────
+/* ════════════════════════════
    RESPONSIVE
-───────────────────────── */
+════════════════════════════ */
 @media print {
-  .orc-bg      { background: none; padding: 0; }
-  .orc-paper   { box-shadow: none; padding: 20mm; max-width: 100%; }
+  .orc-bg {
+    background: none;
+    padding: 0;
+  }
+
+  .orc-paper {
+    box-shadow: none;
+    padding: 20mm;
+    max-width: 100%;
+  }
+
   .orc-btn-add,
   .orc-btn-del,
   .orc-btn-export,
-  .orc-footer  { display: none; }
+  .orc-footer,
+  .orc-back-link,
+  .orc-btn-editar {
+    display: none;
+  }
 }
 
 @media (max-width: 680px) {
-  .orc-paper       { padding: 28px 20px; }
-  .orc-header      { flex-direction: column; align-items: flex-start; gap: 12px; }
-  .orc-header__info{ text-align: left; }
-  .orc-meta        { grid-template-columns: 1fr; }
-  .orc-cliente-grid{ grid-template-columns: 1fr; }
-  .orc-two-col     { grid-template-columns: 1fr; }
-  .orc-totais__row { width: 100%; }
+  .orc-paper {
+    padding: 28px 20px;
+  }
 
-  /* Tabela scrollável no mobile */
-  .orc-section { overflow-x: auto; }
-  .orc-table   { min-width: 560px; }
+  .orc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 
-  .orc-assinatura__linha { flex-direction: column; align-items: center; gap: 32px; }
+  .orc-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .orc-cliente-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orc-novo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .orc-two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .orc-totais__row {
+    width: 100%;
+  }
+
+  .orc-section {
+    overflow-x: auto;
+  }
+
+  .orc-table {
+    min-width: 560px;
+  }
+
+  .orc-assinatura__linha {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .orc-gate__card {
+    padding: 36px 24px;
+  }
+
+  .orc-salvar-box {
+    flex-direction: column;
+  }
+
+  .orc-salvar-box__btns {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .orc-salvar-btn {
+    flex: 1;
+    text-align: center;
+  }
+
+  .orc-field--col2 {
+    grid-column: span 1;
+  }
 }
