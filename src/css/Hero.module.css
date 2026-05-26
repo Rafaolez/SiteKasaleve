@@ -1,0 +1,149 @@
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Image column */
+.imgCol {
+  position: relative;
+  overflow: hidden;
+}
+
+.imgCol img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: transform 8s ease;
+}
+
+.imgCol:hover img {
+  transform: scale(1.04);
+}
+
+.imgCol::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 60%, var(--cream));
+  pointer-events: none;
+}
+
+/* Text column */
+.textCol {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 60px 80px 40px;
+}
+
+/* Eyebrow */
+.eyebrow {
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--terracota);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrowLine {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--terracota);
+  flex-shrink: 0;
+}
+
+/* Title */
+.title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(52px, 6vw, 86px);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  color: var(--charcoal);
+  margin-bottom: 8px;
+}
+
+.title em {
+  font-style: italic;
+  color: var(--terracota);
+}
+
+/* Subtitle */
+.subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 2.2vw, 28px);
+  color: var(--mid-gray);
+  margin-bottom: 40px;
+  line-height: 1.4;
+}
+
+/* Description */
+.desc {
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.8;
+  color: #6a6058;
+  max-width: 380px;
+  margin-bottom: 48px;
+  border-left: 2px solid var(--terracota);
+  padding-left: 20px;
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  gap: 40px;
+}
+
+.stat span {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--charcoal);
+  line-height: 1;
+}
+
+.stat small {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  margin-top: 4px;
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .imgCol {
+    height: 60vw;
+    max-height: 400px;
+  }
+
+  .imgCol::after {
+    background: linear-gradient(to bottom, transparent 60%, var(--cream));
+  }
+
+  .textCol {
+    padding: 48px 32px;
+  }
+}

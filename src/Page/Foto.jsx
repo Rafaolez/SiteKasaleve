@@ -15,7 +15,7 @@ const mapLegends = [
     { cor: "rgb(9, 113, 56)", Representanti: "Juliano P." },
     { cor: "rgb(156, 39, 176)", Representanti: "Tania Regina" },
     { cor: "rgb(255, 234, 0)", Representanti: "Marília" },
-    { cor: "rgb(129, 119, 23)", Representanti: "Sampaio "},
+    { cor: "rgb(129, 119, 23)", Representanti: "Sampaio " },
 ];
 
 const fotos = [
@@ -100,6 +100,11 @@ function Foto() {
                 {/* Mapa + legenda */}
                 <section className="foto-section">
                     <p className="foto-section__label">Mapa de Representantes</p>
+
+                    <br />
+
+                    <p className="foto-section__label">Filtre por categoria</p>
+                    <string>Tete</string>
 
                     <div className="map-wrap">
 
