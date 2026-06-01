@@ -4,7 +4,7 @@ import styles from './Catalogue.module.css';
 import { COLORS, COLOR_GROUPS } from '../data/colors';
 import { ropeImages } from '../assets/imageData';
 
-const FILTERS = [
+const filtere = [
   { key: 'all',    label: 'Todas' },
   { key: 'quente', label: 'Tons Quentes' },
   { key: 'neutro', label: 'Neutros & Naturais' },
@@ -35,7 +35,7 @@ export default function Catalogue() {
 
       {/* Filter bar */}
       <div className={styles.filterBar} role="group" aria-label="Filtros de cor">
-        {FILTERS.map((f) => (
+        {filtere.map((f) => (
           <button
             key={f.key}
             className={`${styles.filterBtn} ${active === f.key ? styles.filterActive : ''}`}

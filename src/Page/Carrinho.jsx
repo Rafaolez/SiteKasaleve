@@ -3,6 +3,8 @@ import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
 import SlectCorCorda from "../components/SlectCorCorda";
 import React, { useState } from 'react';
+import Hero from "../components/Hero";
+import Catalogue from "../components/Catalogo";
 
 const produtos = [
     {
@@ -86,17 +88,9 @@ function TelaDetalhe({ produto, onVoltar }) {
                     <p className="detalhe-config__sub">Personalize cada componente do produto</p>
 
                     <div className="detalhe-config__fields">
-                        <div className="config-field">
-                            <label className="config-field__label">🪢 Cor da Corda Náutica</label>
-                            <SlectCorCorda />
-                        </div>
-                        <div className="config-field">
-                            <label className="config-field__label">🪑 Cor do Tecido</label>
-                            <SlectCorCorda />
-                        </div>
-                        <div className="config-field">
-                            <label className="config-field__label">🔩 Cor do Alumínio</label>
-                            <SlectCorCorda />
+                        <div>
+                            <Hero />
+                            <Catalogue />
                         </div>
                     </div>
 

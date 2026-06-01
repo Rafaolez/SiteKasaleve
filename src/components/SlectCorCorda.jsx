@@ -3,67 +3,67 @@ import "../css/SlectCorCorda.css";
 
 export default function SelectCor() {
 
-const [aberto,setAberto] = useState(false);
-const [cor,setCor] = useState(null);
+    const [aberto, setAberto] = useState(false);
+    const [cor, setCor] = useState(null);
 
-const cores = [
-{
-nome:"Areia",
-img:"https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format"
-},
-{
-nome:"Grafite",
-img:"https://cdn.sanity.io/images/599r6htc/regionalized/321c9ca2b776dd09800c0efc4ce2f678f509ada5-720x405.png?w=1200&q=70&fit=max&auto=format"
-},
-{
-nome:"Caramelo",
-img:"https://cdn.sanity.io/images/599r6htc/regionalized/2d0018315ea261aee25001a1b2a925728c8c212c-720x405.png?w=1200&q=70&fit=max&auto=format"
-}
-]
+    const cores = [
+        {
+            nome: "Areia",
+            img: "https://cdn.sanity.io/images/599r6htc/regionalized/d046c882de01b4e6da6979d5b956fbaabc6ce8bd-720x405.png?w=1200&q=70&fit=max&auto=format"
+        },
+        {
+            nome: "Grafite",
+            img: "https://cdn.sanity.io/images/599r6htc/regionalized/321c9ca2b776dd09800c0efc4ce2f678f509ada5-720x405.png?w=1200&q=70&fit=max&auto=format"
+        },
+        {
+            nome: "Caramelo",
+            img: "https://cdn.sanity.io/images/599r6htc/regionalized/2d0018315ea261aee25001a1b2a925728c8c212c-720x405.png?w=1200&q=70&fit=max&auto=format"
+        }
+    ]
 
-return (
+    return (
 
-<div className="selectCor">
+        <div className="selectCor">
 
-<div
-className="selectHeader"
-onClick={()=>setAberto(!aberto)}
->
+            <div
+                className="selectHeader"
+                onClick={() => setAberto(!aberto)}
+            >
 
-{cor ? (
-<>
-<img src={cor.img} className="selectImagem"/>
-{cor.nome}
-</>
-):"Selecionar cor da Corda Nautica"}
+                {cor ? (
+                    <>
+                        <img src={cor.img} className="selectImagem" />
+                        {cor.nome}
+                    </>
+                ) : "Selecionar cor da Corda Nautica"}
 
-</div>
+            </div>
 
-{aberto && (
+            {aberto && (
 
-<div className="selectLista">
+                <div className="selectLista">
 
-{cores.map((item,index)=>(
-<div
-key={index}
-className="selectItem"
-onClick={()=>{
-setCor(item)
-setAberto(false)
-}}
->
+                    {cores.map((item, index) => (
+                        <div
+                            key={index}
+                            className="selectItem"
+                            onClick={() => {
+                                setCor(item)
+                                setAberto(false)
+                            }}
+                        >
 
-<img src={item.img} className="selectImagem"/>
-<span>{item.nome}</span>
+                            <img src={item.img} className="selectImagem" />
+                            <span>{item.nome}</span>
 
-</div>
-))}
+                        </div>
+                    ))}
 
-</div>
+                </div>
 
-)}
+            )}
 
-</div>
+        </div>
 
-)
+    )
 }
