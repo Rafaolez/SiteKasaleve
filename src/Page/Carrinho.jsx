@@ -1,11 +1,10 @@
 import "../css/carrinho.css";
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
-import SlectCorCorda from "../components/SlectCorCorda";
-import React, { useState } from 'react';
-import Hero from "../components/Hero";
-import Catalogue from "../components/Catalogo";
-
+import SlectCorCorda from "../components/SlectCorCorda"
+import React, { useState, } from 'react';
+import Catalogo from './Catalogo';
+import { useNavigate } from 'react-router-dom';
 const produtos = [
     {
         id: 1,
@@ -54,6 +53,7 @@ const produtos = [
 const formatPrice = (v) =>
     v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+
 /* ── Tela de produto único ── */
 function TelaDetalhe({ produto, onVoltar }) {
     return (
@@ -61,11 +61,13 @@ function TelaDetalhe({ produto, onVoltar }) {
 
             {/* Header */}
             <div className="detalhe-header">
+
                 <button className="btn-back-det" onClick={onVoltar}>← Voltar</button>
                 <div className="detalhe-header__title-group">
                     <p className="eyebrow">Personalização</p>
                     <h1 className="detalhe-title">{produto.nome}</h1>
                 </div>
+
             </div>
 
             {/* Body */}
@@ -88,9 +90,17 @@ function TelaDetalhe({ produto, onVoltar }) {
                     <p className="detalhe-config__sub">Personalize cada componente do produto</p>
 
                     <div className="detalhe-config__fields">
-                        <div>
-                            <Hero />
-                            <Catalogue />
+                        <div className="config-field">
+                            <label className="config-field__label">🪢 Cor da Corda Náutica</label>
+                            <SlectCorCorda />
+                        </div>
+                        <div className="config-field">
+                            <label className="config-field__label">🪑 Cor do Tecido</label>
+                            <SlectCorCorda />
+                        </div>
+                        <div className="config-field">
+                            <label className="config-field__label">🔩 Cor do Alumínio</label>
+                            <SlectCorCorda />
                         </div>
                     </div>
 
@@ -103,9 +113,12 @@ function TelaDetalhe({ produto, onVoltar }) {
     );
 }
 
+
 /* ── Tela principal ── */
 function Carrinho() {
     const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+
+     const navigate = useNavigate();
 
     if (produtoSelecionado) {
         return (
@@ -128,6 +141,9 @@ function Carrinho() {
                     <div className="loja-header__title-group">
                         <p className="eyebrow">Catálogo</p>
                         <h1 className="loja-title">Nossos Produtos</h1>
+                    </div>
+                    <div>
+                        <button className="btn-comprar" onClick={() => navigate('/Carrinho/Catalogo')}> Catlogo → </button>
                     </div>
                     <p className="loja-count">{produtos.length} produtos</p>
                 </div>
