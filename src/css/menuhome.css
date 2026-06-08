@@ -1,26 +1,108 @@
-.logo{
-    width: 15%;
+/* ════════════════════════════════════════
+   menuhome.css — Kasaleve Light Header
+════════════════════════════════════════ */
+
+.mh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 28px 0 24px;
+  background: #FAFAF8;
+  border-bottom: 1px solid #E8E4DE;
+  flex-shrink: 0;
+  gap: 16px;
+  z-index: 10;
+  position: relative;
 }
-.cima{
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #3a3a3a;
+
+/* ── Logo ── */
+.mh-logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
-.BTNLogin{
-    font-size: 1.3rem;
-    color: #000000;
-    background-color: rgb(255, 255, 255);
-    margin-left: auto;
-    width: 8rem;
-    height: 3rem;
-    border-radius: 10px;
+
+.mh-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  /* inverte para escuro pois a logo é branca */
+  filter: invert(1) brightness(.2);
+  transition: opacity .2s;
 }
-.divButton {
-    display: flex;
-    justify-content: space-around;
-    background-color: #3a3a3a;
-    padding: 20px;
-    width: 87%;
+.mh-logo-link:hover .mh-logo {
+  opacity: .7;
+}
+
+/* ── Tagline central ── */
+.mh-tagline {
+  font-family: 'Georgia', serif;
+  font-size: 11px;
+  font-style: italic;
+  color: #B0A898;
+  letter-spacing: 2px;
+  text-transform: lowercase;
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.mh-tagline__dot {
+  color: #C05830;
+  margin: 0 6px;
+  font-style: normal;
+}
+
+/* ── Ações ── */
+.mh-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Botão Entrar */
+.mh-btn-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font-family: 'Georgia', serif;
+  font-size: 13px;
+  font-style: italic;
+  letter-spacing: .5px;
+  color: #FAFAF8;
+  background: #1A1714;
+  border: 1.5px solid #1A1714;
+  border-radius: 8px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: background .2s, color .2s, transform .15s;
+  white-space: nowrap;
+}
+.mh-btn-login:hover {
+  background: #C05830;
+  border-color: #C05830;
+  transform: translateY(-1px);
+}
+
+.mh-btn-login__arrow {
+  font-style: normal;
+  font-size: 14px;
+  transition: transform .18s;
+}
+.mh-btn-login:hover .mh-btn-login__arrow {
+  transform: translateX(3px);
+}
+
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
+@media (max-width: 600px) {
+  .mh-tagline { display: none; }
+  .mh-header  { padding: 0 16px; }
 }

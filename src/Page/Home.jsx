@@ -1,169 +1,210 @@
-import React from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import '../css/Home.css';
 import MenuHome from '../components/MenuHome';
 import { Link } from 'react-router-dom';
 import ImgMG from '../Imagens/MG_2755.jpg';
-import { useContext } from 'react';
+import ImgMG2 from '../Imagens/ImagemCarrocel.jpg'
 import { AuthContext } from './Context/AuthContext';
 
+// ─── nav items ────────────────────────────────────────────
 const navItems = [
-    { to: "/clienti", label: "Cliente" },
-    { to: "/Orcamneto", label: "Orçamento" },
-    { to: "/Foto", label: "Fotos" },
-    { to: "/cadastroPro", label: "Cadastro de Produto" },
-    { to: "/Carrinho", label: "Carrinho" },
-    { to: "/Monitoramento/IA", label: "Monitorar IA" },
-    { to: "/Tarefas", label: "Tarefas" },
+  { to: "/clienti",          label: "Clientes",            icon: "👥", desc: "Gerencie sua base de clientes",       color: "#E8F4FD", accent: "#2E86AB" },
+  { to: "/Orcamneto",        label: "Orçamento",           icon: "📋", desc: "Crie e acompanhe orçamentos",         color: "#FFF8E7", accent: "#F4A261" },
+  { to: "/Foto",             label: "Fotos",               icon: "🖼️", desc: "Galeria de projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
+  { to: "/cadastroPro",      label: "Cadastro de Produto", icon: "📦", desc: "Gerencie o catálogo de produtos",     color: "#F5F0FF", accent: "#7C3AED" },
+  { to: "/Carrinho",         label: "Carrinho",            icon: "🛒", desc: "Personalize e finalize pedidos",      color: "#FFF1F2", accent: "#E11D48" },
+  { to: "/Monitoramento/IA", label: "Monitorar IA",        icon: "🤖", desc: "Painel de IA do WhatsApp",            color: "#F0F9FF", accent: "#0369A1" },
+  { to: "/Tarefas",          label: "Tarefas",             icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
 ];
 
 const navItemsSemLogin = [
-    { to: "/Orcamneto", label: "Orçamento" },
-    { to: "/Foto", label: "Fotos" },
-    { to: "/Carrinho", label: "Carrinho" },
+  { to: "/Orcamneto", label: "Orçamento", icon: "📋", desc: "Solicite um orçamento personalizado", color: "#FFF8E7", accent: "#F4A261" },
+  { to: "/Foto",      label: "Fotos",     icon: "🖼️", desc: "Veja nossos projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
+  { to: "/Carrinho",  label: "Carrinho",  icon: "🛒", desc: "Explore e personalize os produtos",    color: "#FFF1F2", accent: "#E11D48" },
 ];
 
-function Home() {
-    const { loggedin } = useContext(AuthContext);
+// ─── Slides do carrossel ──────────────────────────────────
+const slides = [
+  {
+    image: ImgMG,
+    tag: "Artesanato",
+    title: "Móveis que contam histórias",
+    desc: "Cada peça é criada com atenção e dedicação para transformar ambientes.",
+  },
+  {
+    image: ImgMG2,
+    tag: "Qualidade",
+    title: "Feito para durar gerações",
+    desc: "Materiais nobres e acabamento impecável definem o padrão Kasaleve.",
+  },
+  {
+    image: ImgMG,
+    tag: "Design",
+    title: "Projeto, conforto e elegância",
+    desc: "Soluções personalizadas que combinam funcionalidade e beleza.",
+  },
+];
 
+// ─── Carrossel moderno ────────────────────────────────────
+function Carousel() {
+  const [active, setActive] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const timerRef = useRef(null);
 
-    if (!loggedin) {
-        return (
-            <div className="home-page">
-                <MenuHome />
+  const goTo = (idx) => {
+    if (animating || idx === active) return;
+    setAnimating(true);
+    setActive(idx);
+    setTimeout(() => setAnimating(false), 12000);
+  };
 
-                <div className="home-split">
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      setAnimating(true);
+      setActive(prev => (prev + 1) % slides.length);
+      setTimeout(() => setAnimating(false), 12000);
+    }, 5000);
+    return () => clearInterval(timerRef.current);
+  }, []);
 
-                    {/* ── ESQUERDA: botões ── */}
-                    <aside className="home-left">
-                        <nav className="home-nav">
-                            {navItemsSemLogin.map((item, i) => (
-                                <Link
-                                    to={item.to}
-                                    className="home-nav__link"
-                                    key={item.to}
-                                    style={{ animationDelay: `${i * 0.07}s` }}
-                                >
-                                    <button className="home-nav__btn">
-                                        {item.label}
-                                    </button>
-                                </Link>
-                            ))}
-                        </nav>
-                    </aside>
+  const slide = slides[active];
 
-                    {/* ── DIREITA: foto + texto ── */}
-                    <section className="home-right">
-                        <img
-                            className="home-right__img"
-                            src={ImgMG}
-                            alt="Kasaleve móveis"
-                        />
-                        <div className="home-right__overlay" />
-
-                        <div className="home-right__content">
-                            <p className="home-right__quote">
-                                Fazer bem feito é o nosso padrão.
-                            </p>
-                            <p className="home-right__body">
-                                Na Kasaleve, acreditamos no trabalho artesanal, na colaboração
-                                e no orgulho de entregar móveis que transformam ambientes e
-                                histórias. Cada função é essencial para o resultado final.
-                            </p>
-                        </div>
-
-                        <div className="home-right__badge">
-                            <span className="home-right__badge-icon">⚠</span>
-                            Site apenas para Funcionário
-                        </div>
-                    </section>
-
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div className="home-page">
-            <MenuHome />
-
-            <div className="home-split">
-
-                {/* ── ESQUERDA: botões ── */}
-                <aside className="home-left">
-                    <nav className="home-nav">
-                        {navItems.map((item, i) => (
-                            <Link
-                                to={item.to}
-                                className="home-nav__link"
-                                key={item.to}
-                                style={{ animationDelay: `${i * 0.07}s` }}
-                            >
-                                <button className="home-nav__btn">
-                                    {item.label}
-                                </button>
-                            </Link>
-                        ))}
-                    </nav>
-                </aside>
-
-                {/* ── DIREITA: foto + texto ── */}
-                <section className="home-right">
-                    <img
-                        className="home-right__img"
-                        src={ImgMG}
-                        alt="Kasaleve móveis"
-                    />
-                    <div className="home-right__overlay" />
-
-                    <div className="home-right__content">
-                        <p className="home-right__quote">
-                            Fazer bem feito é o nosso padrão.
-                        </p>
-                        <p className="home-right__body">
-                            Na Kasaleve, acreditamos no trabalho artesanal, na colaboração
-                            e no orgulho de entregar móveis que transformam ambientes e
-                            histórias. Cada função é essencial para o resultado final.
-                        </p>
-                    </div>
-
-                    <div className="home-right__badge">
-                        <span className="home-right__badge-icon">⚠</span>
-                        Site apenas para Funcionário
-                    </div>
-                </section>
-
-            </div>
-        </div>
-    );
-}
-
-export default Home;
-
-
-{/*import React from 'react';
-import '../css/Home.css';
-import MenuHome from '../components/MenuHome';
-import { Link } from 'react-router-dom';
-
-function Home() {
   return (
-    <>
-      <MenuHome className="MenuHome" />
-      <div className='TelaMeio'>
+    <div className="hm-carousel">
+      {/* Slides */}
+      {slides.map((s, i) => (
+        <div
+          key={i}
+          className={`hm-carousel__slide ${i === active ? 'hm-carousel__slide--active' : ''}`}
+        ><img src={s.image} alt={s.title} className="hm-carousel__image" /></div>
+      ))}
 
-        <div className='TDbuttons'>
-          <Link className='text' to="/clienti"><button className='ClienteH BTN'  >Cadastro de Cliente</button></Link>
-          <Link className='text' to={"/Orcamneto"}><button route={'/clienti'} className='OrcamentoH BTN'>Orçamento</button></Link>
-          <Link className='text' to={"/Foto"}><button className='FotoH BTN'>Fotos</button></Link>
-          <Link className='text' to={"/cadastroPro"}><button className='ProdutoH BTN'>Cadastro de Produto</button></Link>
-          <Link className='text' to={"/Carrinho"}><button className='CarrinhoH BTN'>Carrinho</button></Link>
-        </div>
-        <div className="PTmensagem">
-          <h2>Welcome to the Home Page!</h2>
-          <p>This is where you can find the latest updates and features.</p>
-        </div>
+      {/* Overlay */}
+      <div className="hm-carousel__overlay" />
+
+      {/* Conteúdo */}
+      <div className={`hm-carousel__content ${animating ? 'hm-carousel__content--fade' : ''}`}>
+        <span className="hm-carousel__tag">{slide.tag}</span>
+        <h2 className="hm-carousel__title">{slide.title}</h2>
+        <p className="hm-carousel__desc">{slide.desc}</p>
       </div>
-    </>
+
+      {/* Controles */}
+      <div className="hm-carousel__controls">
+        <button
+          className="hm-carousel__arrow hm-carousel__arrow--prev"
+          onClick={() => goTo((active - 1 + slides.length) % slides.length)}
+          aria-label="Anterior"
+        >
+          ‹
+        </button>
+
+        <div className="hm-carousel__dots">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              className={`hm-carousel__dot ${i === active ? 'hm-carousel__dot--active' : ''}`}
+              onClick={() => goTo(i)}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
+        </div>
+
+        <button
+          className="hm-carousel__arrow hm-carousel__arrow--next"
+          onClick={() => goTo((active + 1) % slides.length)}
+          aria-label="Próximo"
+        >
+          ›
+        </button>
+      </div>
+
+      {/* Numeração */}
+      <div className="hm-carousel__counter">
+        <span className="hm-carousel__counter-current">{String(active + 1).padStart(2, '0')}</span>
+        <span className="hm-carousel__counter-sep" />
+        <span className="hm-carousel__counter-total">{String(slides.length).padStart(2, '0')}</span>
+      </div>
+
+      {/* Badge */}
+      <div className="hm-carousel__badge">
+        <span className="hm-carousel__badge-dot" />
+        Apenas para Funcionários
+      </div>
+    </div>
   );
 }
-export default Home;*/}
+
+// ─── Card de navegação ────────────────────────────────────
+function NavCard({ item, index }) {
+  return (
+    <Link
+      to={item.to}
+      className="hm-nav-link"
+      style={{ animationDelay: `${index * 0.07}s` }}
+    >
+      <div
+        className="hm-nav-card"
+        style={{
+          '--card-bg':     item.color,
+          '--card-accent': item.accent,
+        }}
+      >
+        <div className="hm-nav-card__left">
+          <span className="hm-nav-card__icon">{item.icon}</span>
+        </div>
+        <div className="hm-nav-card__text">
+          <p className="hm-nav-card__label">{item.label}</p>
+          <p className="hm-nav-card__desc">{item.desc}</p>
+        </div>
+        <span className="hm-nav-card__arrow">→</span>
+      </div>
+    </Link>
+  );
+}
+
+// ─── MAIN ────────────────────────────────────────────────
+export default function Home() {
+  const { loggedin } = useContext(AuthContext);
+  const items = loggedin ? navItems : navItemsSemLogin;
+
+  return (
+    <div className="hm-page">
+      <MenuHome />
+
+      <div className="hm-split">
+
+        {/* ── ESQUERDA ── */}
+        <aside className="hm-left">
+
+          {/* Brand */}
+          <div className="hm-brand">
+            <div className="hm-brand__bar" />
+            <div>
+              <p className="hm-brand__eyebrow">Sistema de Gestão</p>
+              <h1 className="hm-brand__title">kasaleve</h1>
+              <p className="hm-brand__tag">projeto <span>·</span> conforto</p>
+            </div>
+          </div>
+
+          {/* Nav */}
+          <nav className="hm-nav">
+            {items.map((item, i) => (
+              <NavCard key={item.to} item={item} index={i} />
+            ))}
+          </nav>
+
+          {/* Rodapé */}
+          {!loggedin && (
+            <Link to="/login" className="hm-login-link">
+              Área restrita → Entrar
+            </Link>
+          )}
+        </aside>
+
+        {/* ── DIREITA ── */}
+        <Carousel />
+      </div>
+    </div>
+  );
+}
