@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState, useContext } from 'react';
 import '../css/Home.css';
 import MenuHome from '../components/MenuHome';
 import { Link } from 'react-router-dom';
-import ImgMG from '../Imagens/MG_2755.jpg';
+import ImgMG from '../Imagens/CarroHomePt01.jpg';
 import ImgMG2 from '../Imagens/ImagemCarrocel.jpg'
+import ImgMG3 from '../Imagens/CarroHome.jpg'
 import { AuthContext } from './Context/AuthContext';
 
 // ─── nav items ────────────────────────────────────────────
@@ -38,7 +39,7 @@ const slides = [
     desc: "Materiais nobres e acabamento impecável definem o padrão Kasaleve.",
   },
   {
-    image: ImgMG,
+    image: ImgMG3,
     tag: "Design",
     title: "Projeto, conforto e elegância",
     desc: "Soluções personalizadas que combinam funcionalidade e beleza.",
