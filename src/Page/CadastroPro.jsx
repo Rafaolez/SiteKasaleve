@@ -1,196 +1,414 @@
-import '../css/CadastroPro.css';
-import React, { useContext, useEffect, useState } from 'react';
-import BTNVolta from '../components/BTNVolta';
-import MenuPage from '../components/MenuPage';
-import { AuthContext } from "./Context/AuthContext";
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import '../css/Orcamneto.css';
 
-function StatusBadge({ label, type = 'default' }) {
-    return <span className={`badge badge--${type}`}><span className="badge__dot" />{label}</span>;
-}
+/* ─── helpers ─── */
+const fmt = (n) => `R$ ${Number(n).toFixed(2).replace('.', ',')}`;
+const uid = () => Math.random().toString(36).slice(2, 8);
+const today = () => new Date().toLocaleDateString('pt-BR');
 
-function SkeletonRow() {
+/* ─── produto vazio ─── */
+const emptyLine = () => ({
+  _key: uid(),
+  id: '',
+  title: '',
+  image: '',
+  customDesc: '',
+  price: '',
+  qty: 1,
+});
+
+/* ─── componentes menores ─── */
+function ProductImageCell({ src, alt }) {
+  const [err, setErr] = useState(false);
+  if (!src || err) {
     return (
-        <div className="table-row table-row--skeleton">
-            <div className="skeleton skeleton--img" />
-            <div className="skeleton-lines">
-                <div className="skeleton skeleton--line" />
-                <div className="skeleton skeleton--line-sm" />
-            </div>
-            <div className="skeleton skeleton--line" />
-            <div className="skeleton skeleton--block" />
-            <div className="skeleton skeleton--line" />
-        </div>
+      <div className="orc-img-placeholder">
+        <span>📦</span>
+      </div>
     );
+  }
+  return (
+    <img
+      className="orc-prod-thumb"
+      src={src}
+      alt={alt || 'produto'}
+      onError={() => setErr(true)}
+      loading="lazy"
+    />
+  );
 }
 
-function CradastroPro() {
-    const { loggedin } = useContext(AuthContext);
-    const [produto, setProduto] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [search, setSearch] = useState('');
+function StatusBadge({ label, type = 'blue' }) {
+  return (
+    <span className={`badge badge--${type}`}>
+      <span className="badge__dot" />
+      {label}
+    </span>
+  );
+}
 
-    async function getProduto() {
-        try {
-            const res = await fetch('https://fakestoreapi.com/products');
-            const json = await res.json();
-            setProduto(json);
-        } catch (err) {
-            console.log(err);
-        } finally {
-            setLoading(false);
-        }
-    }
+/* ════════════════════════════════════════════
+   COMPONENTE PRINCIPAL
+════════════════════════════════════════════ */
+export default function Orcamento() {
+  const [produtos, setProdutos] = useState([]);
+  const [loadingApi, setLoadingApi] = useState(true);
 
-    useEffect(() => { getProduto(); }, []);
+  /* linhas do orçamento */
+  const [linhas, setLinhas] = useState([emptyLine()]);
 
-    if (!loggedin) {
-        return (
-            <div className="detail-page">
-                <MenuPage />
-                <div className="detail-empty">
-                    <span>🔒</span>
-                    <p>Você precisa estar logado para acessar esta página.</p>
-                    <BTNVolta />
-                </div>
-            </div>
-        );
-    }
+  /* cabeçalho */
+  const [numero] = useState(`ORC-${Date.now().toString().slice(-6)}`);
+  const [validade, setValidade] = useState('');
+  const [condicao, setCondicao] = useState('');
+  const [obs, setObs] = useState('');
 
-    const filtered = produto.filter(p =>
-        p.title.toLowerCase().includes(search.toLowerCase()) ||
-        p.category.toLowerCase().includes(search.toLowerCase())
+  /* cliente */
+  const [cliente, setCliente] = useState({
+    nome: '', empresa: '', email: '', telefone: '', cpfCnpj: '',
+    endereco: '', cidade: '', estado: '', cep: '',
+  });
+
+  /* desconto */
+  const [desconto, setDesconto] = useState('');
+
+  /* ── busca produtos da API ── */
+  useEffect(() => {
+    fetch('https://fakestoreapi.com/products')
+      .then((r) => r.json())
+      .then((data) => setProdutos(data))
+      .catch(console.error)
+      .finally(() => setLoadingApi(false));
+  }, []);
+
+  /* ── cálculos ── */
+  const subtotal = linhas.reduce((acc, l) => {
+    const p = parseFloat(l.price) || 0;
+    const q = parseInt(l.qty) || 0;
+    return acc + p * q;
+  }, 0);
+  const descontoVal = parseFloat(desconto) || 0;
+  const total = Math.max(0, subtotal - descontoVal);
+
+  /* ── linhas: helpers ── */
+  const addLinha = () => setLinhas((prev) => [...prev, emptyLine()]);
+
+  const removeLinha = (key) =>
+    setLinhas((prev) => prev.filter((l) => l._key !== key));
+
+  const updateLinha = (key, field, value) =>
+    setLinhas((prev) =>
+      prev.map((l) => (l._key === key ? { ...l, [field]: value } : l))
     );
 
-    return (<><MenuPage />
-        <div className="detail-page">
+  const selectProduto = (key, produtoId) => {
+    const p = produtos.find((x) => String(x.id) === produtoId);
+    if (!p) {
+      updateLinha(key, 'id', '');
+      updateLinha(key, 'title', '');
+      updateLinha(key, 'image', '');
+      updateLinha(key, 'price', '');
+      return;
+    }
+    setLinhas((prev) =>
+      prev.map((l) =>
+        l._key === key
+          ? {
+              ...l,
+              id: String(p.id),
+              title: p.title,
+              image: p.image,
+              price: p.price,
+              customDesc: l.customDesc, // mantém desc customizada
+            }
+          : l
+      )
+    );
+  };
 
-            <div className="products-container">
+  /* ── print/export ── */
+  const handlePrint = () => window.print();
 
-                {/* ── Header ── */}
-                <div className="page__header">
-                    <div className="page__header-left">
-                        <BTNVolta />
-                        <div className="page__title-group">
-                            <p className="page__eyebrow">Gestão de Produtos</p>
-                            <h1 className="page__title">Produtos</h1>
-                        </div>
-                    </div>
-                    <button className="btn-primary">+ Novo Produto</button>
-                </div>
+  return (
+    <div className="orc-bg">
+      <div className="orc-paper">
 
-                {/* ── Stats ── */}
-                <div className="stats-row">
-                    <div className="stat-card">
-                        <span className="stat-card__icon">📦</span>
-                        <div>
-                            <p className="stat-card__label">Total</p>
-                            <p className="stat-card__value">{produto.length}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <span className="stat-card__icon">🏷️</span>
-                        <div>
-                            <p className="stat-card__label">Categorias</p>
-                            <p className="stat-card__value">{[...new Set(produto.map(p => p.category))].length}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <span className="stat-card__icon">✅</span>
-                        <div>
-                            <p className="stat-card__label">Ativos</p>
-                            <p className="stat-card__value">{produto.length}</p>
-                        </div>
-                    </div>
-                </div>
+        {/* ══ CABEÇALHO ══ */}
+        <div className="orc-header">
+          <div className="orc-logo">
+            <span className="orc-logo__name">ORÇAMENTO</span>
+            <span className="orc-logo__tag">
+              <span className="orc-logo__dot">●</span>
+              Proposta Comercial
+            </span>
+          </div>
+          <div className="orc-header__info">
+            <p className="orc-header__num">
+              Nº <strong>{numero}</strong>
+            </p>
+            <p className="orc-header__date">Emitido em {today()}</p>
+          </div>
+        </div>
 
-                {/* ── Search ── */}
-                <div className="toolbar">
-                    <div className="search-box">
-                        <span className="search-box__icon">🔍</span>
-                        <input
-                            className="search-box__input"
-                            type="text"
-                            placeholder="Buscar por nome ou categoria…"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
+        <hr className="orc-divider" />
+
+        {/* ══ META ══ */}
+        <div className="orc-section">
+          <p className="orc-section__title">Condições Gerais</p>
+          <div className="orc-meta">
+            <div className="orc-field">
+              <label>Validade</label>
+              <input
+                type="date"
+                value={validade}
+                onChange={(e) => setValidade(e.target.value)}
+              />
+            </div>
+            <div className="orc-field">
+              <label>Condição de Pagamento</label>
+              <input
+                type="text"
+                placeholder="ex: 30/60/90 dias"
+                value={condicao}
+                onChange={(e) => setCondicao(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <hr className="orc-divider" />
+
+        {/* ══ CLIENTE ══ */}
+        <div className="orc-section">
+          <p className="orc-section__title">Dados do Cliente</p>
+          <div className="orc-cliente-grid">
+            {[
+              { f: 'nome', l: 'Nome Completo', span: 2 },
+              { f: 'empresa', l: 'Empresa' },
+              { f: 'email', l: 'E-mail', span: 2 },
+              { f: 'telefone', l: 'Telefone' },
+              { f: 'cpfCnpj', l: 'CPF / CNPJ' },
+              { f: 'endereco', l: 'Endereço', span: 2 },
+              { f: 'cidade', l: 'Cidade' },
+              { f: 'estado', l: 'Estado' },
+              { f: 'cep', l: 'CEP' },
+            ].map(({ f, l, span }) => (
+              <div
+                key={f}
+                className={`orc-field${span ? ` orc-field--col${span}` : ''}`}
+              >
+                <label>{l}</label>
+                <input
+                  type="text"
+                  value={cliente[f]}
+                  onChange={(e) =>
+                    setCliente((prev) => ({ ...prev, [f]: e.target.value }))
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <hr className="orc-divider" />
+
+        {/* ══ ITENS ══ */}
+        <div className="orc-section">
+          <div className="orc-section__header">
+            <p className="orc-section__title">Itens do Orçamento</p>
+            {loadingApi && (
+              <span className="orc-loading-tag">carregando produtos…</span>
+            )}
+          </div>
+
+          <div className="orc-table-wrap">
+            <table className="orc-table orc-items-table">
+              <thead>
+                <tr>
+                  <th className="col-img">Imagem</th>
+                  <th className="col-prod">Produto</th>
+                  <th className="col-desc">Descrição</th>
+                  <th className="col-qtd center">Qtd</th>
+                  <th className="col-unit right">Unit.</th>
+                  <th className="col-total right">Total</th>
+                  <th className="col-del" />
+                </tr>
+              </thead>
+              <tbody>
+                {linhas.map((linha) => {
+                  const lineTotal =
+                    (parseFloat(linha.price) || 0) * (parseInt(linha.qty) || 0);
+                  return (
+                    <tr key={linha._key} className="orc-item-row">
+                      {/* IMAGEM */}
+                      <td className="col-img td-img">
+                        <ProductImageCell src={linha.image} alt={linha.title} />
+                      </td>
+
+                      {/* PRODUTO – select */}
+                      <td className="col-prod">
+                        <select
+                          value={linha.id}
+                          onChange={(e) =>
+                            selectProduto(linha._key, e.target.value)
+                          }
+                          className="orc-select-prod"
+                        >
+                          <option value="">— selecionar —</option>
+                          {produtos.map((p) => (
+                            <option key={p.id} value={String(p.id)}>
+                              {p.title.length > 48
+                                ? p.title.slice(0, 48) + '…'
+                                : p.title}
+                            </option>
+                          ))}
+                        </select>
+                        {linha.title && (
+                          <p className="orc-prod-subtitle">{linha.title}</p>
+                        )}
+                      </td>
+
+                      {/* DESCRIÇÃO – editável pelo usuário */}
+                      <td className="col-desc">
+                        <textarea
+                          className="orc-desc-input"
+                          rows={2}
+                          placeholder="Descrição personalizada…"
+                          value={linha.customDesc}
+                          onChange={(e) =>
+                            updateLinha(linha._key, 'customDesc', e.target.value)
+                          }
                         />
-                    </div>
-                </div>
+                      </td>
 
-                {/* ── Table ── */}
-                <div className="table-wrap">
-                    <div className="table-head products-grid">
-                        <span>Produto</span>
-                        <span>Preço</span>
-                        <span>Descrição</span>
-                        <span>Categoria</span>
-                        <span>Ações</span>
-                    </div>
+                      {/* QTD */}
+                      <td className="col-qtd center">
+                        <input
+                          type="number"
+                          min="1"
+                          value={linha.qty}
+                          onChange={(e) =>
+                            updateLinha(linha._key, 'qty', e.target.value)
+                          }
+                          className="orc-qty-input"
+                        />
+                      </td>
 
-                    {loading ? (
-                        Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                    ) : filtered.length === 0 ? (
-                        <div className="table-empty">
-                            <span>◎</span>
-                            <p>Nenhum produto encontrado</p>
-                        </div>
-                    ) : (
-                        filtered.map((item, i) => (
-                            <div
-                                className="table-row products-grid"
-                                key={item.id}
-                                style={{ animationDelay: `${i * 0.03}s` }}
-                            >
-                                {/* Produto */}
-                                <div className="table-row__name">
-                                    <div className="product-img-wrap">
-                                        <img
-                                            src={item.image}
-                                            alt={item.title}
-                                            className="product-img"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div>
-                                        <p className="table-row__fullname">{item.title}</p>
-                                        <p className="table-row__id">#{item.id}</p>
-                                    </div>
-                                </div>
+                      {/* UNIT */}
+                      <td className="col-unit right">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={linha.price}
+                          onChange={(e) =>
+                            updateLinha(linha._key, 'price', e.target.value)
+                          }
+                          className="orc-price-input"
+                          placeholder="0,00"
+                        />
+                      </td>
 
-                                {/* Preço */}
-                                <div className="product-price">
-                                    R$ {item.price.toFixed(2)}
-                                </div>
+                      {/* TOTAL */}
+                      <td className="col-total right orc-line-total">
+                        {lineTotal > 0 ? fmt(lineTotal) : '—'}
+                      </td>
 
-                                {/* Descrição */}
-                                <div className="product-desc">
-                                    {item.description}
-                                </div>
+                      {/* DEL */}
+                      <td className="col-del center">
+                        <button
+                          className="orc-btn-del"
+                          onClick={() => removeLinha(linha._key)}
+                          title="Remover item"
+                        >
+                          ×
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-                                {/* Categoria */}
-                                <div>
-                                    <StatusBadge label={item.category} type="blue" />
-                                </div>
-
-                                {/* Ações */}
-                                <div className="table-row__actions">
-                                    <button className="btn-action btn-action--detail">👁 Detalhes</button>
-                                    <button className="btn-action btn-action--edit">✏️ Editar</button>
-                                    <button className="btn-action btn-action--delete">🗑</button>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                </div>
-
-                <p className="table-count">{filtered.length} de {produto.length} produtos</p>
-            </div>
+          <button className="orc-btn-add" onClick={addLinha}>
+            + Adicionar item
+          </button>
         </div>
-    </>
-    );
-}
 
-export default CradastroPro;
+        <hr className="orc-divider" />
+
+        {/* ══ TOTAIS ══ */}
+        <div className="orc-totais">
+          <div className="orc-totais__row">
+            <span>Subtotal</span>
+            <span>{fmt(subtotal)}</span>
+          </div>
+          <div className="orc-totais__row">
+            <span>Desconto (R$)</span>
+            <span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={desconto}
+                onChange={(e) => setDesconto(e.target.value)}
+                className="orc-discount-input"
+                placeholder="0,00"
+              />
+            </span>
+          </div>
+          <div className="orc-totais__row orc-totais__row--final">
+            <span>Total</span>
+            <span>{fmt(total)}</span>
+          </div>
+        </div>
+
+        <hr className="orc-divider" />
+
+        {/* ══ OBSERVAÇÕES ══ */}
+        <div className="orc-section">
+          <p className="orc-section__title">Observações</p>
+          <div className="orc-field">
+            <textarea
+              rows={3}
+              placeholder="Informações adicionais, prazos de entrega, garantias…"
+              value={obs}
+              onChange={(e) => setObs(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <hr className="orc-divider" />
+
+        {/* ══ ASSINATURA ══ */}
+        <div className="orc-assinatura">
+          <div className="orc-assinatura__linha">
+            <div className="orc-assinatura__slot">
+              <div className="orc-assinatura__traço" />
+              <span>Fornecedor</span>
+            </div>
+            <div className="orc-assinatura__slot">
+              <div className="orc-assinatura__traço" />
+              <span>Cliente</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ══ FOOTER ══ */}
+        <div className="orc-footer">
+          <button className="orc-btn-export" onClick={handlePrint}>
+            🖨 Imprimir / Salvar PDF
+          </button>
+          <p className="orc-footer__hint">
+            As imagens dos produtos aparecem no PDF gerado
+          </p>
+        </div>
+
+      </div>
+    </div>
+  );
+}
 
 
 
