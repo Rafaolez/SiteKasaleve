@@ -1,29 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap');
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --paper: #ffffff;
-  --bg: #f4f4f2; /* Fundo cinza neutro */
+  --bg: #f4f4f2;
   --border: #e0e0e0;
-  --border-dark: #999;
+  --gray-row: #e1e1e1;
   --text: #1a1a1a;
   --text-muted: #555;
-  --accent: #000; /* Preto puro */
-  --blue: #0044cc;
-  --radius: 2px;
+  --accent: #000;
+  --red: #c81e1e;
+  --blue: #2563eb;
+  --dark: #3c3c3c;
+  --green: #16a34a;
   --font: 'Sora', sans-serif;
   --font-serif: 'Lora', serif;
 }
 
-html,
-body {
+html, body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -31,13 +26,11 @@ body {
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px) }
-  to { opacity: 1; transform: translateY(0) }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ════════════════════════════
-   LAYOUT GERAL
-════════════════════════════ */
+/* ════════════════════════════ LAYOUT GERAL ═══════════════════════════ */
 .orc-bg {
   min-height: 100vh;
   background: var(--bg);
@@ -50,13 +43,14 @@ body {
   background: var(--paper);
   width: 100%;
   max-width: 840px;
-  padding: 50px;
+  padding: 40px 48px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
   gap: 0;
   animation: fadeUp .4s ease both;
 }
+.orc-paper--narrow { max-width: 640px; padding: 40px; }
 
 .orc-back-link {
   align-self: flex-start;
@@ -67,21 +61,36 @@ body {
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
   transition: all 0.2s;
+  font-family: var(--font);
 }
 .orc-back-link:hover { border-color: var(--accent); color: var(--accent); }
 
-/* ════════════════════════════
-   GATE (Tela Inicial)
-════════════════════════════ */
+/* ════════════════════════════ GATE ═══════════════════════════ */
 .orc-gate {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  gap: 24px;
+  gap: 28px;
+  padding: 24px;
+}
+.orc-gate__logo {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.orc-logo__name {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 400;
+  color: var(--text);
+}
+.orc-logo__tag {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: lowercase;
 }
 .orc-gate__card {
   background: var(--paper);
@@ -92,78 +101,389 @@ body {
   max-width: 400px;
   width: 90%;
 }
-.orc-gate__btns { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; width: 100%; }
+.orc-gate__card h2 { font-family: var(--font-serif); font-size: 22px; margin-bottom: 8px; }
+.orc-gate__card p { color: var(--text-muted); font-size: 13px; margin-bottom: 20px; }
+.orc-gate__btns { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 .orc-gate__btn {
-  padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-family: var(--font);
+  padding: 13px; border: none; border-radius: 4px; cursor: pointer;
+  font-weight: 600; font-family: var(--font); font-size: 14px;
+  transition: all .18s;
 }
 .orc-gate__btn--sim { background: var(--accent); color: #fff; }
+.orc-gate__btn--sim:hover { background: #333; transform: translateY(-1px); }
 .orc-gate__btn--nao { background: #fff; border: 1px solid var(--border); color: var(--text); }
+.orc-gate__btn--nao:hover { border-color: var(--accent); }
 
-/* ════════════════════════════
-   HEADER
-════════════════════════════ */
+/* ════════════════════════════ FORM NOVO CLIENTE ═══════════════════════════ */
+.orc-form-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.orc-section__hint { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+.orc-form-footer { margin-top: 24px; text-align: right; }
+.orc-form-footer .orc-gate__btn { width: auto; padding: 12px 28px; }
+
+/* ════════════════════════════ CABEÇALHO DO ORÇAMENTO ═══════════════════════════ */
 .orc-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid var(--text);
+  margin-bottom: 14px;
 }
 
-.orc-logo { display: flex; flex-direction: column; }
+.orc-logo { display: flex; flex-direction: column; position: relative; }
 .orc-logo__name {
   font-family: var(--font-serif);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 4px;
-  text-transform: uppercase;
+  font-size: 34px;
+  font-weight: 400;
+  color: #2a2a2a;
   line-height: 1;
 }
 .orc-logo__tag {
-  font-size: 10px;
-  letter-spacing: 2px;
+  font-size: 13px;
   color: var(--text-muted);
   margin-top: 4px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-
-.orc-meta-group { text-align: right; }
-.orc-meta-row { font-size: 12px; margin-bottom: 4px; color: var(--text-muted); }
-.orc-meta-val { font-weight: 600; color: var(--text); }
-.orc-validade-box {
-  display: inline-block;
+.orc-logo__dot { color: var(--red); }
+.orc-logo__underline {
+  width: 130px;
+  height: 2px;
+  background: var(--blue);
   margin-top: 8px;
-  padding: 6px 10px;
-  background: #f9f9f9;
-  border: 1px solid var(--border);
-  border-radius: 4px;
+}
+
+.orc-empresa-info {
+  text-align: right;
   font-size: 10px;
-  font-weight: 600;
   color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 220px;
+}
+.orc-empresa-info p:first-child { font-weight: 600; color: var(--text); }
+.orc-empresa-info__link { color: var(--blue); text-decoration: underline; }
+
+.orc-titulo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.orc-titulo-orcamento {
+  font-family: var(--font);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--red);
+  letter-spacing: 0.5px;
+}
+.orc-enviado-em { font-size: 12px; color: var(--text); }
+.orc-enviado-em strong { font-weight: 700; }
+
+/* ════════════════════════════ SELETOR DE PERFIL DE PREÇO ═══════════════════════════ */
+.orc-perfil-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #f9f9f8;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
 }
 
-.orc-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 18px 0;
-}
-
-/* ════════════════════════════
-   SEÇÕES DE INPUTS
-════════════════════════════ */
-.orc-section { margin-bottom: 25px; }
-.orc-section__title {
+.orc-perfil-label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted);
-  margin-bottom: 10px;
-  letter-spacing: 1px;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 5px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
 }
 
+.orc-perfil-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.orc-perfil-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .18s;
+}
+.orc-perfil-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.orc-perfil-btn--ativo {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+.orc-perfil-btn--ativo .orc-perfil-badge {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}
+
+.orc-perfil-badge {
+  display: inline-block;
+  background: #e8f4e8;
+  color: var(--green);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+
+.orc-perfil-hint {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+/* ════════════════════════════ BLOCO CLIENTE ═══════════════════════════ */
+.orc-cliente-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.orc-select-cliente { margin-bottom: 10px; }
+.orc-select-cliente select { font-size: 13px; }
+
+.orc-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-top: none;
+}
+.orc-cliente-bloco > .orc-row:first-of-type,
+.orc-cliente-bloco > .orc-select-cliente + .orc-row {
+  border-top: 1px solid var(--border);
+}
+.orc-row--gray { background: var(--gray-row); }
+
+.orc-row label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text);
+  white-space: nowrap;
+  min-width: 75px;
+}
+.orc-row input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  padding: 2px 0;
+}
+.orc-row input::placeholder { color: #999; }
+
+.orc-row-split { display: flex; }
+.orc-row--half {
+  flex: 1;
+  border-top: none;
+}
+.orc-row-split .orc-row--half:first-child { border-right: none; }
+
+/* ════════════════════════════ TABELA DE ITENS ═══════════════════════════ */
+.orc-section { margin-bottom: 20px; }
+.orc-loading-hint { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 11px; }
+
+.orc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.orc-table th, .orc-table td {
+  border: 1px solid var(--border);
+  padding: 7px 8px;
+  vertical-align: middle;
+}
+.orc-table th {
+  background: var(--dark);
+  color: #fff;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: left;
+  letter-spacing: 0.4px;
+}
+.orc-table th.center, .orc-table td.center { text-align: center; }
+.orc-table th.right, .orc-table td.right { text-align: right; font-variant-numeric: tabular-nums; }
+
+.col-img { width: 44px; }
+.col-item { width: 20%; }
+.col-desc { width: auto; }
+.col-qtd { width: 60px; }
+.col-unit { width: 100px; border-right: 2px solid #bbb !important; }
+.col-total { width: 90px; }
+.col-del { width: 30px; }
+
+.orc-table-img { width: 28px; height: 28px; object-fit: contain; display: block; margin: 0 auto; }
+
+.orc-table select,
+.orc-table input[type="text"],
+.orc-table input[type="number"] {
+  width: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--text);
+}
+.orc-table input[type="number"] { text-align: center; -moz-appearance: textfield; }
+.orc-table input[type="number"]::-webkit-inner-spin-button { display: none; }
+
+/* ── Célula de descrição composta ── */
+.orc-desc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.orc-desc-nome {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.3;
+  padding: 2px 0;
+  border-bottom: 1px dashed #ddd;
+}
+.orc-desc-extra {
+  font-size: 12px;
+  color: var(--text);
+  padding: 2px 0 !important;
+}
+
+/* ── Célula de preço com desconto ── */
+.orc-unit-cell {
+  border-right: 2px solid #bbb !important;
+}
+.orc-unit-valor {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+.orc-unit-original {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.orc-btn-del {
+  color: #cc0000;
+  cursor: pointer;
+  font-weight: bold;
+  background: none;
+  border: none;
+  font-size: 14px;
+}
+.orc-btn-del:hover { color: #ff0000; }
+
+.orc-btn-add {
+  margin-top: 10px;
+  background: #f8f8f8;
+  border: 1px dashed var(--border);
+  padding: 8px 16px;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: var(--font);
+  transition: all .15s;
+}
+.orc-btn-add:hover { background: #eee; }
+.orc-btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── linha de total ── */
+.orc-total-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.orc-total-valor {
+  background: var(--gray-row);
+  border: 1px solid #ccc;
+  padding: 8px 20px;
+  border-radius: 2px;
+  font-size: 13px;
+  min-width: 110px;
+  text-align: right;
+}
+
+/* ════════════════════════════ TERMOS (preview) ═══════════════════════════ */
+.orc-termos-box {
+  border: 1px solid var(--text);
+  margin-bottom: 24px;
+}
+.orc-termos-box__titulo {
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  padding: 9px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+.orc-termos-box__linha {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+.orc-termos-box__linha span:first-child {
+  font-weight: 700;
+  font-size: 11px;
+  padding: 8px 10px;
+  width: 180px;
+  border-right: 1px solid var(--border);
+  text-transform: uppercase;
+}
+.orc-termos-box__linha span:last-child {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.orc-termos-box__validade {
+  padding: 8px 10px;
+  font-size: 11px;
+  font-style: italic;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.orc-termos-box__texto {
+  padding: 14px 16px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #333;
+}
+.orc-termos-box__texto p { margin-bottom: 7px; }
+.orc-termos-box__texto strong { color: var(--text); }
+
+/* ════════════════════════════ CAMPOS GENÉRICOS ═══════════════════════════ */
 .orc-field { margin-bottom: 10px; }
 .orc-field label {
   display: block;
@@ -181,146 +501,22 @@ body {
   font-family: var(--font);
   font-size: 13px;
   transition: border-color .2s;
+  resize: none;
 }
 .orc-input:focus { outline: none; border-color: var(--accent); }
-.orc-readonly { background: #f4f4f4; color: #888; border-color: #eee; cursor: default; }
+.orc-cep-spinner { font-size: 11px; }
+.orc-cep-erro { color: #c0392b; font-size: 11px; display: block; margin-top: 2px; }
 
-.orc-cliente-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px 30px;
-}
-.orc-cliente-grid .orc-field--full { grid-column: 1 / -1; }
+.orc-cliente-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }
+.w-full { grid-column: 1 / -1; }
 
-/* ════════════════════════════
-   TABELA DE ITENS
-════════════════════════════ */
-.orc-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin-top: 10px;
-}
-.orc-table th, .orc-table td {
-  border: 1px solid var(--border);
-  padding: 8px;
-  vertical-align: middle;
-}
-.orc-table th {
-  background: #f8f8f8;
-  font-size: 10px;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: var(--text);
-  text-align: left;
-}
-.orc-table th.center, .orc-table td.center { text-align: center; }
-.orc-table th.right, .orc-table td.right { text-align: right; }
-
-.col-img { width: 50px; }
-.col-item { width: 25%; }
-.col-desc { width: auto; }
-.col-qtd { width: 60px; }
-.col-unit { width: 90px; }
-.col-total { width: 90px; }
-.col-del { width: 40px; }
-
-.orc-table-img {
-  width: 30px; height: 30px; object-fit: contain; display: block; margin: 0 auto;
-}
-.orc-table select, .orc-table input, .orc-table textarea {
-  width: 100%; border: none; background: transparent; outline: none; font-family: var(--font); font-size: 12px;
-}
-.orc-btn-del { color: #cc0000; cursor: pointer; font-weight: bold; background: none; border: none; }
-.orc-btn-add {
-  margin-top: 10px;
-  background: #f8f8f8; border: 1px dashed var(--border); padding: 8px 16px;
-  font-size: 11px; cursor: pointer; border-radius: 4px;
-}
-.orc-btn-add:hover { background: #eee; }
-
-/* ════════════════════════════
-   TOTAIS & TERMOS
-════════════════════════════ */
-.orc-footer-area {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-/* Mini Tabela de Totais */
-.orc-totais-table {
-  width: 300px;
-  margin-left: auto;
-  border-collapse: collapse;
-}
-.orc-totais-table td {
-  border: 1px solid var(--border);
-  padding: 8px 12px;
-  font-size: 13px;
-}
-.orc-totais-table .label { font-weight: 600; color: var(--text-muted); }
-.orc-totais-table .value { text-align: right; font-weight: 700; color: var(--text); }
-.orc-totais-table tr.final-row td {
-  background: #000; color: #fff; font-weight: bold; text-transform: uppercase; font-size: 12px;
-}
-
-/* Seção Termos e Condições */
-.orc-termos {
-  border-top: 2px solid var(--text);
-  padding-top: 20px;
-}
-
-.orc-termos__title {
-  font-family: var(--font-serif);
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.orc-termos__validade {
-  text-align: center;
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-bottom: 15px;
-  font-style: italic;
-}
-
-.orc-termos__text {
-  font-size: 11px;
-  line-height: 1.6;
-  color: #444;
-  text-align: justify;
-  max-width: 90%;
-  margin: 0 auto 20px auto;
-}
-.orc-termos__text p { margin-bottom: 6px; }
-
-/* Divisória Observações */
-.orc-obs-divider {
-  width: 100%;
-  border-top: 1px dashed #bbb;
-  margin: 20px 0;
-}
-
-.orc-obs-section {
-  background: #fafafa;
-  padding: 15px;
-  border-radius: 4px;
-  border: 1px solid #eee;
-  margin-bottom: 20px;
-}
-
+/* ════════════════════════════ ASSINATURA ═══════════════════════════ */
 .orc-assinatura-box {
-  margin-top: 40px;
-  padding-top: 20px;
+  margin-top: 30px;
+  padding-top: 16px;
   display: flex;
   justify-content: center;
 }
-
 .orc-assinatura-line {
   width: 250px;
   border-top: 1px solid #000;
@@ -331,9 +527,9 @@ body {
   color: var(--text-muted);
 }
 
-/* Botão Exportar */
+/* ════════════════════════════ BOTÃO EXPORTAR ═══════════════════════════ */
 .orc-btn-export {
-  margin-top: 30px;
+  margin-top: 26px;
   width: 100%;
   padding: 15px;
   background: var(--text);
@@ -341,32 +537,35 @@ body {
   border: none;
   border-radius: 4px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.4px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform .15s;
+  font-family: var(--font);
 }
-.orc-btn-export:hover { opacity: 0.9; }
+.orc-btn-export:hover { opacity: 0.9; transform: translateY(-1px); }
 
-/* Helper styles */
-.w-full { grid-column: 1 / -1; }
-
-/* ════════════════════════════
-   RESPONSIVE & PRINT
-════════════════════════════ */
+/* ════════════════════════════ PRINT ═══════════════════════════ */
 @media print {
   .orc-bg { background: none; padding: 0; }
   .orc-paper { box-shadow: none; padding: 0; max-width: 100%; }
-  .orc-back-link, .orc-btn-add, .orc-btn-del, .orc-btn-export { display: none; }
-  .orc-input { border: none; padding: 0; }
+  .orc-back-link, .orc-btn-add, .orc-btn-del, .orc-btn-export, .orc-perfil-section { display: none !important; }
+  .orc-row input { border: none; padding: 0; }
   body { background: #fff; }
-  .orc-obs-divider { border-top: 1px dashed #000; }
 }
 
+/* ════════════════════════════ RESPONSIVO ═══════════════════════════ */
 @media (max-width: 680px) {
-  .orc-paper { padding: 20px; }
-  .orc-header { flex-direction: column; gap: 20px; }
+  .orc-paper { padding: 24px 18px; }
+  .orc-header { flex-direction: column; gap: 16px; }
+  .orc-empresa-info { text-align: left; max-width: 100%; }
   .orc-cliente-grid { grid-template-columns: 1fr; }
-  .orc-meta-group { text-align: left; }
+  .orc-row-split { flex-direction: column; }
+  .orc-row label { min-width: 60px; }
   .orc-section { overflow-x: auto; }
   .orc-table { min-width: 600px; }
+  .orc-termos-box__linha { flex-direction: column; }
+  .orc-termos-box__linha span:first-child { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+  .orc-perfil-section { flex-direction: column; align-items: flex-start; }
+  .orc-perfil-hint { margin-left: 0; }
 }

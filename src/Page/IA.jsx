@@ -1,425 +1,436 @@
-import { useContext, useState, useEffect, useRef } from "react";
-import { AuthContext } from './Context/AuthContext';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import "../css/IA.css";
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
-import MenuHome from "../components/MenuHome";
-import "../css/IA.css";
+import { gerarRespostaIA } from "../assets/aiResponder";
+import Toast from "../components/Toast";
 
-// ─── mock data ───────Teste mas vai ser substituido por "API"─────────────────────────────────────
-const MOCK_LEADS = [
-  { id:1, nome:"Carlos Mendes",   telefone:"(11) 99812-3456", status:"quente",   etapa:"Quer ligação",      ultima:"Tenho interesse, pode me ligar?",    tempo:"2min",  avatar:"CM" },
-  { id:2, nome:"Ana Ferreira",    telefone:"(11) 97654-8901", status:"quente",   etapa:"Atendimento avançado", ultima:"Qual o prazo de entrega?",          tempo:"5min",  avatar:"AF" },
-  { id:3, nome:"Roberto Lima",    telefone:"(21) 98765-4321", status:"morno",    etapa:"Negociando",        ultima:"Fica muito acima do meu orçamento.",  tempo:"18min", avatar:"RL" },
-  { id:4, nome:"Juliana Costa",   telefone:"(11) 91234-5678", status:"quente",   etapa:"Quer ligação",      ultima:"Pode enviar o catálogo completo?",    tempo:"1min",  avatar:"JC" },
-  { id:5, nome:"Marcos Oliveira", telefone:"(31) 99876-5432", status:"morno",    etapa:"Atendimento avançado", ultima:"Tenho um projeto para área externa.",tempo:"32min", avatar:"MO" },
-  { id:6, nome:"Fernanda Silva",  telefone:"(11) 95555-1234", status:"frio",     etapa:"Primeiro contato",  ultima:"Ok, vou pensar.",                    tempo:"2h",    avatar:"FS" },
-  { id:7, nome:"Lucas Pereira",   telefone:"(41) 98899-0011", status:"fechado",  etapa:"Fechado",           ultima:"Fechado! Pode gerar o pedido.",       tempo:"1d",    avatar:"LP" },
-  { id:8, nome:"Patrícia Souza",  telefone:"(11) 97788-3344", status:"quente",   etapa:"Negociando",        ultima:"Se der 10% de desconto fecho.",       tempo:"8min",  avatar:"PS" },
+// ═══════════════════════════════════════
+// MOCKS
+// ═══════════════════════════════════════
+const LEADS_MOCK = [
+  { id: 1, nome: 'João Silva', msg: 'Vocês tem a cadeira Náutica branca?', tempo: '2 min', status: 'pendente', prioridade: 'alta' },
+  { id: 2, nome: 'Maria Souza', msg: 'Qual o prazo de entrega para Ribeirão Preto?', tempo: '15 min', status: 'pendente', prioridade: 'media' },
+  { id: 3, nome: 'Pedro Alves', msg: 'Quero desconto para 10 poltronas', tempo: '1h', status: 'pendente', prioridade: 'alta' },
+  { id: 4, nome: 'Ana Costa', msg: 'Bom dia! Gostaria de ver o catálogo', tempo: '2h', status: 'atendido', prioridade: 'baixa' },
+  { id: 5, nome: 'Carlos Lima', msg: 'Quanto custa a mesa de centro?', tempo: '3h', status: 'atendido', prioridade: 'media' },
 ];
 
-const MOCK_TREINOS = [
-  { id:1, pergunta:"Qual o prazo de entrega?",          resposta:"Nosso prazo médio é de 30 a 45 dias úteis após confirmação do pedido. 😊",  aprovado:true  },
-  { id:2, pergunta:"Vocês fazem frete grátis?",         resposta:"O frete é calculado sobre 8,5% do valor total do pedido.",                  aprovado:true  },
-  { id:3, pergunta:"Tem produto disponível em estoque?",resposta:"Trabalhamos sob encomenda para garantir personalização total!",              aprovado:false },
+const BARRAS_MOCK = [
+  { label: 'Preço', valor: 45, cor: '#4f46e5', icone: '💰' },
+  { label: 'Prazo', valor: 25, cor: '#059669', icone: '📦' },
+  { label: 'Desconto', valor: 15, cor: '#d97706', icone: '🏷️' },
+  { label: 'Catálogo', valor: 15, cor: '#2563eb', icone: '📄' },
 ];
 
-const EVOLUCAO = [
-  { mes:"Jan", leads:12, atendidos:9,  fechados:3  },
-  { mes:"Fev", leads:18, atendidos:14, fechados:5  },
-  { mes:"Mar", leads:25, atendidos:20, fechados:8  },
-  { mes:"Abr", leads:22, atendidos:17, fechados:6  },
-  { mes:"Mai", leads:31, atendidos:26, fechados:11 },
-  { mes:"Jun", leads:38, atendidos:30, fechados:14 },
-  { mes:"Jul", leads:42, atendidos:36, fechados:18 },
+const LINHA_MOCK = [
+  { dia: 'Seg', valor: 30 }, { dia: 'Ter', valor: 45 }, { dia: 'Qua', valor: 35 },
+  { dia: 'Qui', valor: 60 }, { dia: 'Sex', valor: 55 }, { dia: 'Sáb', valor: 80 }, { dia: 'Dom', valor: 70 },
 ];
 
-const STATUS_COLOR = { quente:"#e05c5c", morno:"#f0a500", frio:"#5b8dee", fechado:"#2d7d52" };
-const STATUS_BG    = { quente:"#fdf0ee", morno:"#fff8e6", frio:"#eff4ff",  fechado:"#edf7f2" };
+const CATEGORIAS = [
+  { value: 'saudacao', label: 'Saudação', cor: '#4f46e5' },
+  { value: 'preco', label: 'Preço', cor: '#059669' },
+  { value: 'prazo', label: 'Prazo/Entrega', cor: '#d97706' },
+  { value: 'desconto', label: 'Desconto', cor: '#dc2626' },
+  { value: 'catalogo', label: 'Catálogo', cor: '#2563eb' },
+  { value: 'produto', label: 'Produto', cor: '#7c3aed' },
+  { value: 'outro', label: 'Outro', cor: '#6b7280' },
+];
 
-// ─── sub-components ───────────────────────────────────────
-function PulsingDot({ color = "#2d7d52" }) {
-  return (
-    <span className="ia-pulse-wrap">
-      <span className="ia-pulse-ring" style={{ borderColor: color }} />
-      <span className="ia-pulse-dot"  style={{ background: color }} />
-    </span>
-  );
-}
+const BASE_INICIAL = [
+  { id: 1, chave: 'cadeira náutica', resp: 'Sim, temos a cadeira Náutica em várias cores! Branca, Preta e Natural.', img: 'https://images.pexels.com/photos/2178450/pexels-photo-2178450.jpeg?auto=compress&cs=tinysrgb&w=200', categoria: 'produto', usos: 12, ativa: true },
+  { id: 2, chave: 'prazo entrega', resp: 'Nosso prazo médio é de 15 a 20 dias úteis, dependendo do volume.', img: '', categoria: 'prazo', usos: 8, ativa: true },
+  { id: 3, chave: 'desconto quantidade', resp: 'Para compras acima de 5 unidades, oferecemos desconto progressivo!', img: '', categoria: 'desconto', usos: 5, ativa: true },
+];
 
-function StatCard({ icon, label, value, sub, accent }) {
-  return (
-    <div className="ia-stat" style={{ "--accent": accent }}>
-      <div className="ia-stat__icon">{icon}</div>
-      <div className="ia-stat__body">
-        <p className="ia-stat__label">{label}</p>
-        <p className="ia-stat__value">{value}</p>
-        {sub && <p className="ia-stat__sub">{sub}</p>}
-      </div>
-      <div className="ia-stat__bar" />
-    </div>
-  );
-}
-
-// mini bar chart pure CSS
-function BarChart({ data }) {
-  const max = Math.max(...data.map(d => d.leads));
-  return (
-    <div className="ia-chart">
-      {data.map((d, i) => (
-        <div key={i} className="ia-chart__col">
-          <div className="ia-chart__bars">
-            <div className="ia-chart__bar ia-chart__bar--leads"
-              style={{ height: `${(d.leads / max) * 100}%`, animationDelay: `${i * 0.06}s` }} />
-            <div className="ia-chart__bar ia-chart__bar--atendidos"
-              style={{ height: `${(d.atendidos / max) * 100}%`, animationDelay: `${i * 0.06 + 0.03}s` }} />
-            <div className="ia-chart__bar ia-chart__bar--fechados"
-              style={{ height: `${(d.fechados / max) * 100}%`, animationDelay: `${i * 0.06 + 0.06}s` }} />
-          </div>
-          <span className="ia-chart__label">{d.mes}</span>
-        </div>
-      ))}
-      <div className="ia-chart__legend">
-        <span><i style={{ background: "#5b8dee" }} />Leads</span>
-        <span><i style={{ background: "#f0a500" }} />Atendidos</span>
-        <span><i style={{ background: "#2d7d52" }} />Fechados</span>
-      </div>
-    </div>
-  );
-}
-
-// donut chart pure CSS
-function DonutChart({ fechados, total }) {
-  const pct   = Math.round((fechados / total) * 100);
-  const circ  = 2 * Math.PI * 40;
-  const dash  = (pct / 100) * circ;
-  return (
-    <div className="ia-donut">
-      <svg viewBox="0 0 100 100" className="ia-donut__svg">
-        <circle cx="50" cy="50" r="40" fill="none" stroke="#f0f0ec" strokeWidth="12" />
-        <circle cx="50" cy="50" r="40" fill="none" stroke="#2d7d52" strokeWidth="12"
-          strokeDasharray={`${dash} ${circ - dash}`}
-          strokeLinecap="round"
-          transform="rotate(-90 50 50)"
-          className="ia-donut__arc"
-        />
-      </svg>
-      <div className="ia-donut__center">
-        <span className="ia-donut__pct">{pct}%</span>
-        <span className="ia-donut__sub">conversão</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── ABAS ─────────────────────────────────────────────────
-function TabDashboard({ iaAtiva, setIaAtiva, leads }) {
-  const quentes  = leads.filter(l => l.status === "quente").length;
-  const ligacoes = leads.filter(l => l.etapa  === "Quer ligação").length;
-  const fechados = leads.filter(l => l.status === "fechado").length;
-  const total    = leads.length;
-
-  return (
-    <div className="ia-tab-content">
-      {/* Status da IA */}
-      <div className="ia-status-card">
-        <div className="ia-status-card__left">
-          <PulsingDot color={iaAtiva ? "#2d7d52" : "#e05c5c"} />
-          <div>
-            <p className="ia-status-card__title">
-              IA Kasaleve — WhatsApp
-            </p>
-            <p className="ia-status-card__desc">
-              {iaAtiva ? "Respondendo leads automaticamente" : "Pausada — leads não estão sendo respondidos"}
-            </p>
-          </div>
-        </div>
-        <div className="ia-status-card__right">
-          <button
-            className={`ia-toggle ${iaAtiva ? "ia-toggle--on" : "ia-toggle--off"}`}
-            onClick={() => setIaAtiva(v => !v)}
-          >
-            <span className="ia-toggle__knob" />
-          </button>
-          <span className="ia-toggle__label">{iaAtiva ? "Ativa" : "Pausada"}</span>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="ia-stats-grid">
-        <StatCard icon="🔥" label="Leads quentes"     value={quentes}  sub="precisam de atenção" accent="#e05c5c" />
-        <StatCard icon="📞" label="Querem ligação"    value={ligacoes} sub="aguardando contato"  accent="#f0a500" />
-        <StatCard icon="✅" label="Fechamentos"       value={fechados} sub="este mês"            accent="#2d7d52" />
-        <StatCard icon="💬" label="Total de leads"    value={total}    sub="no pipeline"         accent="#5b8dee" />
-      </div>
-
-      {/* Gráficos */}
-      <div className="ia-charts-row">
-        <div className="ia-chart-card">
-          <h3 className="ia-chart-card__title">Evolução mensal</h3>
-          <BarChart data={EVOLUCAO} />
-        </div>
-        <div className="ia-chart-card ia-chart-card--narrow">
-          <h3 className="ia-chart-card__title">Taxa de conversão</h3>
-          <DonutChart fechados={fechados} total={total} />
-          <div className="ia-donut-stats">
-            <div><span>{total}</span><label>leads</label></div>
-            <div><span>{fechados}</span><label>fechados</label></div>
-          </div>
-        </div>
-      </div>
-
-      {/* Últimas mensagens */}
-      <div className="ia-recent">
-        <h3 className="ia-section-title">Atividade recente</h3>
-        <div className="ia-recent-list">
-          {leads.filter(l => l.status !== "frio").slice(0, 4).map(l => (
-            <div key={l.id} className="ia-recent-item">
-              <div className="ia-avatar" style={{ background: STATUS_COLOR[l.status] }}>
-                {l.avatar}
-              </div>
-              <div className="ia-recent-item__body">
-                <p className="ia-recent-item__nome">{l.nome}</p>
-                <p className="ia-recent-item__msg">"{l.ultima}"</p>
-              </div>
-              <div className="ia-recent-item__right">
-                <span className="ia-badge" style={{ background: STATUS_BG[l.status], color: STATUS_COLOR[l.status] }}>
-                  {l.etapa}
-                </span>
-                <span className="ia-recent-item__tempo">{l.tempo}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TabLeads({ leads }) {
-  const [filtro, setFiltro] = useState("todos");
-  const filtered = filtro === "todos" ? leads : leads.filter(l => l.status === filtro);
-
-  return (
-    <div className="ia-tab-content">
-      <div className="ia-leads-toolbar">
-        <h3 className="ia-section-title" style={{ marginBottom: 0 }}>Pipeline de Leads</h3>
-        <div className="ia-filter-chips">
-          {["todos","quente","morno","frio","fechado"].map(f => (
-            <button key={f}
-              className={`ia-chip ${filtro === f ? "ia-chip--active" : ""}`}
-              style={filtro === f && f !== "todos" ? { background: STATUS_BG[f], color: STATUS_COLOR[f], borderColor: STATUS_COLOR[f] } : {}}
-              onClick={() => setFiltro(f)}
-            >
-              {f === "todos" ? "Todos" : f.charAt(0).toUpperCase() + f.slice(1)}
-              <span className="ia-chip__count">
-                {f === "todos" ? leads.length : leads.filter(l => l.status === f).length}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="ia-leads-list">
-        {filtered.map((l, i) => (
-          <div key={l.id} className="ia-lead-card" style={{ animationDelay: `${i * 0.05}s` }}>
-            <div className="ia-avatar ia-avatar--lg" style={{ background: STATUS_COLOR[l.status] }}>
-              {l.avatar}
-            </div>
-            <div className="ia-lead-card__body">
-              <div className="ia-lead-card__top">
-                <span className="ia-lead-card__nome">{l.nome}</span>
-                <span className="ia-lead-card__tel">📱 {l.telefone}</span>
-              </div>
-              <p className="ia-lead-card__msg">"{l.ultima}"</p>
-            </div>
-            <div className="ia-lead-card__right">
-              <span className="ia-badge"
-                style={{ background: STATUS_BG[l.status], color: STATUS_COLOR[l.status] }}>
-                {l.etapa}
-              </span>
-              <span className="ia-lead-card__tempo">{l.tempo} atrás</span>
-              {(l.etapa === "Quer ligação" || l.status === "quente") && (
-                <button className="ia-btn-call">📞 Ligar agora</button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function TabTreino() {
-  const [treinos, setTreinos]   = useState(MOCK_TREINOS);
-  const [pergunta, setPergunta] = useState("");
-  const [resposta, setResposta] = useState("");
-  const [salvando, setSalvando] = useState(false);
-
-  function handleAdd() {
-    if (!pergunta.trim() || !resposta.trim()) return;
-    setSalvando(true);
-    setTimeout(() => {
-      setTreinos(prev => [...prev, {
-        id: Date.now(), pergunta, resposta, aprovado: false
-      }]);
-      setPergunta(""); setResposta(""); setSalvando(false);
-    }, 800);
-  }
-
-  function toggleAprovado(id) {
-    setTreinos(prev => prev.map(t => t.id === id ? { ...t, aprovado: !t.aprovado } : t));
-  }
-
-  function remover(id) {
-    setTreinos(prev => prev.filter(t => t.id !== id));
-  }
-
-  return (
-    <div className="ia-tab-content">
-      <div className="ia-treino-header">
-        <div>
-          <h3 className="ia-section-title" style={{ marginBottom: 4 }}>Treinamento da IA</h3>
-          <p className="ia-section-sub">Ensine à IA como responder perguntas frequentes dos leads.</p>
-        </div>
-        <div className="ia-treino-stats">
-          <span>✅ {treinos.filter(t => t.aprovado).length} aprovados</span>
-          <span>⏳ {treinos.filter(t => !t.aprovado).length} pendentes</span>
-        </div>
-      </div>
-
-      {/* Formulário */}
-      <div className="ia-treino-form">
-        <div className="ia-treino-form__icon">🤖</div>
-        <div className="ia-treino-form__fields">
-          <div className="ia-field">
-            <label>Pergunta do Lead</label>
-            <input
-              placeholder='Ex: "Qual o prazo de entrega?"'
-              value={pergunta}
-              onChange={e => setPergunta(e.target.value)}
-            />
-          </div>
-          <div className="ia-field">
-            <label>Resposta da IA</label>
-            <textarea
-              rows={3}
-              placeholder="Como a IA deve responder..."
-              value={resposta}
-              onChange={e => setResposta(e.target.value)}
-            />
-          </div>
-          <button className={`ia-btn-treinar ${salvando ? "ia-btn-treinar--loading" : ""}`}
-            onClick={handleAdd} disabled={salvando}>
-            {salvando ? "⏳ Salvando..." : "➕ Adicionar ao treinamento"}
-          </button>
-        </div>
-      </div>
-
-      {/* Lista de treinos */}
-      <div className="ia-treino-list">
-        {treinos.map((t, i) => (
-          <div key={t.id} className={`ia-treino-item ${t.aprovado ? "ia-treino-item--ok" : ""}`}
-            style={{ animationDelay: `${i * 0.06}s` }}>
-            <div className="ia-treino-item__content">
-              <p className="ia-treino-item__q">❓ {t.pergunta}</p>
-              <p className="ia-treino-item__a">🤖 {t.resposta}</p>
-            </div>
-            <div className="ia-treino-item__actions">
-              <button className={`ia-btn-aprovar ${t.aprovado ? "ia-btn-aprovar--on" : ""}`}
-                onClick={() => toggleAprovado(t.id)}>
-                {t.aprovado ? "✅ Aprovado" : "Aprovar"}
-              </button>
-              <button className="ia-btn-remover" onClick={() => remover(t.id)}>✕</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ─── MAIN ─────────────────────────────────────────────────
-export default function IA() {
-  const { loggedin } = useContext(AuthContext);
-  const [aba, setAba]         = useState("dashboard");
+export default function GestaoIA() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Dados Compartilhados
   const [iaAtiva, setIaAtiva] = useState(true);
-  const [leads]               = useState(MOCK_LEADS);
-  const [tick, setTick]       = useState(0);
+  const [leads, setLeads] = useState(LEADS_MOCK);
+  const [baseDados, setBaseDados] = useState(BASE_INICIAL);
+  const [respostasIA, setRespostasIA] = useState(12);
+  const [logs, setLogs] = useState([
+    { id: 1, hora: '14:32', acao: 'IA respondeu automaticamente a "Maria Souza"', tipo: 'auto' },
+    { id: 2, hora: '14:15', acao: 'Nova regra adicionada: "desconto quantidade"', tipo: 'regra' },
+    { id: 3, hora: '13:50', acao: 'IA pausada pelo operador', tipo: 'sistema' },
+  ]);
 
-  // simula contador de mensagens em tempo real
-  useEffect(() => {
-    if (!iaAtiva) return;
-    const t = setInterval(() => setTick(v => v + 1), 4000);
-    return () => clearInterval(t);
-  }, [iaAtiva]);
+  // States do Chat (Tab Atendimento)
+  const [ativo, setAtivo] = useState(null);
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState('');
+  const [typing, setTyping] = useState(false);
+  const [buscaLead, setBuscaLead] = useState('');
+  const chatEndRef = useRef(null);
+  const inputRef = useRef(null);
 
-  if (!loggedin) {
-    return (
-      <>
-        <MenuHome />
-        <div className="detail-page">
-          <div className="detail-empty">
-            <span>🔒</span>
-            <p>Você precisa estar logado para acessar esta página.</p>
-            <BTNVolta />
+  // States do Treinamento (Tab Laboratório)
+  const [tPalavra, setTPalavra] = useState('');
+  const [tResposta, setTResposta] = useState('');
+  const [tImagem, setTImagem] = useState('');
+  const [tCategoria, setTCategoria] = useState('outro');
+  const [editandoRegra, setEditandoRegra] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+
+  // Toasts
+  const [toasts, setToasts] = useState([]);
+  const addToast = useCallback((mensagem, tipo = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, mensagem, tipo }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+  }, []);
+
+  const addLog = useCallback((acao, tipo) => {
+    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    setLogs(prev => [{ id: Date.now(), hora, acao, tipo }, ...prev]);
+  }, []);
+
+  // Auto-scroll chat
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, typing]);
+  useEffect(() => { if (ativo) setTimeout(() => inputRef.current?.focus(), 100); }, [ativo]);
+
+  // Lógica IA
+  const pensarIA = useCallback(async (msg) => {
+    for (const item of baseDados.filter(r => r.ativa)) {
+      const palavras = item.chave.toLowerCase().split(' ');
+      if (palavras.every(p => msg.toLowerCase().includes(p))) {
+        setBaseDados(prev => prev.map(r => r.id === item.id ? { ...r, usos: r.usos + 1 } : r));
+        return { texto: item.resp, img: item.img, origem: 'base_personalizada' };
+      }
+    }
+    try {
+      const resposta = await gerarRespostaIA(msg);
+      return { texto: resposta, img: null, origem: 'base_geral' };
+    } catch { return { texto: "Erro ao processar.", img: null, origem: 'erro' }; }
+  }, [baseDados]);
+
+  // Ações Chat
+  const selectLead = useCallback((l) => {
+    setAtivo(l);
+    setMsgs([{ id: Date.now(), remetente: 'cliente', texto: l.msg, horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }]);
+  }, []);
+
+  const usarIA = useCallback(async () => {
+    if (!iaAtiva || !ativo || typing) return;
+    setTyping(true);
+    const ultimaMsg = msgs.filter(m => m.remetente === 'cliente').pop()?.texto || '';
+    const result = await pensarIA(ultimaMsg);
+    
+    setMsgs(prev => [...prev, { id: Date.now(), remetente: 'ia', texto: result.texto, img: result.img, origem: result.origem, horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }]);
+    setTyping(false);
+    setLeads(prev => prev.map(l => l.id === ativo.id ? { ...l, status: 'atendido' } : l));
+    setRespostasIA(prev => prev + 1);
+    addLog(`IA respondeu automaticamente a "${ativo.nome}"`, 'auto');
+    addToast('Lead respondido pela IA!', 'success');
+  }, [iaAtiva, ativo, typing, msgs, pensarIA, addToast, addLog]);
+
+  const enviarManual = useCallback(() => {
+    if (!input.trim() || !ativo) return;
+    setMsgs(prev => [...prev, { id: Date.now(), remetente: 'humano', texto: input, horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) }]);
+    setLeads(prev => prev.map(l => l.id === ativo.id ? { ...l, status: 'atendido' } : l));
+    addLog(`Resposta manual enviada para "${ativo.nome}"`, 'manual');
+    setInput('');
+  }, [input, ativo, addLog]);
+
+  // Ações Treinamento
+  const treinar = useCallback(() => {
+    if (!tPalavra.trim() || !tResposta.trim()) return addToast('Preencha gatilho e resposta!', 'error');
+    if (editandoRegra) {
+      setBaseDados(prev => prev.map(r => r.id === editandoRegra.id ? { ...r, chave: tPalavra, resp: tResposta, img: tImagem, categoria: tCategoria } : r));
+      addLog(`Regra editada: "${tPalavra}"`, 'regra');
+      addToast('Regra atualizada!', 'success');
+      setEditandoRegra(null);
+    } else {
+      setBaseDados(prev => [...prev, { id: Date.now(), chave: tPalavra, resp: tResposta, img: tImagem, categoria: tCategoria, usos: 0, ativa: true }]);
+      addLog(`Nova regra adicionada: "${tPalavra}"`, 'regra');
+      addToast('Nova regra treinada!', 'success');
+    }
+    setTPalavra(''); setTResposta(''); setTImagem(''); setTCategoria('outro');
+  }, [tPalavra, tResposta, tImagem, tCategoria, editandoRegra, addToast, addLog]);
+
+  const editarRegra = useCallback((item) => {
+    setEditandoRegra(item); setTPalavra(item.chave); setTResposta(item.resp); setTImagem(item.img); setTCategoria(item.categoria);
+  }, []);
+
+  const deleteRegra = useCallback((id) => {
+    setBaseDados(prev => prev.filter(i => i.id !== id));
+    setConfirmDelete(null);
+    addLog('Regra removida da base', 'regra');
+    addToast('Regra removida!', 'warning');
+  }, [addToast, addLog]);
+
+  // Dados derivados
+  const contadores = useMemo(() => ({
+    pendentes: leads.filter(l => l.status === 'pendente').length,
+    atendidos: leads.filter(l => l.status === 'atendido').length,
+  }), [leads]);
+
+  const leadsFiltrados = useMemo(() => {
+    return leads.filter(l => !buscaLead || l.nome.toLowerCase().includes(buscaLead.toLowerCase()) || l.msg.toLowerCase().includes(buscaLead.toLowerCase()));
+  }, [leads, buscaLead]);
+
+  // Dados Gráficos
+  const svgW = 100, svgH = 100, svgPd = 8;
+  const maxV = Math.max(...LINHA_MOCK.map(d => d.valor));
+  const pontosLinha = LINHA_MOCK.map((d, i) => ({ x: svgPd + (i / (LINHA_MOCK.length - 1)) * (svgW - svgPd * 2), y: svgH - svgPd - ((d.valor / maxV) * (svgH - svgPd * 2)) }));
+  const polylinePoints = pontosLinha.map(p => `${p.x},${p.y}`).join(' ');
+
+  const getCategoriaInfo = (cat) => CATEGORIAS.find(c => c.value === cat) || CATEGORIAS[6];
+
+  // ═══════════════════════════════════════
+  // RENDER DAS TABS
+  // ═══════════════════════════════════════
+
+  // 1. DASHBOARD
+  const renderDashboard = () => (
+    <div className="tab-page fade-in">
+      <div className="page-header">
+        <div>
+          <h2>Visão Geral da IA</h2>
+          <p className="text-muted">Acompanhe as métricas e o desempenho em tempo real.</p>
+        </div>
+        <div className="status-card-main">
+          <span className={`status-dot-main ${iaAtiva ? 'on' : 'off'}`}></span>
+          <div>
+            <strong>{iaAtiva ? 'Automação Ativa' : 'Automação Pausada'}</strong>
+            <span className="text-muted">Clique para alterar</span>
+          </div>
+          <button className={`toggle-switch ${iaAtiva ? 'active' : ''}`} onClick={() => { setIaAtiva(!iaAtiva); addLog(!iaAtiva ? 'IA Ativada' : 'IA Pausada', 'sistema'); }}>
+            <div className="toggle-knob"></div>
+          </button>
+        </div>
+      </div>
+
+      <div className="kpi-grid-modern">
+        <div className="kpi-modern"><span className="kpi-number">{contadores.pendentes}</span><span className="kpi-label">Pendentes</span></div>
+        <div className="kpi-modern"><span className="kpi-number primary">{respostasIA}</span><span className="kpi-label">Respostas IA</span></div>
+        <div className="kpi-modern"><span className="kpi-number green">2.1s</span><span className="kpi-label">Tempo Médio</span></div>
+        <div className="kpi-modern"><span className="kpi-number yellow">{baseDados.length}</span><span className="kpi-label">Regras Ativas</span></div>
+      </div>
+
+      <div className="charts-grid">
+        <div className="chart-card">
+          <h3>Volume de Atendimentos (7 dias)</h3>
+          <div className="chart-area-box">
+            <svg className="svg-chart" viewBox={`0 0 ${svgW} ${svgH}`} preserveAspectRatio="none">
+              <defs><linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#4f46e5" stopOpacity="0.2" /><stop offset="100%" stopColor="#4f46e5" stopOpacity="0" /></linearGradient></defs>
+              <polygon points={`${svgPd},${svgH - svgPd} ${polylinePoints} ${svgW - svgPd},${svgH - svgPd}`} fill="url(#grad)" />
+              <polyline points={polylinePoints} fill="none" stroke="#4f46e5" strokeWidth="2.5" strokeLinecap="round" />
+              {pontosLinha.map((p, i) => <circle key={i} cx={p.x} cy={p.y} r="3.5" fill="white" stroke="#4f46e5" strokeWidth="2" />)}
+            </svg>
+          </div>
+          <div className="chart-labels">{LINHA_MOCK.map((d, i) => <span key={i}>{d.dia}<b>{d.valor}</b></span>)}</div>
+        </div>
+        <div className="chart-card">
+          <h3>Intenções Detectadas</h3>
+          <div className="bars-container">
+            {BARRAS_MOCK.map((b, i) => (
+              <div key={i} className="bar-item">
+                <div className="bar-info"><span>{b.icone} {b.label}</span><b>{b.valor}%</b></div>
+                <div className="bar-track"><div className="bar-fill" style={{ width: `${b.valor}%`, background: b.cor }}></div></div>
+              </div>
+            ))}
           </div>
         </div>
-      </>
-    );
-  }
+      </div>
+    </div>
+  );
 
-  const abas = [
-    { id: "dashboard", label: "Dashboard", icon: "📊" },
-    { id: "leads",     label: "Leads",     icon: "👥" },
-    { id: "treino",    label: "Treinar IA",icon: "🧠" },
-  ];
+  // 2. ATENDIMENTO (LEADS)
+  const renderAtendimento = () => (
+    <div className="tab-page fade-in chat-layout">
+      <div className="leads-sidebar">
+        <div className="sidebar-header">
+          <h3>Leads ({leadsFiltrados.length})</h3>
+          <div className="search-box-clean">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Buscar..." value={buscaLead} onChange={e => setBuscaLead(e.target.value)} />
+          </div>
+        </div>
+        <div className="leads-list-clean">
+          {leadsFiltrados.map(l => (
+            <div key={l.id} className={`lead-card-clean ${ativo?.id === l.id ? 'active' : ''}`} onClick={() => selectLead(l)}>
+              <div className="lead-avatar-clean" style={{ background: l.status === 'atendido' ? '#d1fae5' : '#e0e7ff', color: l.status === 'atendido' ? '#059669' : '#4f46e5' }}>
+                {l.status === 'atendido' ? '✓' : l.nome.charAt(0)}
+              </div>
+              <div className="lead-info-clean">
+                <strong>{l.nome}</strong>
+                <p>{l.msg}</p>
+              </div>
+              <span className="lead-time-clean">{l.tempo}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="chat-main-clean">
+        {ativo ? (
+          <>
+            <div className="chat-top-clean">
+              <strong>{ativo.nome}</strong>
+              <span className={`badge-status ${ativo.status}`}>{ativo.status === 'pendente' ? 'Pendente' : 'Atendido'}</span>
+            </div>
+            <div className="messages-area-clean">
+              {msgs.map((m, i) => (
+                <div key={i} className={`msg-clean ${m.remetente}`}>
+                  {(m.remetente === 'ia' || m.remetente === 'humano') && <span className="msg-sender">{m.remetente === 'ia' ? 'Kasaleve IA' : 'Você'}</span>}
+                  <div className="msg-bubble-clean">{m.texto}</div>
+                  {m.img && <img src={m.img} className="msg-img-clean" alt="" />}
+                  <span className="msg-time-clean">{m.horario}</span>
+                </div>
+              ))}
+              {typing && <div className="msg-clean ia"><span className="msg-sender">Kasaleve IA</span><div className="msg-bubble-clean typing-clean"><span></span><span></span><span></span></div></div>}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="chat-input-clean">
+              <button className="btn-ai-clean" onClick={usarIA} disabled={!iaAtiva || typing}>
+                {typing ? 'Pensando...' : '✨ Responder com IA'}
+              </button>
+              <div className="input-wrapper-clean">
+                <input ref={inputRef} value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && enviarManual()} placeholder="Resposta manual..." />
+                <button onClick={enviarManual} disabled={!input.trim()}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="empty-chat">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <h3>Selecione um lead</h3>
+            <p>Escolha uma conversa ao lado para começar</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // 3. LABORATÓRIO
+  const renderLaboratorio = () => (
+    <div className="tab-page fade-in">
+      <div className="page-header">
+        <div>
+          <h2>Laboratório de Treinamento</h2>
+          <p className="text-muted">Ensine a IA a responder perguntas específicas sobre seu negócio.</p>
+        </div>
+      </div>
+
+      <div className="train-box">
+        <h3>{editandoRegra ? '✏️ Editando Regra' : '➕ Nova Regra'}</h3>
+        <div className="train-grid">
+          <div className="field-clean">
+            <label>Gatilho (Palavra-chave)</label>
+            <input value={tPalavra} onChange={e => setTPalavra(e.target.value)} placeholder="Ex: cadeira náutica" />
+          </div>
+          <div className="field-clean lg">
+            <label>Resposta da IA</label>
+            <input value={tResposta} onChange={e => setTResposta(e.target.value)} placeholder="O que a IA deve responder..." />
+          </div>
+          <div className="field-clean">
+            <label>Categoria</label>
+            <select value={tCategoria} onChange={e => setTCategoria(e.target.value)}>
+              {CATEGORIAS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+            </select>
+          </div>
+          <div className="field-clean">
+            <label>URL Imagem (opcional)</label>
+            <input value={tImagem} onChange={e => setTImagem(e.target.value)} placeholder="https://..." />
+          </div>
+        </div>
+        <div className="train-actions">
+          <button className="btn-save" onClick={treinar}>{editandoRegra ? 'Salvar Alterações' : 'Adicionar Regra'}</button>
+          {editandoRegra && <button className="btn-cancel-clean" onClick={() => { setEditandoRegra(null); setTPalavra(''); setTResposta(''); setTImagem(''); }}>Cancelar</button>}
+        </div>
+      </div>
+
+      <div className="rules-grid">
+        {baseDados.map(item => {
+          const cat = getCategoriaInfo(item.categoria);
+          return (
+            <div key={item.id} className={`rule-item-modern ${!item.ativa ? 'disabled' : ''}`}>
+              <div className="rule-top">
+                <span className="rule-cat" style={{ color: cat.cor, background: cat.cor + '15' }}>{cat.label}</span>
+                <div className="rule-btns">
+                  <button onClick={() => setBaseDados(p => p.map(r => r.id === item.id ? { ...r, ativa: !r.ativa } : r))}>{item.ativa ? '⏸' : '▶'}</button>
+                  <button onClick={() => editarRegra(item)}>✎</button>
+                  {confirmDelete === item.id ? (
+                    <div className="confirm-popup"><span>Excluir?</span><button onClick={() => deleteRegra(item.id)}>Sim</button><button onClick={() => setConfirmDelete(null)}>Não</button></div>
+                  ) : (
+                    <button onClick={() => setConfirmDelete(item.id)}>✕</button>
+                  )}
+                </div>
+              </div>
+              <h4>"{item.chave}"</h4>
+              <p>{item.resp}</p>
+              {item.img && <img src={item.img} className="rule-img-modern" alt="" />}
+              <div className="rule-footer"><span>📊 Usado {item.usos} vezes</span></div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  // 4. HISTÓRICO / STATUS
+  const renderHistorico = () => (
+    <div className="tab-page fade-in">
+      <div className="page-header">
+        <div>
+          <h2>Histórico de Ações</h2>
+          <p className="text-muted">Log completo de tudo que aconteceu no sistema.</p>
+        </div>
+      </div>
+
+      <div className="logs-container">
+        {logs.length === 0 ? <p className="text-muted">Nenhuma ação registrada ainda.</p> : 
+          logs.map(log => (
+            <div key={log.id} className={`log-item ${log.tipo}`}>
+              <span className="log-time">{log.hora}</span>
+              <span className={`log-icon ${log.tipo}`}>{log.tipo === 'auto' ? '🤖' : log.tipo === 'manual' ? '👤' : log.tipo === 'regra' ? '🧠' : '⚙️'}</span>
+              <span className="log-text">{log.acao}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  );
 
   return (
     <>
       <MenuPage />
-      <div className="ia-page">
+      <div className="gestao-container">
+        <BTNVolta />
+        <div className="toast-container">{toasts.map(t => <Toast key={t.id} mensagem={t.mensagem} tipo={t.tipo} onClose={() => setToasts(prev => prev.filter(to => to.id !== t.id))} />)}</div>
 
-        {/* ── Header ── */}
-        <div className="ia-page-header">
-          <BTNVolta />
-          <div className="ia-page-header__titles">
-            <p className="eyebrow">Inteligência Artificial · WhatsApp</p>
-            <h1 className="ia-page-title">
-              Monitor IA
-              {iaAtiva && (
-                <span className="ia-live-badge">
-                  <PulsingDot color="#2d7d52" /> AO VIVO
-                </span>
-              )}
-            </h1>
-          </div>
-          <div className="ia-msgs-counter">
-            <span className="ia-msgs-counter__num">{127 + tick}</span>
-            <span className="ia-msgs-counter__label">msgs respondidas hoje</span>
-          </div>
+        <div className="main-tabs-nav">
+          <button className={`tab-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </button>
+          <button className={`tab-btn ${activeTab === 'leads' ? 'active' : ''}`} onClick={() => setActiveTab('leads')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Atendimento
+            {contadores.pendentes > 0 && <span className="tab-badge">{contadores.pendentes}</span>}
+          </button>
+          <button className={`tab-btn ${activeTab === 'training' ? 'active' : ''}`} onClick={() => setActiveTab('training')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"/><path d="M16 14H8a6 6 0 0 0-6 6v2h20v-2a6 6 0 0 0-6-6z"/></svg>
+            Laboratório
+          </button>
+          <button className={`tab-btn ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => setActiveTab('logs')}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Histórico
+          </button>
         </div>
 
-        {/* ── Tabs ── */}
-        <div className="ia-tabs">
-          {abas.map(a => (
-            <button key={a.id}
-              className={`ia-tab ${aba === a.id ? "ia-tab--active" : ""}`}
-              onClick={() => setAba(a.id)}>
-              <span>{a.icon}</span> {a.label}
-              {a.id === "leads" && (
-                <span className="ia-tab__badge">
-                  {leads.filter(l => l.etapa === "Quer ligação").length}
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="tab-content-area">
+          {activeTab === 'dashboard' && renderDashboard()}
+          {activeTab === 'leads' && renderAtendimento()}
+          {activeTab === 'training' && renderLaboratorio()}
+          {activeTab === 'logs' && renderHistorico()}
         </div>
-
-        {/* ── Conteúdo por aba ── */}
-        {aba === "dashboard" && <TabDashboard iaAtiva={iaAtiva} setIaAtiva={setIaAtiva} leads={leads} />}
-        {aba === "leads"     && <TabLeads leads={leads} />}
-        {aba === "treino"    && <TabTreino />}
-
       </div>
     </>
   );
