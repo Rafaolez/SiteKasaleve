@@ -1,15 +1,15 @@
 /* ════════════════════════════════════════
    menuhome.css — Kasaleve Light Header
-════════════════════════════════════════ */
+════════════════════════════ */
 
 .mh-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 60px;
-  padding: 0 28px 0 24px;
-  background: #FAFAF8;
-  border-bottom: 1px solid #E8E4DE;
+  height: 64px; /* Aumentei 4px para dar mais respiro */
+  padding: 0 32px;
+  background: #FDFCFA; /* Padronizado com a nova sidebar */
+  border-bottom: 1px solid #EFECEA; /* Borda mais sutil */
   flex-shrink: 0;
   gap: 16px;
   z-index: 10;
@@ -24,10 +24,9 @@
 }
 
 .mh-logo {
-  height: 34px;
+  height: 32px;
   width: auto;
   object-fit: contain;
-  /* inverte para escuro pois a logo é branca */
   filter: invert(1) brightness(.2);
   transition: opacity .2s;
 }
@@ -69,31 +68,32 @@
 .mh-btn-login {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   text-decoration: none;
-  font-family: 'Georgia', serif;
+  font-family: sans-serif; /* Sans-serif para botões de ação */
   font-size: 13px;
-  font-style: italic;
-  letter-spacing: .5px;
-  color: #FAFAF8;
+  font-weight: 600;
+  letter-spacing: .3px;
+  color: #FDFCFA;
   background: #1A1714;
   border: 1.5px solid #1A1714;
-  border-radius: 8px;
-  padding: 8px 18px;
+  border-radius: 10px; /* Mais arredondado */
+  padding: 9px 20px;
   cursor: pointer;
-  transition: background .2s, color .2s, transform .15s;
+  transition: all .25s cubic-bezier(.23,1,.32,1);
   white-space: nowrap;
 }
+
 .mh-btn-login:hover {
   background: #C05830;
   border-color: #C05830;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(192, 88, 48, 0.3);
 }
 
 .mh-btn-login__arrow {
-  font-style: normal;
   font-size: 14px;
-  transition: transform .18s;
+  transition: transform .2s;
 }
 .mh-btn-login:hover .mh-btn-login__arrow {
   transform: translateX(3px);

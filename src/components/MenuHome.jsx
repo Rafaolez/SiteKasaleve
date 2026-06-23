@@ -1,10 +1,8 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../css/menuhome.css";
 import Logo from '../Imagens/LogoKasaLeveBranca.png';
 
 function MenuHome() {
-  const location = useLocation();
-
   return (
     <header className="mh-header">
       {/* Logo */}

@@ -1,24 +1,140 @@
-.logo{
-    height: 3.5rem;
-    width: 8%;
-    padding: 1rem;
+/* ════════════════════════════════════════
+   MenuPage.css — Kasaleve Internal Header
+════════════════════════════ */
+
+.mp-header {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 32px;
+  background: #FDFCFA;
+  border-bottom: 1px solid #EFECEA;
+  flex-shrink: 0;
+  gap: 24px;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(10px); /* Efeito vidro ao rolar a página */
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(253, 252, 250, 0.95); /* Transparência sutil para o vidro funcionar */
 }
-.cima{
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-    align-items: center;
-    background-color: #3a3a3a;
-    height: 5rem;
+
+/* ── Botão Voltar ── */
+.mp-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid #E7E5E4;
+  border-radius: 10px;
+  padding: 8px 16px;
+  color: #78716C;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
-.text{
-    text-decoration: none;
+
+.mp-back-btn:hover {
+  background: #F5F3F0;
+  color: #1A1714;
+  border-color: #D0CCC8;
+  transform: translateX(-2px); /* Micro-animação para "esquerda" */
 }
-.text0MP{
-    color: white;
-    font-size: 20px;
-    padding: 1rem;
+
+/* ── Logo ── */
+.mp-logo-link {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
-.CaminhoPage{
-    margin-right: auto;
+
+.mp-logo {
+  height: 30px;
+  width: auto;
+  object-fit: contain;
+  filter: invert(1) brightness(.2);
+  transition: opacity 0.2s;
+}
+
+.mp-logo-link:hover .mp-logo {
+  opacity: 0.7;
+}
+
+/* ── Navegação (Pílulas) ── */
+.mp-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto; /* Joga o menu todo para a direita */
+}
+
+.mp-nav-link {
+  text-decoration: none;
+  font-family: sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748B;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mp-nav-link:hover {
+  color: #C05830;
+  background: #FFF7ED; /* Laranja super suave no fundo */
+  border-color: #FED7AA;
+}
+
+/* Estado Ativo (Quando a pessoa está na página correspondente) */
+.mp-nav-link--active {
+  color: #C05830;
+  background: #C05830;
+  border-color: #C05830;
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(192, 88, 48, 0.2);
+}
+
+.mp-nav-link--active:hover {
+  background: #A04828; /* Escurece um pouco no hover do ativo */
+  color: #FFFFFF;
+}
+
+/* ════════════════════════════
+   RESPONSIVE
+════════════════════════════ */
+@media (max-width: 768px) {
+  .mp-header {
+    padding: 0 16px;
+    gap: 12px;
+  }
+  
+  .mp-back-btn span {
+    display: none; /* Esconde o texto "Voltar", deixa só a seta no mobile */
+  }
+  
+  .mp-back-btn {
+    padding: 8px 10px;
+  }
+
+  .mp-nav {
+    gap: 4px;
+    overflow-x: auto; /* Permite scroll horizontal se os links não caberem */
+    scrollbar-width: none; /* Esconde a barra de scroll no Firefox */
+    -ms-overflow-style: none; /* Esconde no IE/Edge */
+  }
+  
+  .mp-nav::-webkit-scrollbar {
+    display: none; /* Esconde a barra de scroll no Chrome/Safari */
+  }
+
+  .mp-nav-link {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
 }

@@ -3,8 +3,8 @@ import '../css/Home.css';
 import MenuHome from '../components/MenuHome';
 import { Link } from 'react-router-dom';
 import ImgMG from '../Imagens/CarroHomePt01.jpg';
-import ImgMG2 from '../Imagens/ImagemCarrocel.jpg'
-import ImgMG3 from '../Imagens/CarroHome.jpg'
+import ImgMG2 from '../Imagens/ImagemCarrocel.jpg';
+import ImgMG3 from '../Imagens/CarroHome.jpg';
 import { AuthContext } from './Context/AuthContext';
 
 // ─── nav items ────────────────────────────────────────────
@@ -26,24 +26,9 @@ const navItemsSemLogin = [
 
 // ─── Slides do carrossel ──────────────────────────────────
 const slides = [
-  {
-    image: ImgMG,
-    tag: "Artesanato",
-    title: "Móveis que contam histórias",
-    desc: "Cada peça é criada com atenção e dedicação para transformar ambientes.",
-  },
-  {
-    image: ImgMG2,
-    tag: "Qualidade",
-    title: "Feito para durar gerações",
-    desc: "Materiais nobres e acabamento impecável definem o padrão Kasaleve.",
-  },
-  {
-    image: ImgMG3,
-    tag: "Design",
-    title: "Projeto, conforto e elegância",
-    desc: "Soluções personalizadas que combinam funcionalidade e beleza.",
-  },
+  { image: ImgMG, tag: "Artesanato", title: "Móveis que contam histórias", desc: "Cada peça é criada com atenção e dedicação para transformar ambientes." },
+  { image: ImgMG2, tag: "Qualidade", title: "Feito para durar gerações", desc: "Materiais nobres e acabamento impecável definem o padrão Kasaleve." },
+  { image: ImgMG3, tag: "Design", title: "Projeto, conforto e elegância", desc: "Soluções personalizadas que combinam funcionalidade e beleza." },
 ];
 
 // ─── Carrossel moderno ────────────────────────────────────
@@ -56,78 +41,50 @@ function Carousel() {
     if (animating || idx === active) return;
     setAnimating(true);
     setActive(idx);
-    setTimeout(() => setAnimating(false), 12000);
+    setTimeout(() => setAnimating(false), 600); // Reduzi o tempo de lock para ficar mais fluido
   };
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
-      setAnimating(true);
-      setActive(prev => (prev + 1) % slides.length);
-      setTimeout(() => setAnimating(false), 12000);
+      goTo((active + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timerRef.current);
-  }, []);
+  }, [active]);
 
   const slide = slides[active];
 
   return (
     <div className="hm-carousel">
-      {/* Slides */}
       {slides.map((s, i) => (
-        <div
-          key={i}
-          className={`hm-carousel__slide ${i === active ? 'hm-carousel__slide--active' : ''}`}
-        ><img src={s.image} alt={s.title} className="hm-carousel__image" /></div>
+        <div key={i} className={`hm-carousel__slide ${i === active ? 'hm-carousel__slide--active' : ''}`}>
+          <img src={s.image} alt={s.title} className="hm-carousel__image" />
+        </div>
       ))}
 
-      {/* Overlay */}
       <div className="hm-carousel__overlay" />
 
-      {/* Conteúdo */}
       <div className={`hm-carousel__content ${animating ? 'hm-carousel__content--fade' : ''}`}>
         <span className="hm-carousel__tag">{slide.tag}</span>
         <h2 className="hm-carousel__title">{slide.title}</h2>
         <p className="hm-carousel__desc">{slide.desc}</p>
       </div>
 
-      {/* Controles */}
       <div className="hm-carousel__controls">
-        <button
-          className="hm-carousel__arrow hm-carousel__arrow--prev"
-          onClick={() => goTo((active - 1 + slides.length) % slides.length)}
-          aria-label="Anterior"
-        >
-          ‹
-        </button>
-
+        <button className="hm-carousel__arrow" onClick={() => goTo((active - 1 + slides.length) % slides.length)} aria-label="Anterior">‹</button>
         <div className="hm-carousel__dots">
           {slides.map((_, i) => (
-            <button
-              key={i}
-              className={`hm-carousel__dot ${i === active ? 'hm-carousel__dot--active' : ''}`}
-              onClick={() => goTo(i)}
-              aria-label={`Slide ${i + 1}`}
-            />
+            <button key={i} className={`hm-carousel__dot ${i === active ? 'hm-carousel__dot--active' : ''}`} onClick={() => goTo(i)} aria-label={`Slide ${i + 1}`} />
           ))}
         </div>
-
-        <button
-          className="hm-carousel__arrow hm-carousel__arrow--next"
-          onClick={() => goTo((active + 1) % slides.length)}
-          aria-label="Próximo"
-        >
-          ›
-        </button>
+        <button className="hm-carousel__arrow" onClick={() => goTo((active + 1) % slides.length)} aria-label="Próximo">›</button>
       </div>
 
-      {/* Numeração */}
       <div className="hm-carousel__counter">
         <span className="hm-carousel__counter-current">{String(active + 1).padStart(2, '0')}</span>
         <span className="hm-carousel__counter-sep" />
         <span className="hm-carousel__counter-total">{String(slides.length).padStart(2, '0')}</span>
       </div>
 
-      {/* Badge */}
       <div className="hm-carousel__badge">
         <span className="hm-carousel__badge-dot" />
         Apenas para Funcionários
@@ -139,19 +96,9 @@ function Carousel() {
 // ─── Card de navegação ────────────────────────────────────
 function NavCard({ item, index }) {
   return (
-    <Link
-      to={item.to}
-      className="hm-nav-link"
-      style={{ animationDelay: `${index * 0.07}s` }}
-    >
-      <div
-        className="hm-nav-card"
-        style={{
-          '--card-bg':     item.color,
-          '--card-accent': item.accent,
-        }}
-      >
-        <div className="hm-nav-card__left">
+    <Link to={item.to} className="hm-nav-link" style={{ animationDelay: `${index * 0.07}s` }}>
+      <div className="hm-nav-card" style={{ '--card-bg': item.color, '--card-accent': item.accent }}>
+        <div className="hm-nav-card__icon-wrap">
           <span className="hm-nav-card__icon">{item.icon}</span>
         </div>
         <div className="hm-nav-card__text">
@@ -172,13 +119,9 @@ export default function Home() {
   return (
     <div className="hm-page">
       <MenuHome />
-
       <div className="hm-split">
-
-        {/* ── ESQUERDA ── */}
+        
         <aside className="hm-left">
-
-          {/* Brand */}
           <div className="hm-brand">
             <div className="hm-brand__bar" />
             <div>
@@ -188,14 +131,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Nav */}
           <nav className="hm-nav">
             {items.map((item, i) => (
               <NavCard key={item.to} item={item} index={i} />
             ))}
           </nav>
 
-          {/* Rodapé */}
           {!loggedin && (
             <Link to="/login" className="hm-login-link">
               Área restrita → Entrar
@@ -203,7 +144,6 @@ export default function Home() {
           )}
         </aside>
 
-        {/* ── DIREITA ── */}
         <Carousel />
       </div>
     </div>
