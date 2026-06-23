@@ -1,463 +1,392 @@
 import "../css/carrinho.css";
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from './Context/AuthContext';
 
-// ─── DADOS DE CORES (mesmos do Mostrador) ──────────────────────────────────────
-
-const CORDAS = [
-  { id:'c1',  nome:'Verde Musgo',   codigo:'#70292', hex:'#4a5e3a', cat:'corda' },
-  { id:'c2',  nome:'Azul Marinho',  codigo:'#70581', hex:'#1e2f5a', cat:'corda' },
-  { id:'c3',  nome:'Mescla Areia',  codigo:'#84202', hex:'#c8b89a', cat:'corda' },
-  { id:'c4',  nome:'Cinza',         codigo:'#70276', hex:'#7a8190', cat:'corda' },
-  { id:'c5',  nome:'Atenas',        codigo:'#93278', hex:'#d4a017', cat:'corda' },
-  { id:'c6',  nome:'Ocre',          codigo:'#82354', hex:'#c85820', cat:'corda' },
-  { id:'c7',  nome:'Preto',         codigo:'#70268', hex:'#1a1a1a', cat:'corda' },
-  { id:'c8',  nome:'Mescla Marrom', codigo:'#76554', hex:'#9e7c5e', cat:'corda' },
-  { id:'c9',  nome:'Mescla Duna',   codigo:'#95562', hex:'#c4b49a', cat:'corda' },
-  { id:'c10', nome:'Vinho',         codigo:'#70300', hex:'#8b2e3e', cat:'corda' },
-  { id:'c11', nome:'Dark Brown',    codigo:'#8804-7',hex:'#3d1f0d', cat:'corda' },
-  { id:'c12', nome:'Verde Olivia',  codigo:'#83782', hex:'#6b7c52', cat:'corda' },
-];
-
-const TECIDOS = [
-  { id:'t1',  nome:'Linho Natural',     fabricante:'Karsten — Aquablock', hex:'#c4b89a', cat:'tecido' },
-  { id:'t2',  nome:'Cinza Chumbo',      fabricante:'Karsten — Aquablock', hex:'#7a8190', cat:'tecido' },
-  { id:'t3',  nome:'Marrom Terroso',    fabricante:'Karsten — Aquablock', hex:'#8c6b4a', cat:'tecido' },
-  { id:'t4',  nome:'Verde Floresta',    fabricante:'Karsten — Aquablock', hex:'#3a5c30', cat:'tecido' },
-  { id:'t5',  nome:'Cinza Mesclado',    fabricante:'Karsten — Aquablock', hex:'#929292', cat:'tecido' },
-  { id:'t6',  nome:'Azul Naval',        fabricante:'Karsten — Aquablock', hex:'#1e2f5a', cat:'tecido' },
-  { id:'t7',  nome:'Branco Gelo',       fabricante:'Karsten — Aquablock', hex:'#e8e4dc', cat:'tecido' },
-  { id:'t8',  nome:'Cinza Prata',       fabricante:'Karsten — Aquablock', hex:'#b0b4b8', cat:'tecido' },
-  { id:'t9',  nome:'Areia Quente',      fabricante:'Fiama — Aquatec',     hex:'#c8a87a', cat:'tecido' },
-  { id:'t10', nome:'Verde Oliva',       fabricante:'Fiama — Aquatec',     hex:'#6b7c52', cat:'tecido' },
-  { id:'t11', nome:'Marrom Escuro',     fabricante:'Fiama — Aquatec',     hex:'#3d2010', cat:'tecido' },
-  { id:'t12', nome:'Cinza Médio',       fabricante:'Fiama — Aquatec',     hex:'#909090', cat:'tecido' },
-  { id:'t13', nome:'Bege Neutro',       fabricante:'Fiama — Aquatec',     hex:'#d4c4a8', cat:'tecido' },
-  { id:'t14', nome:'Café',              fabricante:'Fiama — Aquatec',     hex:'#7c5038', cat:'tecido' },
-  { id:'t15', nome:'Cinza Azulado',     fabricante:'Fiama — Aquatec',     hex:'#6a7a8c', cat:'tecido' },
-  { id:'t16', nome:'Verde Musgo Claro', fabricante:'Fiama — Aquatec',     hex:'#88a060', cat:'tecido' },
-];
-
-const COURINOS = [
-  { id:'co1', nome:'Couro Grafite',    fabricante:'York', hex:'#2a2a2a', cat:'courino' },
-  { id:'co2', nome:'Couro Cobre',      fabricante:'York', hex:'#7a3010', cat:'courino' },
-  { id:'co3', nome:'Couro Marrom',     fabricante:'York', hex:'#4a2010', cat:'courino' },
-  { id:'co4', nome:'Couro Bege Claro', fabricante:'York', hex:'#c8b090', cat:'courino' },
-];
-
+// ─── DADOS DE CORES ──────────────────────────────────────────────────────────
 const PINTURA = [
-  { id:'p1', nome:'Fendi',        hex:'#8a7a58', cat:'pintura' },
-  { id:'p2', nome:'Marrom',       hex:'#6a3820', cat:'pintura' },
-  { id:'p3', nome:'Verde Olivia', hex:'#6b7c52', cat:'pintura' },
-  { id:'p4', nome:'Verde Musgo',  hex:'#3a5c30', cat:'pintura' },
-  { id:'p5', nome:'Off White',    hex:'#e8e4d8', cat:'pintura' },
-  { id:'p6', nome:'Cinza',        hex:'#7a8190', cat:'pintura' },
-  { id:'p7', nome:'Preto',        hex:'#1a1a1a', cat:'pintura' },
-  { id:'p8', nome:'Bege',         hex:'#c8b890', cat:'pintura' },
-  { id:'p9', nome:'Terra Cota',   hex:'#c05030', cat:'pintura' },
+  { id:'p1', nome:'Fendi', hex:'#8a7a58', cat:'pintura' },
+  { id:'p5', nome:'Off White', hex:'#e8e4d8', cat:'pintura' },
+  { id:'p7', nome:'Preto', hex:'#1a1a1a', cat:'pintura' },
 ];
-
-// ─── PRODUTOS ─────────────────────────────────────────────────────────────────
+const CORDAS = [
+  { id:'c1', nome:'Verde Musgo', codigo:'#70292', hex:'#4a5e3a', cat:'corda' },
+  { id:'c7', nome:'Preto', codigo:'#70268', hex:'#1a1a1a', cat:'corda' },
+  { id:'c3', nome:'Mescla Areia', codigo:'#84202', hex:'#c8b89a', cat:'corda' },
+];
+const TECIDOS = [
+  { id:'t1', nome:'Linho Natural', fabricante:'Karsten', hex:'#c4b89a', cat:'tecido' },
+  { id:'t6', nome:'Azul Naval', fabricante:'Karsten', hex:'#1e2f5a', cat:'tecido' },
+];
 
 const produtos = [
-  { id:1, nome:'Cadeira Náutica Premium', descricao:'Design moderno com acabamento em alumínio e corda náutica.', preco:890.00,  img:'https://assets.betalabs.net/production/flexform/item-images/42935cae51c7b264fa8e85d5b5667838.png' },
-  { id:2, nome:'Poltrona Outdoor',        descricao:'Conforto e durabilidade para ambientes externos.',            preco:1200.00, img:'https://assets.betalabs.net/production/flexform/item-images/0894f1dc61428b63aedb64174a7abf93.png' },
-  { id:3, nome:'Chaise Lounge',           descricao:'Ideal para áreas de lazer e piscinas.',                      preco:1550.00, img:'https://assets.betalabs.net/production/flexform/item-images/d7865373a4d304c30b39f1f279353165.png' },
-  { id:4, nome:'Cadeira Bistro',          descricao:'Leve e elegante, perfeita para varandas.',                   preco:650.00,  img:'https://assets.betalabs.net/production/flexform/item-images/42935cae51c7b264fa8e85d5b5667838.png' },
-  { id:5, nome:'Mesa de Centro',          descricao:'Acabamento fino em alumínio escovado.',                      preco:980.00,  img:'https://assets.betalabs.net/production/flexform/item-images/42935cae51c7b264fa8e85d5b5667838.png' },
-  { id:6, nome:'Espreguiçadeira',         descricao:'Reclinável com tecido resistente à UV.',                     preco:1390.00, img:'https://assets.betalabs.net/production/flexform/item-images/d7865373a4d304c30b39f1f279353165.png' },
+  { id:1, nome:'Cadeira Náutica Premium', descricao:'Design moderno com acabamento em alumínio e corda náutica.', preco:890.00, img:'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+  { id:2, nome:'Poltrona Outdoor', descricao:'Conforto e durabilidade para ambientes externos.', preco:1200.00, img:'https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
+  { id:3, nome:'Mesa de Centro', descricao:'Acabamento fino em alumínio escovado.', preco:980.00, img:'https://images.unsplash.com/photo-1533090481720-856c6e3c1fdc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' },
 ];
 
 const formatPrice = (v) => v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 
-// ─── MODAL DE PERSONALIZAÇÃO ──────────────────────────────────────────────────
+// Função formatadora específica para o jsPDF (sem o R$ para permitir alinhamento manual perfeito)
+const fmtPDF = (v) => Number(v).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
+// ─── MODAL DE CORES ──────────────────────────────────────────────────────────
 function ModalPersonalizacao({ aberto, onFechar, onConfirmar, selecoes, setSelecoes }) {
   const [aba, setAba] = useState('pintura');
-  const [busca, setBusca] = useState('');
-
   if (!aberto) return null;
-
   function selecionar(item) {
     setSelecoes(prev => {
       const novo = { ...prev };
-      if (novo[item.cat]?.id === item.id) {
-        delete novo[item.cat];
-      } else {
-        novo[item.cat] = item;
-      }
+      if (novo[item.cat]?.id === item.id) delete novo[item.cat]; else novo[item.cat] = item;
       return novo;
     });
   }
-
-  function filtrar(lista) {
-    if (!busca.trim()) return lista;
-    return lista.filter(i => i.nome.toLowerCase().includes(busca.toLowerCase()));
-  }
-
-  const temSelecao = Object.keys(selecoes).length > 0;
+  const listas = { pintura: PINTURA, cordas: CORDAS, tecidos: TECIDOS };
 
   return (
     <div className="modal-overlay" onClick={onFechar}>
       <div className="modal-drawer" onClick={e => e.stopPropagation()}>
-
-        {/* Cabeçalho do modal */}
         <div className="modal-header">
-          <div className="modal-header__info">
-            <p className="modal-eyebrow">Kasaleve — Paleta de Cores</p>
-            <h2 className="modal-title">Personalizar produto</h2>
-          </div>
-          <div className="modal-header__right">
-            <div className="modal-search">
-              <span>🔍</span>
-              <input
-                placeholder="Buscar cor..."
-                value={busca}
-                onChange={e => setBusca(e.target.value)}
-              />
-            </div>
-            <button className="modal-close" onClick={onFechar}>✕</button>
-          </div>
+          <div><p className="modal-eyebrow">Kasaleve</p><h2 className="modal-title">Escolher Cores</h2></div>
+          <button className="modal-close" onClick={onFechar}>✕</button>
         </div>
-
-        {/* Tabs */}
         <div className="modal-tabs">
-          {[
-            { id:'pintura', label:'Alumínio',  count: PINTURA.length },
-            { id:'cordas',  label:'Cordas',    count: CORDAS.length },
-            { id:'tecidos', label:'Tecidos',   count: TECIDOS.length + COURINOS.length },
-          ].map(a => (
-            <button
-              key={a.id}
-              className={`modal-tab ${aba === a.id ? 'modal-tab--active' : ''}`}
-              onClick={() => setAba(a.id)}
-            >
-              {a.label}
-              <span className="modal-tab__count">{a.count}</span>
-            </button>
+          {[{ id:'pintura', label:'Alumínio' }, { id:'cordas', label:'Cordas' }, { id:'tecidos', label:'Tecidos' }].map(a => (
+            <button key={a.id} className={`modal-tab ${aba === a.id ? 'modal-tab--active' : ''}`} onClick={() => setAba(a.id)}>{a.label}</button>
           ))}
         </div>
-
-        {/* Corpo do modal com grid de cores */}
         <div className="modal-body">
-
-          {/* ABA PINTURA */}
-          {aba === 'pintura' && (
-            <div className="modal-aba">
-              <p className="modal-aba__desc">Escolha a cor da estrutura em alumínio com pintura eletrostática</p>
-              <div className="modal-grid-pintura">
-                {filtrar(PINTURA).map(item => {
-                  const sel = selecoes.pintura?.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`modal-chip-pintura ${sel ? 'modal-chip--sel' : ''}`}
-                      onClick={() => selecionar(item)}
-                    >
-                      <div className="modal-chip-pintura__placa" style={{ background: item.hex }}>
-                        {sel && <span className="modal-chip__check">✓</span>}
-                      </div>
-                      <p className="modal-chip__nome">{item.nome}</p>
-                    </div>
-                  );
-                })}
+          <div className="modal-grid">
+            {listas[aba].map(item => (
+              <div key={item.id} className={`modal-chip-pintura ${selecoes[item.cat]?.id === item.id ? 'modal-chip--sel' : ''}`} onClick={() => selecionar(item)}>
+                <div className="modal-chip-pintura__placa" style={{ background: item.hex }}>{selecoes[item.cat]?.id === item.id && '✓'}</div>
+                <p>{item.nome}</p>
               </div>
-            </div>
-          )}
-
-          {/* ABA CORDAS */}
-          {aba === 'cordas' && (
-            <div className="modal-aba">
-              <p className="modal-aba__desc">Escolha a cor da corda náutica do assento e encosto</p>
-              <div className="modal-grid-cordas">
-                {filtrar(CORDAS).map(item => {
-                  const sel = selecoes.corda?.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`modal-chip-corda ${sel ? 'modal-chip--sel' : ''}`}
-                      onClick={() => selecionar(item)}
-                    >
-                      <div className="modal-chip-corda__swatch" style={{ background: item.hex }}>
-                        {sel && <span className="modal-chip__check">✓</span>}
-                      </div>
-                      <div className="modal-chip-corda__info">
-                        <p className="modal-chip__nome">{item.nome}</p>
-                        <p className="modal-chip__cod">{item.codigo}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* ABA TECIDOS */}
-          {aba === 'tecidos' && (
-            <div className="modal-aba">
-              <p className="modal-aba__desc">Escolha o tecido para assentos e almofadas</p>
-
-              <p className="modal-fab-label">Karsten — Aquablock &amp; Fiama — Aquatec</p>
-              <div className="modal-grid-tecidos">
-                {filtrar(TECIDOS).map(item => {
-                  const sel = selecoes.tecido?.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`modal-chip-tecido ${sel ? 'modal-chip--sel' : ''}`}
-                      onClick={() => selecionar(item)}
-                    >
-                      <div
-                        className="modal-chip-tecido__faixa"
-                        style={{ background: `linear-gradient(135deg, ${item.hex}dd, ${item.hex}, ${item.hex}aa)` }}
-                      >
-                        {sel && <span className="modal-chip__check">✓</span>}
-                      </div>
-                      <div className="modal-chip-tecido__info">
-                        <p className="modal-chip__nome">{item.nome}</p>
-                        <p className="modal-chip__fab">{item.fabricante}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <p className="modal-fab-label" style={{ marginTop: '20px' }}>York — Courino</p>
-              <div className="modal-grid-courinos">
-                {filtrar(COURINOS).map(item => {
-                  const sel = selecoes.courino?.id === item.id;
-                  return (
-                    <div
-                      key={item.id}
-                      className={`modal-chip-courino ${sel ? 'modal-chip--sel' : ''}`}
-                      onClick={() => selecionar(item)}
-                    >
-                      <div
-                        className="modal-chip-courino__faixa"
-                        style={{ background: `linear-gradient(160deg, ${item.hex}cc, ${item.hex}, ${item.hex}88)` }}
-                      >
-                        {sel && <span className="modal-chip__check">✓</span>}
-                      </div>
-                      <p className="modal-chip__nome" style={{ padding: '6px 8px 8px' }}>{item.nome}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-
-        {/* Rodapé do modal */}
         <div className="modal-footer">
-          <button
-            className="modal-btn-limpar"
-            onClick={() => setSelecoes({})}
-            disabled={!temSelecao}
-          >
-            Limpar seleção
-          </button>
-          <button
-            className="modal-btn-confirmar"
-            onClick={onConfirmar}
-          >
-            {temSelecao
-              ? `Confirmar ${Object.keys(selecoes).length} ${Object.keys(selecoes).length === 1 ? 'cor' : 'cores'}`
-              : 'Confirmar'}
-          </button>
+          <button className="modal-btn-limpar" onClick={() => setSelecoes({})}>Limpar</button>
+          <button className="modal-btn-confirmar" onClick={onConfirmar}>Confirmar Seleção</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── PREVIEW DA COMBINAÇÃO ────────────────────────────────────────────────────
-
+// ─── PREVIEW DA COMBINAÇÃO (Que você pediu para voltar) ─────────────────────
 function PreviewCombinacao({ selecoes, onEditar }) {
   const temSelecao = Object.keys(selecoes).length > 0;
-
   return (
     <div className="preview-box">
       <div className="preview-box__header">
-        <p className="preview-box__title">Personalização</p>
-        {temSelecao && (
-          <button className="preview-box__edit" onClick={onEditar}>
-            ✏️ Editar
-          </button>
-        )}
+        <p className="preview-box__title">Sua Seleção</p>
+        {temSelecao && <button className="preview-box__edit" onClick={onEditar}>✏️ Editar</button>}
       </div>
-
       {!temSelecao ? (
-        <div className="preview-vazio">
-          <div className="preview-vazio__icon">🎨</div>
-          <p>Nenhuma cor selecionada ainda</p>
-        </div>
+        <div className="preview-vazio"><p>Nenhuma cor selecionada</p></div>
       ) : (
         <>
-          {/* Barras de preview */}
           <div className="preview-barras">
-            {selecoes.pintura && (
-              <div className="preview-barra" style={{ background: selecoes.pintura.hex }}>
-                <span className="preview-barra__label">Alumínio</span>
-                <span className="preview-barra__nome">{selecoes.pintura.nome}</span>
-              </div>
-            )}
-            {selecoes.corda && (
-              <div className="preview-barra" style={{ background: selecoes.corda.hex }}>
-                <span className="preview-barra__label">Corda</span>
-                <span className="preview-barra__nome">{selecoes.corda.nome}</span>
-              </div>
-            )}
-            {selecoes.tecido && (
-              <div className="preview-barra" style={{ background: selecoes.tecido.hex }}>
-                <span className="preview-barra__label">Tecido</span>
-                <span className="preview-barra__nome">{selecoes.tecido.nome}</span>
-              </div>
-            )}
-            {selecoes.courino && (
-              <div className="preview-barra" style={{ background: selecoes.courino.hex }}>
-                <span className="preview-barra__label">Courino</span>
-                <span className="preview-barra__nome">{selecoes.courino.nome}</span>
-              </div>
-            )}
+            {selecoes.pintura && <div className="preview-barra" style={{ background: selecoes.pintura.hex }}><span>Alumínio</span><b>{selecoes.pintura.nome}</b></div>}
+            {selecoes.corda && <div className="preview-barra" style={{ background: selecoes.corda.hex, color: '#fff' }}><span>Corda</span><b>{selecoes.corda.nome}</b></div>}
+            {selecoes.tecido && <div className="preview-barra" style={{ background: selecoes.tecido.hex }}><span>Tecido</span><b>{selecoes.tecido.nome}</b></div>}
           </div>
-
-          {/* Paleta compacta (bolinhas) */}
-          <div className="preview-paleta">
-            {Object.values(selecoes).map(s => (
-              <div
-                key={s.id}
-                className="preview-paleta__dot"
-                style={{ background: s.hex }}
-                title={s.nome}
-              />
-            ))}
-          </div>
+          <div className="preview-paleta">{Object.values(selecoes).map(s => (<div key={s.id} className="preview-paleta__dot" style={{ background: s.hex }} title={s.nome} />))}</div>
         </>
       )}
     </div>
   );
 }
 
-// ─── TELA DE DETALHE ──────────────────────────────────────────────────────────
+// ─── LÓGICA DO PDF (Idêntico à 2ª imagem que você enviou) ─────────────────
+async function gerarPDF(itensCarrinho) {
+  const { default: jsPDF } = await import('jspdf');
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-function TelaDetalhe({ produto, onVoltar }) {
-  const [selecoes, setSelecoes] = useState({});
-  const [modalAberto, setModalAberto] = useState(false);
+  const L = 15, R = 195;
+  let y = 25;
 
-  function abrirModal() { setModalAberto(true); }
-  function fecharModal() { setModalAberto(false); }
-  function confirmarSelecao() { setModalAberto(false); }
+  // 1. Título
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.setTextColor(200, 30, 30);
+  doc.text('ORÇAMENTO', L, y);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(80, 80, 80);
+  const dataHoje = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  doc.text(`Pederneiras, ${dataHoje}`, R, y, { align: 'right' });
+  y += 15;
 
-  return (
-    <>
-      <div className="detalhe-page">
+  // 2. Cabeçalho da Tabela
+  const colDesc = L + 15, colQtd = R - 75, colUnit = R - 55, colTotal = R - 2;
+  doc.setFillColor(60, 60, 60); doc.rect(L, y, R - L, 10, 'F');
+  doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+  doc.text('ITEM', L + 2, y + 6.5);
+  doc.text('DESCRIÇÃO', colDesc + 2, y + 6.5);
+  doc.text('QTD', colQtd + 2, y + 6.5);
+  doc.text('VALOR UNIT.', colUnit + 2, y + 6.5);
+  doc.text('VALOR TOTAL', colTotal, y + 6.5, { align: 'right' });
+  y += 10;
 
-        {/* Header */}
-        <div className="detalhe-header">
-          <button className="btn-back-det" onClick={onVoltar}>← Voltar</button>
-          <div className="detalhe-header__title-group">
-            <p className="eyebrow">Personalização</p>
-            <h1 className="detalhe-title">{produto.nome}</h1>
-          </div>
-        </div>
+  // 3. Linhas da Tabela (Zebra)
+  itensCarrinho.forEach((item, index) => {
+    let detalhes = [];
+    if (item.personalizacao?.pintura) detalhes.push(`Alumínio: ${item.personalizacao.pintura.nome}`);
+    if (item.personalizacao?.corda) detalhes.push(`Corda: ${item.personalizacao.corda.nome}`);
+    if (item.personalizacao?.tecido) detalhes.push(`Tecido: ${item.personalizacao.tecido.nome}`);
+    const descCompleta = detalhes.length > 0 ? `${item.nome}\n${detalhes.join(' | ')}` : item.nome;
+    
+    const linhas = doc.splitTextToSize(descCompleta, (colUnit - colDesc) - 8);
+    const altLinha = Math.max(12, linhas.length * 4.5 + 4);
 
-        {/* Body */}
-        <div className="detalhe-body">
+    if (index % 2 !== 0) { doc.setFillColor(225, 225, 225); doc.rect(L, y, R - L, altLinha, 'F'); }
+    
+    doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.3); doc.rect(L, y, R - L, altLinha);
+    doc.line(colDesc, y, colDesc, y + altLinha);
+    doc.line(colQtd, y, colQtd, y + altLinha);
+    
+    // Traço grosso (O segredo do layout Kasaleve)
+    doc.setDrawColor(120, 120, 120); doc.setLineWidth(0.8);
+    doc.line(colTotal - 32, y, colTotal - 32, y + altLinha);
 
-          {/* Imagem */}
-          <div className="detalhe-img-wrap">
-            <img src={produto.img} alt={produto.nome} className="detalhe-img" loading="lazy" />
-            <div className="detalhe-price-tag">{formatPrice(produto.preco)}</div>
-          </div>
+    doc.setTextColor(0, 0, 0); doc.setFontSize(9); doc.text(String(index + 1), L + 2, y + 5);
+    
+    doc.setFont('helvetica', 'bold'); doc.text(item.nome, colDesc + 2, y + 5);
+    if (detalhes.length > 0) {
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(80, 80, 80);
+      doc.text(detalhes.join(' | '), colDesc + 2, y + 10, { maxWidth: (colUnit - colDesc) - 8 });
+      doc.setTextColor(0, 0, 0);
+    }
 
-          {/* Configurador */}
-          <div className="detalhe-config">
-            <p className="detalhe-config__label">Configure seu produto</p>
-            <p className="detalhe-config__sub">Escolha as cores de cada componente para criar sua combinação exclusiva</p>
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+    const yTexto = detalhes.length > 0 ? 7 : 5;
+    doc.text(String(item.qtd), colQtd + 2, y + yTexto);
+    doc.text(fmtPDF(item.preco), colUnit + 2, y + yTexto, { align: 'right' });
+    doc.text(fmtPDF(item.preco * item.qtd), colTotal, y + yTexto, { align: 'right' });
 
-            {/* Preview da combinação escolhida */}
-            <PreviewCombinacao selecoes={selecoes} onEditar={abrirModal} />
+    y += altLinha;
+    if (y > 270) { doc.addPage(); y = 20; }
+  });
 
-            {/* Botão de personalização */}
-            <button className="btn-personalizar" onClick={abrirModal}>
-              🎨 Escolher cores
-            </button>
+  // 4. Blocos de Total
+  y += 10;
+  const totalProdutos = itensCarrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+  const valorFrete = totalProdutos * 0.085;
 
-            <button className="btn-confirmar">
-              🛒 Adicionar ao Carrinho
-            </button>
-          </div>
-        </div>
-      </div>
+  const drawTotalRow = (label, valor, yPos) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(0, 0, 0);
+    doc.text(label, colUnit, yPos + 6);
+    doc.setFillColor(240, 240, 240); doc.rect(colTotal - 35, yPos, 35, 9, 'F');
+    doc.setDrawColor(180, 180, 180); doc.setLineWidth(0.5); doc.rect(colTotal - 35, yPos, 35, 9);
+    doc.text(`R$ ${fmtPDF(valor)}`, colTotal - 32, yPos + 6, { align: 'right' });
+  };
 
-      {/* Modal de personalização */}
-      <ModalPersonalizacao
-        aberto={modalAberto}
-        onFechar={fecharModal}
-        onConfirmar={confirmarSelecao}
-        selecoes={selecoes}
-        setSelecoes={setSelecoes}
-      />
-    </>
-  );
+  drawTotalRow('TOTAL:', totalProdutos, y); y += 14;
+  drawTotalRow('FRETE:', valorFrete, y); y += 20;
+
+  doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.5); doc.line(colTotal - 50, y - 2, colTotal, y - 2);
+  doc.setFontSize(11); doc.text('TOTAL GERAL:', colTotal - 50, y + 6);
+  doc.setFontSize(14); doc.text(`R$ ${fmtPDF(totalProdutos + valorFrete)}`, colTotal, y + 6, { align: 'right' });
+
+  // 5. Termos e Assinatura
+  y += 25;
+  doc.setDrawColor(0, 0, 0); doc.setLineWidth(0.5);
+  doc.setFillColor(245, 245, 245); doc.rect(L, y, R - L, 9, 'F'); doc.rect(L, y, R - L, 9);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
+  doc.text('TERMOS E CONDIÇÕES GERAIS', (L + R) / 2, y + 6, { align: 'center' });
+  y += 9;
+  doc.setFillColor(255, 255, 255); doc.rect(L, y, R - L, 25, 'F'); doc.rect(L, y, R - L, 25);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  const termos = "Orçamento válido por 05 (cinco) dias úteis a partir da data de emissão. Após este prazo, os valores e condições aqui descritos poderão sofrer alterações sem prévio aviso.";
+  doc.splitTextToSize(termos, R - L - 20).forEach(linha => { doc.text(linha, L + 10, y + 6); y += 4.5; });
+
+  y = Math.max(y + 30, 260);
+  doc.setLineWidth(0.3); doc.line((L + R) / 2 - 40, y, (L + R) / 2 + 40, y);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+  doc.text('Assinatura / Kasaleve', (L + R) / 2, y + 5, { align: 'center' });
+
+  doc.save(`Orcamento_Kasaleve_${Date.now()}.pdf`);
 }
 
-// ─── TELA PRINCIPAL ───────────────────────────────────────────────────────────
+// ─── TELA DE DETALHE ──────────────────────────────────────────────────────────
+function TelaDetalhe({ produto, onVoltar, onAddCarrinho }) {
+  const { loggedin } = useContext(AuthContext);
+  const [selecoes, setSelecoes] = useState({});
+  const [modalAberto, setModalAberto] = useState(false);
+  const [qtd, setQtd] = useState(1);
 
-function Carrinho() {
-  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
-  const navigate = useNavigate();
-
-  if (produtoSelecionado) {
-    return (
-      <TelaDetalhe
-        produto={produtoSelecionado}
-        onVoltar={() => setProdutoSelecionado(null)}
-      />
-    );
+  function adicionar() {
+    onAddCarrinho({ ...produto, qtd, personalizacao: selecoes, cartId: Date.now() });
+    onVoltar();
   }
 
   return (
     <div className="loja-page">
       <MenuPage />
-      <div className="loja-container">
+      <div className="loja-container detalhe-container">
+        <button className="btn-voltar-det" onClick={onVoltar}>← Voltar</button>
+        <div className="detalhe-grid">
+          <div className="detalhe-img-box"><img src={produto.img} alt={produto.nome} className="detalhe-img" /></div>
+          <div className="detalhe-info">
+            <h1 className="detalhe-nome">{produto.nome}</h1>
+            <p className="detalhe-desc">{produto.descricao}</p>
+            {loggedin ? (
+              <>
+                <p className="detalhe-preco">{formatPrice(produto.preco)}</p>
+                <div className="qtd-selector">
+                  <span>Quantidade:</span>
+                  <div className="qtd-box">
+                    <button onClick={() => setQtd(qtd > 1 ? qtd - 1 : 1)}>-</button>
+                    <span>{qtd}</span>
+                    <button onClick={() => setQtd(qtd + 1)}>+</button>
+                  </div>
+                </div>
+                <div className="detalhe-separador" />
+                <PreviewCombinacao selecoes={selecoes} onEditar={() => setModalAberto(true)} />
+                <button className="btn-personalizar" onClick={() => setModalAberto(true)}>🎨 Alterar Cores</button>
+                <button className="btn-add-carrinho" onClick={adicionar}>Adicionar ao Carrinho</button>
+              </>
+            ) : (
+              <div className="detalhe-login-teaser">
+                <div className="teaser-icon">🔒</div>
+                <h3>Área Restrita</h3>
+                <p>Faça login para ver preços e montar seu pedido.</p>
+                <Link to="/Login" className="teaser-btn">Fazer Login <span>→</span></Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <ModalPersonalizacao aberto={modalAberto} onFechar={() => setModalAberto(false)} onConfirmar={() => setModalAberto(false)} selecoes={selecoes} setSelecoes={setSelecoes} />
+    </div>
+  );
+}
 
-        {/* Header */}
+// ─── TELA DO CARRINHO (Visual de Orçamento) ──────────────────────────────────
+function TelaCheckout({ carrinho, setCarrinho, onVoltar }) {
+  const total = carrinho.reduce((acc, item) => acc + (item.preco * item.qtd), 0);
+
+  function finalizar() {
+    if(carrinho.length === 0) return;
+    gerarPDF(carrinho);
+    setCarrinho([]);
+    alert("Orçamento gerado com sucesso!");
+    onVoltar();
+  }
+
+  return (
+    <div className="loja-page">
+      <MenuPage />
+      <div className="orc-bg">
+        <div className="orc-paper" style={{ maxWidth: '100%' }}>
+          <button className="orc-back-link" onClick={onVoltar}>← Continuar comprando</button>
+          <header className="orc-header">
+            <div className="orc-logo">
+              <span className="orc-logo__name">kasaleve</span>
+              <span className="orc-logo__tag">projeto <span className="orc-logo__dot">•</span> conforto</span>
+              <div className="orc-logo__underline" />
+            </div>
+            <div className="orc-empresa-info">
+              <p>Kasaleve Industria Decor Moveis LTDA</p>
+              <p className="orc-empresa-info__link">www.kasaleve.com.br</p>
+            </div>
+          </header>
+          <div className="orc-titulo-row">
+            <h1 className="orc-titulo-orcamento">ORÇAMENTO</h1>
+            <div className="orc-enviado-em">Enviado em: <strong>{new Date().toLocaleDateString('pt-BR')}</strong></div>
+          </div>
+          <section className="orc-section">
+            {carrinho.length === 0 ? (
+              <div className="carrinho-vazio">Seu orçamento está vazio.</div>
+            ) : (
+              <table className="orc-table">
+                <thead>
+                  <tr>
+                    <th className="col-img center">Img</th>
+                    <th className="col-item">Item</th>
+                    <th className="col-desc">Descrição (Personalização)</th>
+                    <th className="col-qtd center">Qtd</th>
+                    <th className="col-unit right">Unit.</th>
+                    <th className="col-total right">Total</th>
+                    <th className="col-del"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {carrinho.map((item, index) => (
+                    <tr key={item.cartId}>
+                      <td className="center"><img src={item.img} className="orc-table-img" alt="" /></td>
+                      <td><div className="orc-desc-nome">{item.nome}</div></td>
+                      <td>
+                        <div className="orc-desc-extra" style={{ fontSize: '11px', color: '#555' }}>
+                          {item.personalizacao?.pintura && <span style={{marginRight: 8}}>🔵 Alumínio: {item.personalizacao.pintura.nome}</span>}
+                          {item.personalizacao?.corda && <span style={{marginRight: 8}}>🟢 Corda: {item.personalizacao.corda.nome}</span>}
+                          {item.personalizacao?.tecido && <span>🟤 Tecido: {item.personalizacao.tecido.nome}</span>}
+                        </div>
+                      </td>
+                      <td className="center">{item.qtd}</td>
+                      <td className="right orc-unit-cell">{formatPrice(item.preco)}</td>
+                      <td className="right">{formatPrice(item.preco * item.qtd)}</td>
+                      <td className="center"><button className="orc-btn-del" onClick={() => setCarrinho(prev => prev.filter(i => i.cartId !== item.cartId))}>✕</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+          <div className="orc-total-row">
+            <span>TOTAL:</span>
+            <span className="orc-total-valor">{formatPrice(total)}</span>
+          </div>
+          <div style={{ marginTop: '30px', textAlign: 'center' }}>
+            <button className="btn-finalizar" onClick={finalizar}>GERAR ORÇAMENTO PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── TELA PRINCIPAL ────────────────────────────────────────────────────
+function Carrinho() {
+  const { loggedin } = useContext(AuthContext);
+  const [tela, setTela] = useState('lista');
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [carrinho, setCarrinho] = useState([]);
+  const navigate = useNavigate();
+
+  if (tela === 'checkout') return <TelaCheckout carrinho={carrinho} setCarrinho={setCarrinho} onVoltar={() => setTela('lista')} />;
+  if (tela === 'detalhe' && produtoSelecionado) return <TelaDetalhe produto={produtoSelecionado} onVoltar={() => setTela('lista')} onAddCarrinho={(item) => setCarrinho(prev => [...prev, item])} />;
+
+  return (
+    <div className="loja-page">
+      <MenuPage />
+      <div className="loja-container">
         <div className="loja-header">
           <BTNVolta />
-          <div className="loja-header__title-group">
-            <p className="eyebrow">Catálogo</p>
-            <h1 className="loja-title">Nossos Produtos</h1>
+          <div className="loja-header__text">
+            <p className="eyebrow">Catálogo Kasaleve</p>
+            <h1 className="loja-title">{loggedin ? 'Monte seu Pedido' : 'Conheça nossos Produtos'}</h1>
           </div>
-          <div>
-            <button className="btn-comprar" onClick={() => navigate('/Carrinho/Catalogo')}>
-              Catálogo →
-            </button>
+          <div className="loja-header__actions">
+            {loggedin && carrinho.length > 0 && <button className="btn-ver-carrinho" onClick={() => setTela('checkout')}>Ver Orçamento ({carrinho.length}) →</button>}
           </div>
-          <p className="loja-count">{produtos.length} produtos</p>
         </div>
-
-        {/* Grid de produtos */}
         <div className="loja-grid">
           {produtos.map((p, i) => (
-            <div
-              className="produto-card"
-              key={p.id}
-              style={{ animationDelay: `${i * 0.06}s` }}
-            >
-              <div className="produto-card__img-wrap">
-                <img src={p.img} alt={p.nome} className="produto-card__img" loading="lazy" />
-              </div>
+            <div className="produto-card" key={p.id} style={{ animationDelay: `${i * 0.1}s` }}>
+              <div className="produto-card__img-wrap"><img src={p.img} alt={p.nome} className="produto-card__img" /></div>
               <div className="produto-card__body">
-                <p className="produto-card__nome">{p.nome}</p>
+                <h3 className="produto-card__nome">{p.nome}</h3>
                 <p className="produto-card__desc">{p.descricao}</p>
                 <div className="produto-card__footer">
-                  <span className="produto-card__preco">{formatPrice(p.preco)}</span>
-                  <button className="btn-comprar" onClick={() => setProdutoSelecionado(p)}>
-                    Personalizar →
-                  </button>
+                  {loggedin ? (
+                    <>
+                      <span className="produto-card__preco">{formatPrice(p.preco)}</span>
+                      <button className="btn-comprar" onClick={() => { setProdutoSelecionado(p); setTela('detalhe'); }}>Personalizar →</button>
+                    </>
+                  ) : (
+                    <Link to="/Login" className="btn-login-catalogo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Desbloquear preço</Link>
+                  )}
                 </div>
               </div>
             </div>
