@@ -3,7 +3,7 @@ import { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-    const [loggedin, setLoggedin] = useState(false); // Mudei para false para poder testar o login
+    const [loggedin, setLoggedin] = useState(true); // Mudei para false para poder testar o login
     const [id, setId] = useState(null);
     const [error, setError] = useState(null);
     const [user, setUser] = useState(null);
