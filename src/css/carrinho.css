@@ -486,3 +486,116 @@ html, body { background: var(--bg); color: var(--text); font-family: var(--font)
   .cart-summary__btn, .cart-summary__btn-sec { grid-column: 1; }
   .cart-summary__badges { flex-direction: column; }
 }
+
+/* ═══════════════════════════════════════
+   NOVAS REGRAS - VARIAÇÃO TAMPO + IMAGEM
+════════════════════════════════════════ */
+
+/* Fade na troca de imagem do detalhe */
+.detalhe-img {
+  transition: opacity 0.2s ease;
+}
+.detalhe-img--fading {
+  opacity: 0.15;
+}
+
+/* Tags de tampo e medida no carrinho */
+.cart-item__vars {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.cart-item__tampo {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #44403C;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.cart-item__medida {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone-500);
+}
+
+/* ═══════════════════════════════════════
+   TAMPO INDISPONÍVEL + IMAGEM FADE
+════════════════════════════════════════ */
+
+.detalhe-img {
+  transition: opacity 0.2s ease;
+}
+.detalhe-img--fading {
+  opacity: 0.12;
+}
+
+.detalhe-variacao-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  background: var(--stone-100) !important;
+  color: var(--stone-400) !important;
+  border-color: var(--stone-200) !important;
+  position: relative;
+}
+.detalhe-variacao-btn--disabled:hover {
+  background: var(--stone-100) !important;
+  color: var(--stone-400) !important;
+  transform: none !important;
+}
+.detalhe-variacao-btn__unavail {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  margin-top: 2px;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.detalhe-preco-unavail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: #FFFBF7;
+  border: 1px dashed #FDDFCA;
+  border-radius: 12px;
+  color: var(--orange);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-add-carrinho:disabled {
+  opacity: 0.35;
+  cursor: not-allowed !important;
+  background: var(--stone-300) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.cart-item__vars {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+.cart-item__tampo {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: #44403C;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.cart-item__medida {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--stone-500);
+}
