@@ -7,7 +7,7 @@ import ImgMG2 from '../Imagens/ImagemCarrocel.jpg';
 import ImgMG3 from '../Imagens/CarroHome.jpg';
 import { AuthContext } from './Context/AuthContext';
 
-// ─── nav items ────────────────────────────────────────────
+// ─── nav items (TUDO - O que o Programador vê) ───────────
 const navItems = [
   { to: "/clienti",          label: "Clientes",            icon: "👥", desc: "Gerencie sua base de clientes",       color: "#E8F4FD", accent: "#2E86AB" },
   { to: "/Orcamneto",        label: "Orçamento",           icon: "📋", desc: "Crie e acompanhe orçamentos",         color: "#FFF8E7", accent: "#F4A261" },
@@ -18,6 +18,7 @@ const navItems = [
   { to: "/Tarefas",          label: "Tarefas",             icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
 ];
 
+// ─── nav items restritos (O que Chefa, Vendedora e Deslogados veem) ──
 const navItemsSemLogin = [
   { to: "/Orcamneto", label: "Orçamento", icon: "📋", desc: "Solicite um orçamento personalizado", color: "#FFF8E7", accent: "#F4A261" },
   { to: "/Foto",      label: "Fotos",     icon: "🖼️", desc: "Veja nossos projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
@@ -41,7 +42,7 @@ function Carousel() {
     if (animating || idx === active) return;
     setAnimating(true);
     setActive(idx);
-    setTimeout(() => setAnimating(false), 600); // Reduzi o tempo de lock para ficar mais fluido
+    setTimeout(() => setAnimating(false), 600);
   };
 
   useEffect(() => {
@@ -113,8 +114,13 @@ function NavCard({ item, index }) {
 
 // ─── MAIN ────────────────────────────────────────────────
 export default function Home() {
-  const { loggedin } = useContext(AuthContext);
-  const items = loggedin ? navItems : navItemsSemLogin;
+  // Pega o cargo junto com o estado de logado
+  const { loggedin, role } = useContext(AuthContext);
+
+  // NOVA LÓGICA DE PERMISSÃO:
+  // Se for programador, vê a lista completa (navItems).
+  // Se for Chefa, Vendedora, ou NÃO ESTIVER LOGADO, vê a lista restrita (navItemsSemLogin).
+  const items = role === "Programador" ? navItems : navItemsSemLogin;
 
   return (
     <div className="hm-page">

@@ -2,8 +2,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import '../css/Orcamneto.css';
 import BTNVolta from "../components/BTNVolta";
 import ProdutosAPILocal from '../assets/ProdutosAPILocal';
+import ProdutosApiLocalLojista from '../assets/ProdutosApiLocalLojista';
 
 const produtos = ProdutosAPILocal;
+const produtosLojista = ProdutosApiLocalLojista;
 
 // ─── DADOS DA EMPRESA ──
 const DADOS_EMPRESA = {
@@ -17,17 +19,30 @@ const DADOS_EMPRESA = {
 
 const API_CLIENTES = [
   { id: 1, nome: 'João Silva', telefone: '(11) 99999-1111', endereco: 'Rua das Flores, 123', cidade: 'São Paulo', estado: 'SP', cep: '01310-100', cpf: '123.456.789-00', ie: '1234567890', bairro: 'Centro' },
-  { id: 2, nome: 'Maria Souza', telefone: '(19) 98888-2222', endereco: 'Av. Brasil, 456', cidade: 'Campinas', estado: 'SP', cep: '13010-050', cpf: '987.654.321-00', ie: '0987654321', bairro: 'Jardim' },
+  { id: 2, nome: 'Maria Souza', telefone: '(19) 98888-2222', endereco: 'Av. Brasil, 456', cidade: 'Pederneiras', estado: 'SP', cep: '16400-000', cpf: '987.654.321-00', ie: '0987654321', bairro: 'Jardim' },
 ];
 
-// ─── PERFIS DE PREÇO ──
+// ─── PERFIS DE PREÇO (somente 2) ──
 const PERFIS_PRECO = [
-  { id: 'padrao', label: 'Padrão', desconto: 0 },
-  { id: 'lojista', label: 'Lojista', desconto: 0.10 },
-  { id: 'arquiteto', label: 'Arquiteto', desconto: 0.15 },
+  { id: 'padrao', label: 'Padrão' },
+  { id: 'lojista', label: 'Lojista' },
 ];
 
 const FRETE_PERCENT = 0.085;
+
+// ─── CIDADES DA REGIÃO DE PEDERNEIRAS (FRETE ISENTO) ──
+const CIDADES_SEM_FRETE = [
+  'Pederneiras', 'Bauru', 'Agudos', 'Lençóis Paulista', 'Piratininga',
+  'Avaí', 'Bocaina', 'Ubirajara', 'Iacanga', 'Arealva',
+  'Duartina', 'Pongaí', 'Macatuba', 'Bariri', 'Boracéia',
+  'Areiópolis', 'Getulina', 'Igaraçu do Tietê',
+];
+function ehRegiaoSemFrete(cidade) {
+  if (!cidade) return false;
+  const c = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+  return CIDADES_SEM_FRETE.some(m => m.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() === c);
+}
+
 const fmtBRL = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const gerarNumero = () => `KL-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
 const ITEM_VAZIO = () => ({ id: Date.now() + Math.random(), nomeProduto: '', nomeExtra: '', qtd: 1, unitarioPadrao: 0, image: '', _tampo: '', _medidaIdx: 0, _cores: {} });
@@ -94,11 +109,6 @@ const getBase64ImageFromUrl = async (imageUrl) => {
   } catch { return null; }
 };
 
-function calcPrecoUnitario(unitarioPadrao, perfilId) {
-  const perfil = PERFIS_PRECO.find(p => p.id === perfilId) || PERFIS_PRECO[0];
-  return unitarioPadrao * (1 - perfil.desconto);
-}
-
 function ehMesa(status) { return STATUS_MESA.includes(status); }
 
 function getTamposDoProduto(produto) {
@@ -114,13 +124,13 @@ function temVariacaoParaTampo(produto, tampo) {
 // ════════════════════════════════════════════════════════
 //  MODAL SELETOR DE PRODUTO
 // ════════════════════════════════════════════════════════
-function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
+function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, listaProdutos }) {
   const [step, setStep] = useState('grid');
   const [busca, setBusca] = useState('');
   const [filtroCategoria, setFiltroCategoria] = useState('Todos');
   const [produtoSel, setProdutoSel] = useState(() => {
-    if (!itemInicial?.nomeProduto) return null;
-    return produtos.find(p => p.nome === itemInicial.nomeProduto) || null;
+    if (!itemInicial?.nomeProduto || !listaProdutos) return null;
+    return listaProdutos.find(p => p.nome === itemInicial.nomeProduto) || null;
   });
   const [tampoSel, setTampoSel] = useState(() => {
     if (!produtoSel) return null;
@@ -133,23 +143,23 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
   const [selecoesCor, setSelecoesCor] = useState(itemInicial?._cores || {});
   const [abaCor, setAbaCor] = useState('pintura');
 
-  // ── TODOS OS HOOKS ANTES DO RETURN CONDICIONAL ──
   const categorias = useMemo(() => {
-    const m = {}; produtos.forEach(p => { m[p.status] = (m[p.status] || 0) + 1; });
-    return [{ nome: 'Todos', count: produtos.length }, ...Object.entries(m).map(([n, c]) => ({ nome: n, count: c }))].sort((a, b) => {
+    if (!listaProdutos) return [];
+    const m = {}; listaProdutos.forEach(p => { m[p.status] = (m[p.status] || 0) + 1; });
+    return [{ nome: 'Todos', count: listaProdutos.length }, ...Object.entries(m).map(([n, c]) => ({ nome: n, count: c }))].sort((a, b) => {
       if (a.nome === 'Todos') return -1; if (b.nome === 'Todos') return 1; return a.nome.localeCompare(b.nome);
     });
-  }, []);
+  }, [listaProdutos]);
 
   const produtosFiltrados = useMemo(() => {
-    return produtos.filter(p => {
+    if (!listaProdutos) return [];
+    return listaProdutos.filter(p => {
       const mc = filtroCategoria === 'Todos' || p.status === filtroCategoria;
       const mb = busca === '' || p.nome.toLowerCase().includes(busca.toLowerCase()) || p.descricao.toLowerCase().includes(busca.toLowerCase());
       return mc && mb;
     });
-  }, [filtroCategoria, busca]);
+  }, [filtroCategoria, busca, listaProdutos]);
 
-  // ── RETURN CONDICIONAL DEPOIS DE TODOS OS HOOKS ──
   if (!aberto) return null;
 
   function selecionarCor(item) {
@@ -198,7 +208,6 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
     });
   }
 
-  // ─── ESTILOS INLINE ───
   const S = {
     overlay: { position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 },
     box: { background: '#fff', width: '100%', maxWidth: 920, maxHeight: '92vh', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' },
@@ -209,11 +218,7 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
     searchWrap: { padding: '12px 24px', borderBottom: '1px solid #eee', flexShrink: 0 },
     searchInput: { width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13, fontFamily: "'Sora', sans-serif", outline: 'none', transition: 'border-color 0.2s' },
     filtrosWrap: { padding: '8px 24px', display: 'flex', gap: 6, overflowX: 'auto', borderBottom: '1px solid #eee', flexShrink: 0, scrollbarWidth: 'none' },
-    filtroBtn: (ativo) => ({
-      padding: '5px 12px', borderRadius: 20, border: '1.5px solid', cursor: 'pointer', whiteSpace: 'nowrap',
-      fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s',
-      borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff', color: ativo ? '#fff' : '#666',
-    }),
+    filtroBtn: (ativo) => ({ padding: '5px 12px', borderRadius: 20, border: '1.5px solid', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s', borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff', color: ativo ? '#fff' : '#666' }),
     gridWrap: { flex: 1, overflowY: 'auto', padding: '16px 24px' },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))', gap: 12 },
     card: { border: '1px solid #e8e8e8', borderRadius: 8, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.2s', background: '#fff' },
@@ -224,7 +229,7 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
     cardStatus: { fontSize: 9, color: '#999', margin: 0, fontFamily: "'Sora', sans-serif" },
     emptyState: { textAlign: 'center', padding: 50, color: '#aaa' },
     detailWrap: { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' },
-    detailImgWrap: { width: '100%', maxWidth: '100%', height: 220, background: '#f5f5f3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
+    detailImgWrap: { width: '100%', height: 220, background: '#f5f5f3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
     detailImg: { maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: 4 },
     detailContent: { padding: '20px 24px', flex: 1, overflowY: 'auto' },
     badge: { display: 'inline-block', fontSize: 10, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6, fontFamily: "'Sora', sans-serif" },
@@ -232,27 +237,12 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
     desc: { fontSize: 12, color: '#777', margin: '0 0 18px', fontFamily: "'Sora', sans-serif", lineHeight: 1.5 },
     sectionLabel: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#555', display: 'block', marginBottom: 8, fontFamily: "'Sora', sans-serif", letterSpacing: 0.3 },
     pillRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 },
-    pill: (ativo, dispo) => ({
-      padding: '7px 16px', borderRadius: 6, border: '1.5px solid', fontSize: 12, cursor: dispo ? 'pointer' : 'not-allowed',
-      fontFamily: "'Sora', sans-serif", fontWeight: 500, transition: 'all 0.15s',
-      borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff',
-      color: ativo ? '#fff' : (!dispo ? '#ccc' : '#555'), opacity: dispo ? 1 : 0.5,
-    }),
+    pill: (ativo, dispo) => ({ padding: '7px 16px', borderRadius: 6, border: '1.5px solid', fontSize: 12, cursor: dispo ? 'pointer' : 'not-allowed', fontFamily: "'Sora', sans-serif", fontWeight: 500, transition: 'all 0.15s', borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff', color: ativo ? '#fff' : (!dispo ? '#ccc' : '#555'), opacity: dispo ? 1 : 0.5 }),
     corTabs: { display: 'flex', gap: 4, marginBottom: 10 },
-    corTab: (ativo) => ({
-      padding: '5px 14px', borderRadius: 4, border: 'none', cursor: 'pointer',
-      fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s',
-      background: ativo ? '#1a1a1a' : '#f0f0ee', color: ativo ? '#fff' : '#777',
-    }),
+    corTab: (ativo) => ({ padding: '5px 14px', borderRadius: 4, border: 'none', cursor: 'pointer', fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s', background: ativo ? '#1a1a1a' : '#f0f0ee', color: ativo ? '#fff' : '#777' }),
     corChips: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 },
-    corChip: (sel) => ({
-      display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', borderRadius: 8, border: '1.5px solid',
-      borderColor: sel ? '#1a1a1a' : '#e8e8e8', background: sel ? '#f8f8f6' : '#fff', cursor: 'pointer', transition: 'all 0.15s',
-    }),
-    corSwatch: (hex, sel) => ({
-      width: 24, height: 24, borderRadius: 6, background: hex, border: sel ? '2px solid #1a1a1a' : '1px solid rgba(0,0,0,0.08)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', flexShrink: 0,
-    }),
+    corChip: (sel) => ({ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', borderRadius: 8, border: '1.5px solid', borderColor: sel ? '#1a1a1a' : '#e8e8e8', background: sel ? '#f8f8f6' : '#fff', cursor: 'pointer', transition: 'all 0.15s' }),
+    corSwatch: (hex, sel) => ({ width: 24, height: 24, borderRadius: 6, background: hex, border: sel ? '2px solid #1a1a1a' : '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', flexShrink: 0 }),
     corNome: { fontSize: 11, fontWeight: 500, fontFamily: "'Sora', sans-serif", color: '#333' },
     paleta: { display: 'flex', gap: 6, marginBottom: 16 },
     paletaDot: (hex) => ({ width: 26, height: 26, borderRadius: '50%', background: hex, border: '2px solid #fff', boxShadow: '0 0 0 1px #ddd', flexShrink: 0 }),
@@ -264,16 +254,12 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
     qtyVal: { width: 42, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, fontFamily: "'Sora', sans-serif", borderLeft: '1px solid #eee', borderRight: '1px solid #eee' },
     footer: { padding: '14px 24px', borderTop: '1px solid #e0e0e0', display: 'flex', gap: 10, justifyContent: 'flex-end', flexShrink: 0 },
     btnBack: { padding: '10px 20px', border: '1px solid #ddd', background: '#fff', borderRadius: 6, fontSize: 13, cursor: 'pointer', fontFamily: "'Sora', sans-serif", color: '#555', fontWeight: 500 },
-    btnConfirm: (ok) => ({
-      padding: '10px 28px', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: ok ? 'pointer' : 'not-allowed',
-      fontFamily: "'Sora', sans-serif", background: ok ? '#1a1a1a' : '#ccc', color: '#fff', transition: 'opacity 0.15s',
-    }),
+    btnConfirm: (ok) => ({ padding: '10px 28px', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: ok ? 'pointer' : 'not-allowed', fontFamily: "'Sora', sans-serif", background: ok ? '#1a1a1a' : '#ccc', color: '#fff', transition: 'opacity 0.15s' }),
   };
 
   return (
     <div style={S.overlay} onClick={onFechar}>
       <div style={S.box} onClick={e => e.stopPropagation()}>
-        {/* HEADER */}
         <div style={S.header}>
           <div>
             <p style={S.eyebrow}>Kasaleve</p>
@@ -281,21 +267,11 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
           </div>
           <button style={S.closeBtn} onClick={onFechar} onMouseEnter={e => e.target.style.color = '#1a1a1a'} onMouseLeave={e => e.target.style.color = '#888'}>✕</button>
         </div>
-
         {step === 'grid' ? (
           <>
-            {/* BUSCA */}
             <div style={S.searchWrap}>
-              <input
-                type="text" placeholder="Buscar produto por nome..."
-                value={busca} onChange={e => setBusca(e.target.value)}
-                style={S.searchInput}
-                onFocus={e => e.target.style.borderColor = '#1a1a1a'}
-                onBlur={e => e.target.style.borderColor = '#ddd'}
-              />
+              <input type="text" placeholder="Buscar produto por nome..." value={busca} onChange={e => setBusca(e.target.value)} style={S.searchInput} onFocus={e => e.target.style.borderColor = '#1a1a1a'} onBlur={e => e.target.style.borderColor = '#ddd'} />
             </div>
-
-            {/* FILTROS DE CATEGORIA */}
             <div style={S.filtrosWrap}>
               {categorias.map(c => (
                 <button key={c.nome} onClick={() => setFiltroCategoria(c.nome)} style={S.filtroBtn(filtroCategoria === c.nome)}>
@@ -303,8 +279,6 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
                 </button>
               ))}
             </div>
-
-            {/* GRID DE PRODUTOS */}
             <div style={S.gridWrap}>
               <div style={S.grid}>
                 {produtosFiltrados.map(p => (
@@ -332,7 +306,6 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
           </>
         ) : (
           <>
-            {/* DETALHE DO PRODUTO */}
             <div style={S.detailWrap}>
               <div style={S.detailImgWrap}>
                 {imgAtual ? <img src={imgAtual} alt={produtoSel?.nome} style={S.detailImg} /> : <span style={{ fontSize: 64 }}>{iconesCategoria[produtoSel?.status] || '📦'}</span>}
@@ -341,39 +314,14 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
                 <span style={S.badge}>{iconesCategoria[produtoSel?.status]} {produtoSel?.status}</span>
                 <h3 style={S.nome}>{produtoSel?.nome}</h3>
                 <p style={S.desc}>{produtoSel?.descricao}</p>
-
-                {/* TAMPO (mesas) */}
                 {eMesa && tamposExibidos && tamposExibidos.length > 1 && (
-                  <>
-                    <label style={S.sectionLabel}>Tipo de Tampo:</label>
-                    <div style={S.pillRow}>
-                      {tamposExibidos.map(t => {
-                        const disp = temVariacaoParaTampo(produtoSel, t);
-                        return (
-                          <button key={t} onClick={() => handleTampoClick(t)} disabled={!disp} style={S.pill(tampoSel === t, disp)}>
-                            {t}{!disp && ' ✕'}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
+                  <><label style={S.sectionLabel}>Tipo de Tampo:</label>
+                  <div style={S.pillRow}>{tamposExibidos.map(t => { const disp = temVariacaoParaTampo(produtoSel, t); return (<button key={t} onClick={() => handleTampoClick(t)} disabled={!disp} style={S.pill(tampoSel === t, disp)}>{t}{!disp && ' ✕'}</button>); })}</div></>
                 )}
-
-                {/* MEDIDA */}
                 {varsFiltradas.length > 1 && (
-                  <>
-                    <label style={S.sectionLabel}>{eMesa ? 'Medida:' : 'Variação:'}</label>
-                    <div style={S.pillRow}>
-                      {varsFiltradas.map((v, i) => (
-                        <button key={i} onClick={() => setMedidaIdx(i)} style={S.pill(medidaIdx === i, true)}>
-                          {v.medida || `Opção ${i + 1}`}
-                        </button>
-                      ))}
-                    </div>
-                  </>
+                  <><label style={S.sectionLabel}>{eMesa ? 'Medida:' : 'Variação:'}</label>
+                  <div style={S.pillRow}>{varsFiltradas.map((v, i) => (<button key={i} onClick={() => setMedidaIdx(i)} style={S.pill(medidaIdx === i, true)}>{v.medida || `Opção ${i + 1}`}</button>))}</div></>
                 )}
-
-                {/* CORES */}
                 <label style={S.sectionLabel}>Personalização de Cores:</label>
                 <div style={S.corTabs}>
                   {[{ id: 'pintura', label: 'Alumínio' }, { id: 'cordas', label: 'Cordas' }, { id: 'tecidos', label: 'Tecidos' }].map(a => (
@@ -383,26 +331,14 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
                 <div style={S.corChips}>
                   {COLOR_LISTS[abaCor].map(item => {
                     const sel = selecoesCor[item.cat]?.id === item.id;
-                    return (
-                      <div key={item.id} onClick={() => selecionarCor(item)} style={S.corChip(sel)}>
-                        <div style={S.corSwatch(item.hex, sel)}>{sel && '✓'}</div>
-                        <span style={S.corNome}>{item.nome}</span>
-                      </div>
-                    );
+                    return (<div key={item.id} onClick={() => selecionarCor(item)} style={S.corChip(sel)}><div style={S.corSwatch(item.hex, sel)}>{sel && '✓'}</div><span style={S.corNome}>{item.nome}</span></div>);
                   })}
                 </div>
                 {Object.keys(selecoesCor).length > 0 && (
-                  <div style={S.paleta}>
-                    {Object.values(selecoesCor).map(s => <div key={s.id} style={S.paletaDot(s.hex)} title={s.nome} />)}
-                  </div>
+                  <div style={S.paleta}>{Object.values(selecoesCor).map(s => <div key={s.id} style={S.paletaDot(s.hex)} title={s.nome} />)}</div>
                 )}
-
-                {/* PREÇO + QTD */}
                 <div style={S.priceRow}>
-                  <div>
-                    <p style={S.priceLabel}>Preço unitário</p>
-                    <p style={S.priceValue}>{varAtual?.preco ? fmtBRL(varAtual.preco) : '—'}</p>
-                  </div>
+                  <div><p style={S.priceLabel}>Preço unitário</p><p style={S.priceValue}>{varAtual?.preco ? fmtBRL(varAtual.preco) : '—'}</p></div>
                   <div style={S.qtyBox}>
                     <button style={S.qtyBtn} onClick={() => setQtd(q => Math.max(1, q - 1))}>−</button>
                     <span style={S.qtyVal}>{qtd}</span>
@@ -411,8 +347,6 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial }) {
                 </div>
               </div>
             </div>
-
-            {/* FOOTER */}
             <div style={S.footer}>
               <button style={S.btnBack} onClick={() => setStep('grid')}>← Voltar</button>
               <button style={S.btnConfirm(!!varAtual?.preco)} onClick={handleConfirmar} disabled={!varAtual?.preco}>Confirmar Seleção</button>
@@ -456,49 +390,33 @@ function EtapaNovoCliente({ onContinuar, onVoltar }) {
   const [form, setForm] = useState(CLIENTE_VAZIO);
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [cepErro, setCepErro] = useState('');
-
   const set = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
-
   async function handleCEP(e) {
-    const val = e.target.value;
-    setForm(p => ({ ...p, cep: val }));
-    setCepErro('');
+    const val = e.target.value; setForm(p => ({ ...p, cep: val })); setCepErro('');
     if (val.replace(/\D/g, '').length === 8) {
-      setBuscandoCep(true);
-      const dados = await buscarCEP(val);
-      setBuscandoCep(false);
-      if (dados) setForm(p => ({ ...p, ...dados }));
-      else setCepErro('CEP não encontrado.');
+      setBuscandoCep(true); const dados = await buscarCEP(val); setBuscandoCep(false);
+      if (dados) setForm(p => ({ ...p, ...dados })); else setCepErro('CEP não encontrado.');
     }
   }
-
   return (
     <div className="orc-bg">
       <div className="orc-paper orc-paper--narrow">
         <button className="orc-back-link" onClick={onVoltar}>← Voltar</button>
         <h2 className="orc-form-title">Cadastro de Cliente</h2>
         <p className="orc-section__hint">Todos os campos são opcionais — preencha o que tiver disponível.</p>
-
         <div className="orc-cliente-grid">
           <div className="orc-field w-full"><label>Nome Completo</label><input className="orc-input" value={form.nome} onChange={set('nome')} placeholder="Ex: João da Silva" /></div>
           <div className="orc-field"><label>Telefone</label><input className="orc-input" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-0000" /></div>
           <div className="orc-field"><label>E-mail</label><input className="orc-input" value={form.email} onChange={set('email')} placeholder="email@exemplo.com" /></div>
           <div className="orc-field"><label>CPF/CNPJ</label><input className="orc-input" value={form.cpf} onChange={set('cpf')} placeholder="000.000.000-00" /></div>
-          <div className="orc-field">
-            <label>CEP {buscandoCep && <span className="orc-cep-spinner">⏳</span>}</label>
-            <input className="orc-input" value={form.cep} onChange={handleCEP} maxLength={9} placeholder="00000-000" />
-            {cepErro && <small className="orc-cep-erro">{cepErro}</small>}
-          </div>
+          <div className="orc-field"><label>CEP {buscandoCep && <span className="orc-cep-spinner">⏳</span>}</label><input className="orc-input" value={form.cep} onChange={handleCEP} maxLength={9} placeholder="00000-000" />{cepErro && <small className="orc-cep-erro">{cepErro}</small>}</div>
           <div className="orc-field w-full"><label>Endereço</label><input className="orc-input" value={form.endereco} onChange={set('endereco')} placeholder="Rua, Av..." /></div>
           <div className="orc-field"><label>Número</label><input className="orc-input" value={form.numero} onChange={set('numero')} /></div>
           <div className="orc-field"><label>Bairro</label><input className="orc-input" value={form.bairro} onChange={set('bairro')} /></div>
           <div className="orc-field"><label>Cidade</label><input className="orc-input" value={form.cidade} onChange={set('cidade')} /></div>
           <div className="orc-field"><label>Estado</label><input className="orc-input" value={form.estado} onChange={set('estado')} maxLength={2} placeholder="SP" /></div>
         </div>
-
-        <div className="orc-form-footer">
-          <button className="orc-gate__btn orc-gate__btn--sim" onClick={() => onContinuar(form)}>Continuar para o orçamento →</button>
-        </div>
+        <div className="orc-form-footer"><button className="orc-gate__btn orc-gate__btn--sim" onClick={() => onContinuar(form)}>Continuar para o orçamento →</button></div>
       </div>
     </div>
   );
@@ -524,33 +442,38 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     if (c) setDadosCliente(c);
   }, [clienteId, clientes]);
 
-  const setDado = (field) => (e) => setDadosCliente(p => ({ ...p, [field]: e.target.value }));
+  // Limpa itens ao trocar de tabela de preço (preços diferentes)
+  useEffect(() => { setItens([ITEM_VAZIO()]); }, [perfilId]);
 
+  const setDado = (field) => (e) => setDadosCliente(p => ({ ...p, [field]: e.target.value }));
   const addItem = () => setItens(p => [...p, ITEM_VAZIO()]);
   const removeItem = (id) => setItens(p => p.filter(i => i.id !== id));
-
   const updateItem = useCallback((id, field, value) => {
     setItens(prev => prev.map(item => item.id !== id ? item : { ...item, [field]: value }));
   }, []);
-
   const selecionarProdutoParaItem = useCallback((dados) => {
     if (!editandoItemId) return;
     setItens(prev => prev.map(item => item.id !== editandoItemId ? item : { ...item, ...dados }));
     setEditandoItemId(null);
   }, [editandoItemId]);
-
   const abrirModalPara = (id) => setEditandoItemId(id);
 
-  const getUnitario = (item) => calcPrecoUnitario(item.unitarioPadrao, perfilId);
+  // Lista de produtos conforme perfil selecionado
+  const listaAtual = perfilId === 'lojista' ? produtosLojista : produtos;
+
+  // Preço direto da lista (sem desconto, cada lista já tem seu preço)
+  const getUnitario = (item) => item.unitarioPadrao;
   const totalProdutos = itens.reduce((acc, i) => acc + Number(i.qtd) * getUnitario(i), 0);
-  const valorFrete = totalProdutos * FRETE_PERCENT;
+
+  // Frete: isento para região de Pederneiras
+  const semFrete = ehRegiaoSemFrete(dadosCliente.cidade);
+  const valorFrete = semFrete ? 0 : totalProdutos * FRETE_PERCENT;
   const totalGeral = totalProdutos + valorFrete;
   const perfilAtual = PERFIS_PRECO.find(p => p.id === perfilId) || PERFIS_PRECO[0];
-
   const itemEditando = editandoItemId ? itens.find(i => i.id === editandoItemId) : null;
 
   // ────────────────────────────────────────────
-  //  EXPORTAÇÃO
+  //  EXPORTAÇÃO PDF
   // ────────────────────────────────────────────
   const handleExportar = async () => {
     const tipo = window.confirm('OK para PDF, Cancelar para DOCX') ? 'pdf' : 'docx';
@@ -561,59 +484,38 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   const exportarPDF = async () => {
     const { default: jsPDF } = await import('jspdf');
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const L = 15, R = 195; let y = 18;
 
-    const L = 15, R = 195;
-    let y = 18;
-
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(26);
-    doc.setTextColor(40, 40, 40);
-    doc.text('kasaleve', L, y + 8);
-    doc.setFontSize(11); doc.setTextColor(90, 90, 90);
-    doc.text('projeto  •  conforto', L, y + 15);
-    doc.setDrawColor(37, 99, 235); doc.setLineWidth(0.8);
-    doc.line(L, y + 18, L + 75, y + 18);
-
-    doc.setFontSize(8); doc.setTextColor(60, 60, 60); doc.setFont('helvetica', 'normal');
-    doc.text(DADOS_EMPRESA.razaoSocial, R, y, { align: 'right' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(26); doc.setTextColor(40, 40, 40); doc.text('kasaleve', L, y + 8);
+    doc.setFontSize(11); doc.setTextColor(90, 90, 90); doc.text('projeto  •  conforto', L, y + 15);
+    doc.setDrawColor(37, 99, 235); doc.setLineWidth(0.8); doc.line(L, y + 18, L + 75, y + 18);
+    doc.setFontSize(8); doc.setTextColor(60, 60, 60); doc.text(DADOS_EMPRESA.razaoSocial, R, y, { align: 'right' });
     const enderecoLines = doc.splitTextToSize(DADOS_EMPRESA.endereco, 85);
     doc.text(enderecoLines, R, y + 4, { align: 'right' });
-    doc.setTextColor(37, 99, 235);
-    doc.text(DADOS_EMPRESA.site, R, y + 4 + enderecoLines.length * 3.6, { align: 'right' });
-    doc.setTextColor(60, 60, 60);
-    doc.text(DADOS_EMPRESA.telefone, R, y + 4 + enderecoLines.length * 3.6 + 4, { align: 'right' });
+    doc.setTextColor(37, 99, 235); doc.text(DADOS_EMPRESA.site, R, y + 4 + enderecoLines.length * 3.6, { align: 'right' });
+    doc.setTextColor(60, 60, 60); doc.text(DADOS_EMPRESA.telefone, R, y + 4 + enderecoLines.length * 3.6 + 4, { align: 'right' });
     y += 30;
 
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(18);
-    doc.setTextColor(200, 30, 30);
-    doc.text('ORÇAMENTO', L, y);
-    doc.setFontSize(10); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold');
-    doc.text(`Enviado em: ${dataEmissao}`, R, y, { align: 'right' });
-    y += 8;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(200, 30, 30); doc.text('ORÇAMENTO', L, y);
+    doc.setFontSize(10); doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'bold'); doc.text(`Enviado em: ${dataEmissao}`, R, y, { align: 'right' }); y += 8;
 
     const rowH = 9;
     const grayRow = (label, value, x1, w) => {
       doc.setFillColor(225, 225, 225); doc.rect(x1, y, w, rowH, 'F');
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(0, 0, 0);
-      doc.text(label, x1 + 2, y + 4);
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-      doc.text(String(value || ''), x1 + 2, y + 7.5);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(0, 0, 0); doc.text(label, x1 + 2, y + 4);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(String(value || ''), x1 + 2, y + 7.5);
     };
 
     grayRow('CLIENTE:', dadosCliente.nome, L, R - L); y += rowH + 1;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(0, 0, 0);
-    doc.text('ENDEREÇO:', L, y + 4);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
-    doc.text(`${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, L + 22, y + 4); y += rowH + 3;
-
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(0, 0, 0); doc.text('ENDEREÇO:', L, y + 4);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(`${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, L + 22, y + 4); y += rowH + 3;
     const halfW = (R - L - 2) / 2;
     grayRow('CIDADE:', `${dadosCliente.cidade || ''} ${dadosCliente.estado ? '- ' + dadosCliente.estado : ''}`, L, halfW);
     grayRow('CEP:', dadosCliente.cep, L + halfW + 2, halfW); y += rowH + 1;
-
     doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text('CNPJ/CPF:', L, y + 4);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(dadosCliente.cpf || '', L + 22, y + 4);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.text('IE/RG:', L + halfW + 2, y + 4);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(dadosCliente.ie || '', L + halfW + 18, y + 4); y += rowH + 3;
-
     grayRow('CONTATO:', dadosCliente.telefone, L, halfW);
     grayRow('VENDEDORA:', dadosCliente.vendedora, L + halfW + 2, halfW); y += rowH + 8;
 
@@ -639,13 +541,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
       const totalItem = Number(item.qtd) * unitario;
       const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 4);
       const rowHgt = Math.max(12, descLines.length * 4 + 6);
-
-      if (item.image) {
-        try {
-          const imgData = await getBase64ImageFromUrl(item.image);
-          if (imgData) doc.addImage(imgData, 'JPEG', c1 + 1, y + 1, 10, 10);
-        } catch { /* ignore */ }
-      }
+      if (item.image) { try { const imgData = await getBase64ImageFromUrl(item.image); if (imgData) doc.addImage(imgData, 'JPEG', c1 + 1, y + 1, 10, 10); } catch {} }
       doc.setFontSize(9); doc.text(descLines, c2 + 2, y + 5);
       doc.text(String(item.qtd), c3 + 2, y + 6);
       doc.text(fmtBRL(unitario), c4 + 2, y + 6);
@@ -667,7 +563,8 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
-    doc.setFont('helvetica', 'normal'); doc.text(`R$ ${valorFrete.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6); y += 9;
+    doc.setFont('helvetica', 'normal');
+    doc.text(semFrete ? 'ISENTO (entrega local)' : `R$ ${valorFrete.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6); y += 9;
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.text('VALOR PRODUTOS + FRETE', L + 2, y + 6);
@@ -682,10 +579,8 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     doc.setFontSize(8.5);
     TERMOS_PADRAO.forEach(t => {
       if (y > 270) { doc.addPage(); y = 20; }
-      doc.setFont('helvetica', 'bold');
-      const tituloW = doc.getTextWidth(t.titulo + ': ');
-      doc.text(`${t.titulo}:`, L, y);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont('helvetica', 'bold'); const tituloW = doc.getTextWidth(t.titulo + ': ');
+      doc.text(`${t.titulo}:`, L, y); doc.setFont('helvetica', 'normal');
       const linhas = doc.splitTextToSize(t.texto, (R - L) - tituloW - 2);
       doc.text(linhas[0], L + tituloW, y);
       for (let k = 1; k < linhas.length; k++) { y += 4; doc.text(linhas[k], L, y); }
@@ -719,8 +614,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
 
     const itemRows = itens.map((item) => {
       const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
-      const unitario = getUnitario(item);
-      const total = Number(item.qtd) * unitario;
+      const unitario = getUnitario(item); const total = Number(item.qtd) * unitario;
       return new TableRow({ children: [
         new TableCell({ borders: cellBorder, children: [p([normal(item.nomeProduto || '-', { size: 16 })])] }),
         new TableCell({ borders: cellBorder, children: [p([normal(descCompleta || '-', { size: 16 })])] }),
@@ -731,6 +625,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     });
 
     const termosParagraphs = TERMOS_PADRAO.flatMap(t => [p([bold(t.titulo + ': ', { size: 17 }), normal(t.texto, { size: 17 })]), p([])]);
+    const freteTexto = semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete);
 
     const doc = new Document({ sections: [{ children: [
       p([bold('kasaleve', { size: 44 })]), p([normal('projeto  •  conforto', { size: 18 })]), p([]),
@@ -750,7 +645,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
       p([bold('TOTAL: '), normal(fmtBRL(totalProdutos))], AlignmentType.RIGHT), p([]),
       new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
         new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES GERAIS')], AlignmentType.CENTER)] })] }),
-        new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(valorFrete))])] })] }),
+        new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(freteTexto)])] })] }),
         new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('VALOR PRODUTOS + FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(totalGeral))])] })] }),
         new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([normal('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])] })] }),
         new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES:')], AlignmentType.CENTER)] })] }),
@@ -760,16 +655,14 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     ]}]});
 
     const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `Orcamento_${numero}.docx`; a.click();
-    URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = `Orcamento_${numero}.docx`; a.click(); URL.revokeObjectURL(url);
   };
 
   return (
     <div className="orc-bg">
       <div className="orc-paper">
         <button className="orc-back-link" onClick={onVoltar}>← Recomeçar</button>
-
         <header className="orc-header">
           <div className="orc-logo">
             <span className="orc-logo__name">kasaleve</span>
@@ -777,10 +670,8 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
             <div className="orc-logo__underline" />
           </div>
           <div className="orc-empresa-info">
-            <p>{DADOS_EMPRESA.razaoSocial}</p>
-            <p>{DADOS_EMPRESA.endereco}</p>
-            <p className="orc-empresa-info__link">{DADOS_EMPRESA.site}</p>
-            <p>{DADOS_EMPRESA.telefone}</p>
+            <p>{DADOS_EMPRESA.razaoSocial}</p><p>{DADOS_EMPRESA.endereco}</p>
+            <p className="orc-empresa-info__link">{DADOS_EMPRESA.site}</p><p>{DADOS_EMPRESA.telefone}</p>
           </div>
         </header>
 
@@ -795,11 +686,12 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
             {PERFIS_PRECO.map(p => (
               <button key={p.id} className={`orc-perfil-btn${perfilId === p.id ? ' orc-perfil-btn--ativo' : ''}`} onClick={() => setPerfilId(p.id)}>
                 {p.label}
-                {p.desconto > 0 && <span className="orc-perfil-badge">-{(p.desconto * 100).toFixed(0)}%</span>}
               </button>
             ))}
           </div>
-          {perfilAtual.desconto > 0 && <span className="orc-perfil-hint">Preço com {(perfilAtual.desconto * 100).toFixed(0)}% de desconto aplicado</span>}
+          <span className="orc-perfil-hint" style={{ color: semFrete ? '#16a34a' : '#2563eb' }}>
+            {semFrete ? '✓ Entrega local — frete isento' : 'Frete calculado automaticamente'}
+          </span>
         </section>
 
         <section className="orc-cliente-bloco">
@@ -829,17 +721,10 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
 
         <section className="orc-section">
           <table className="orc-table">
-            <thead>
-              <tr>
-                <th className="col-img center">Img</th>
-                <th className="col-item">Item</th>
-                <th className="col-desc">Descrição</th>
-                <th className="col-qtd center">Qtd</th>
-                <th className="col-unit right">Unit.</th>
-                <th className="col-total right">Total</th>
-                <th className="col-del"></th>
-              </tr>
-            </thead>
+            <thead><tr>
+              <th className="col-img center">Img</th><th className="col-item">Item</th><th className="col-desc">Descrição</th>
+              <th className="col-qtd center">Qtd</th><th className="col-unit right">Unit.</th><th className="col-total right">Total</th><th className="col-del"></th>
+            </tr></thead>
             <tbody>
               {itens.map((item) => {
                 const unitario = getUnitario(item);
@@ -870,31 +755,18 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
                         <input type="text" value={item.nomeExtra} onChange={e => updateItem(item.id, 'nomeExtra', e.target.value)} placeholder="Cores, medidas, obs..." className="orc-desc-extra" />
                       </div>
                     </td>
-                    <td className="center">
-                      <input type="number" min="1" value={item.qtd} onChange={e => updateItem(item.id, 'qtd', Number(e.target.value))} />
-                    </td>
+                    <td className="center"><input type="number" min="1" value={item.qtd} onChange={e => updateItem(item.id, 'qtd', Number(e.target.value))} /></td>
                     <td className="right orc-unit-cell">
-                      {unitario > 0 ? (
-                        <>
-                          <span className="orc-unit-valor">{fmtBRL(unitario)}</span>
-                          {perfilAtual.desconto > 0 && item.unitarioPadrao > 0 && (
-                            <span className="orc-unit-original">{fmtBRL(item.unitarioPadrao)}</span>
-                          )}
-                        </>
-                      ) : '—'}
+                      {unitario > 0 ? <span className="orc-unit-valor">{fmtBRL(unitario)}</span> : '—'}
                     </td>
                     <td className="right">{unitario > 0 ? fmtBRL(item.qtd * unitario) : '—'}</td>
-                    <td className="center">
-                      {itens.length > 1 && <button className="orc-btn-del" onClick={() => removeItem(item.id)}>✕</button>}
-                    </td>
+                    <td className="center">{itens.length > 1 && <button className="orc-btn-del" onClick={() => removeItem(item.id)}>✕</button>}</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-
           <button className="orc-btn-add" onClick={addItem}>+ Adicionar Item</button>
-
           <div className="orc-total-row">
             <span>TOTAL:</span>
             <span className="orc-total-valor">{fmtBRL(totalProdutos)}</span>
@@ -903,8 +775,14 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
 
         <section className="orc-termos-box">
           <div className="orc-termos-box__titulo">TERMOS E CONDIÇÕES GERAIS</div>
-          <div className="orc-termos-box__linha"><span className="orc-termos-box__label">FRETE</span><span>{fmtBRL(valorFrete)}</span></div>
-          <div className="orc-termos-box__linha"><span className="orc-termos-box__label">VALOR PRODUTOS + FRETE</span><span>{fmtBRL(totalGeral)}</span></div>
+          <div className="orc-termos-box__linha">
+            <span className="orc-termos-box__label">FRETE</span>
+            <span>{semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete)}</span>
+          </div>
+          <div className="orc-termos-box__linha">
+            <span className="orc-termos-box__label">VALOR PRODUTOS + FRETE</span>
+            <span>{fmtBRL(totalGeral)}</span>
+          </div>
           <div className="orc-termos-box__validade">Orçamento válido por 5 úteis dias após o envio.</div>
           <div className="orc-termos-box__titulo">TERMOS E CONDIÇÕES:</div>
           <div className="orc-termos-box__texto">
@@ -931,6 +809,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
         onFechar={() => setEditandoItemId(null)}
         onSelecionar={selecionarProdutoParaItem}
         itemInicial={itemEditando}
+        listaProdutos={listaAtual}
       />
     </div>
   );

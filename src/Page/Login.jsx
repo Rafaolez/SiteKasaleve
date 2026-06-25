@@ -28,9 +28,9 @@ const IconEyeOff = () => (
 
 // Imagens de fundo (Substitua pelas suas imagens reais se quiser)
 const BG_IMAGES = [
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80", // Escritório moderno
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1920&q=80", // Reunião
-  "https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1920&q=80", // Trabalho em equipe
+  "/Imagens/Produtos/CarroLoginPt1.jpg", // Escritório moderno
+  "/Imagens/Produtos/CarroLoginPt2.jpg", // Reunião
+  "/Imagens/Produtos/CarroLoginPt3.jpg", // Trabalho em equipe
 ];
 
 function Login() {
