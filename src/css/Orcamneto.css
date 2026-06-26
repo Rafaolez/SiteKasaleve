@@ -569,3 +569,500 @@ html, body {
   .orc-perfil-section { flex-direction: column; align-items: flex-start; }
   .orc-perfil-hint { margin-left: 0; }
 }
+/* ════════════════════════════════════════════════════════
+   MODAL SELETOR — substituindo todos os inline styles
+   Adicione este bloco ao final do seu Orcamneto.css
+   ════════════════════════════════════════════════════════ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-box {
+  background: #fff;
+  width: 100%;
+  max-width: 920px;
+  max-height: 92vh;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  /* GPU-acelera o modal inteiro */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.modal-eyebrow {
+  font-size: 10px;
+  color: #999;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 2px 0 0;
+  font-family: 'Sora', sans-serif;
+  color: #1a1a1a;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.modal-close-btn:hover { color: #1a1a1a; }
+
+/* ── GRID ── */
+.modal-search-wrap {
+  padding: 12px 24px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.modal-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: 'Sora', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.modal-search-input:focus { border-color: #1a1a1a; }
+
+.modal-filtros-wrap {
+  padding: 8px 24px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.modal-filtros-wrap::-webkit-scrollbar { display: none; }
+
+.modal-filtro-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1.5px solid #ddd;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.15s;
+  background: #fff;
+  color: #666;
+}
+.modal-filtro-btn--ativo {
+  border-color: #1a1a1a;
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.modal-grid-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px;
+  /* Scroll suave com aceleração de hardware */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+  gap: 12px;
+  /* Evita repaint ao scrollar */
+  contain: layout style;
+}
+
+/* ── CARD ── */
+.modal-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  background: #fff;
+  /* Promove cada card para sua própria camada */
+  will-change: transform;
+}
+.modal-card:hover {
+  border-color: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.modal-card__img {
+  height: 115px;
+  background: #f5f5f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.modal-card__img-el {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Evita layout shift enquanto a imagem carrega */
+  display: block;
+}
+
+.modal-card__emoji { font-size: 36px; }
+
+.modal-card__body {
+  padding: 8px 10px 10px;
+}
+
+.modal-card__nome {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  line-height: 1.3;
+  font-family: 'Sora', sans-serif;
+  color: #1a1a1a;
+}
+
+.modal-card__status {
+  font-size: 9px;
+  color: #999;
+  margin: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.modal-empty-state {
+  text-align: center;
+  padding: 50px;
+  color: #aaa;
+}
+
+/* ── DETAIL ── */
+.modal-detail-wrap {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-detail-img-wrap {
+  width: 100%;
+  height: 220px;
+  background: #f5f5f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.modal-detail-img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.modal-detail-content {
+  padding: 20px 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  font-family: 'Sora', sans-serif;
+}
+
+.modal-nome {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  font-family: 'Sora', sans-serif;
+  color: #1a1a1a;
+}
+
+.modal-desc {
+  font-size: 12px;
+  color: #777;
+  margin: 0 0 18px;
+  font-family: 'Sora', sans-serif;
+  line-height: 1.5;
+}
+
+.modal-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #555;
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'Sora', sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.modal-pill-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.modal-pill {
+  padding: 7px 16px;
+  border-radius: 6px;
+  border: 1.5px solid #ddd;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  font-weight: 500;
+  transition: all 0.15s;
+  background: #fff;
+  color: #555;
+}
+.modal-pill--ativo {
+  border-color: #1a1a1a;
+  background: #1a1a1a;
+  color: #fff;
+}
+.modal-pill--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  color: #ccc;
+  border-color: #ddd;
+}
+
+.modal-cor-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.modal-cor-tab {
+  padding: 5px 14px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  transition: all 0.15s;
+  background: #f0f0ee;
+  color: #777;
+}
+.modal-cor-tab--ativo {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.modal-cor-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.modal-cor-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #e8e8e8;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.modal-cor-chip--sel {
+  border-color: #1a1a1a;
+  background: #f8f8f6;
+}
+
+.modal-cor-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.modal-cor-swatch--sel {
+  border: 2px solid #1a1a1a;
+}
+
+.modal-cor-nome {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Sora', sans-serif;
+  color: #333;
+}
+
+.modal-paleta {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.modal-paleta-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px #ddd;
+  flex-shrink: 0;
+}
+
+.modal-price-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 16px 0 0;
+  border-top: 1px solid #eee;
+}
+
+.modal-price-label {
+  font-size: 10px;
+  color: #999;
+  margin: 0;
+  font-family: 'Sora', sans-serif;
+}
+
+.modal-price-value {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 2px 0 0;
+  font-family: 'Sora', sans-serif;
+  color: #1a1a1a;
+}
+
+.modal-qty-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.modal-qty-btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #f8f8f6;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-qty-val {
+  width: 42px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Sora', sans-serif;
+  border-left: 1px solid #eee;
+  border-right: 1px solid #eee;
+}
+
+.modal-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.modal-btn-back {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  color: #555;
+  font-weight: 500;
+}
+
+.modal-btn-confirm {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Sora', sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  transition: opacity 0.15s;
+}
+.modal-btn-confirm--disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Botão selecionar na tabela */
+.orc-btn-selecionar {
+  padding: 6px 10px;
+  border: 1px dashed #bbb;
+  background: #fafafa;
+  cursor: pointer;
+  font-size: 11px;
+  color: #777;
+  border-radius: 4px;
+  font-family: 'Sora', sans-serif;
+  transition: all 0.15s;
+}
+.orc-btn-selecionar:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}

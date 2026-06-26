@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
 import '../css/Orcamneto.css';
 import BTNVolta from "../components/BTNVolta";
 import ProdutosAPILocal from '../assets/ProdutosAPILocal';
@@ -37,10 +37,16 @@ const CIDADES_SEM_FRETE = [
   'Duartina', 'Pongaí', 'Macatuba', 'Bariri', 'Boracéia',
   'Areiópolis', 'Getulina', 'Igaraçu do Tietê',
 ];
+
+// Pre-compute normalized set for O(1) lookup
+const CIDADES_SEM_FRETE_NORM = new Set(
+  CIDADES_SEM_FRETE.map(m => m.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase())
+);
+
 function ehRegiaoSemFrete(cidade) {
   if (!cidade) return false;
   const c = cidade.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
-  return CIDADES_SEM_FRETE.some(m => m.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase() === c);
+  return CIDADES_SEM_FRETE_NORM.has(c);
 }
 
 const fmtBRL = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -122,73 +128,132 @@ function temVariacaoParaTampo(produto, tampo) {
 }
 
 // ════════════════════════════════════════════════════════
+//  CARD DE PRODUTO — memoizado para evitar re-renders
+// ════════════════════════════════════════════════════════
+const ProdutoCard = memo(function ProdutoCard({ produto, onClick }) {
+  return (
+    <div
+      className="modal-card"
+      onClick={() => onClick(produto)}
+    >
+      <div className="modal-card__img">
+        {produto.img
+          ? <img src={produto.img} alt={produto.nome} className="modal-card__img-el" loading="lazy" decoding="async" />
+          : <span className="modal-card__emoji">{iconesCategoria[produto.status] || '📦'}</span>
+        }
+      </div>
+      <div className="modal-card__body">
+        <p className="modal-card__nome">{produto.nome}</p>
+        <p className="modal-card__status">{iconesCategoria[produto.status] || ''} {produto.status}</p>
+      </div>
+    </div>
+  );
+});
+
+// ════════════════════════════════════════════════════════
 //  MODAL SELETOR DE PRODUTO
 // ════════════════════════════════════════════════════════
 function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, listaProdutos }) {
   const [step, setStep] = useState('grid');
   const [busca, setBusca] = useState('');
   const [filtroCategoria, setFiltroCategoria] = useState('Todos');
-  const [produtoSel, setProdutoSel] = useState(() => {
-    if (!itemInicial?.nomeProduto || !listaProdutos) return null;
-    return listaProdutos.find(p => p.nome === itemInicial.nomeProduto) || null;
-  });
-  const [tampoSel, setTampoSel] = useState(() => {
-    if (!produtoSel) return null;
-    const t = getTamposDoProduto(produtoSel);
-    if (itemInicial?._tampo && t?.includes(itemInicial._tampo)) return itemInicial._tampo;
-    return t?.find(tp => temVariacaoParaTampo(produtoSel, tp)) || t?.[0] || null;
-  });
-  const [medidaIdx, setMedidaIdx] = useState(itemInicial?._medidaIdx || 0);
-  const [qtd, setQtd] = useState(itemInicial?.qtd || 1);
-  const [selecoesCor, setSelecoesCor] = useState(itemInicial?._cores || {});
+  const [produtoSel, setProdutoSel] = useState(null);
+  const [tampoSel, setTampoSel] = useState(null);
+  const [medidaIdx, setMedidaIdx] = useState(0);
+  const [qtd, setQtd] = useState(1);
+  const [selecoesCor, setSelecoesCor] = useState({});
   const [abaCor, setAbaCor] = useState('pintura');
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (!aberto) return;
+    if (itemInicial?.nomeProduto && listaProdutos) {
+      const p = listaProdutos.find(p => p.nome === itemInicial.nomeProduto) || null;
+      setProdutoSel(p);
+      if (p) {
+        const t = getTamposDoProduto(p);
+        setTampoSel(itemInicial._tampo && t?.includes(itemInicial._tampo) ? itemInicial._tampo : (t?.find(tp => temVariacaoParaTampo(p, tp)) || t?.[0] || null));
+      }
+      setMedidaIdx(itemInicial._medidaIdx || 0);
+      setQtd(itemInicial.qtd || 1);
+      setSelecoesCor(itemInicial._cores || {});
+    } else {
+      setProdutoSel(null);
+      setTampoSel(null);
+      setMedidaIdx(0);
+      setQtd(1);
+      setSelecoesCor({});
+    }
+    setStep('grid');
+    setBusca('');
+    setFiltroCategoria('Todos');
+    setAbaCor('pintura');
+  }, [aberto]);
 
   const categorias = useMemo(() => {
     if (!listaProdutos) return [];
-    const m = {}; listaProdutos.forEach(p => { m[p.status] = (m[p.status] || 0) + 1; });
-    return [{ nome: 'Todos', count: listaProdutos.length }, ...Object.entries(m).map(([n, c]) => ({ nome: n, count: c }))].sort((a, b) => {
-      if (a.nome === 'Todos') return -1; if (b.nome === 'Todos') return 1; return a.nome.localeCompare(b.nome);
+    const m = {};
+    listaProdutos.forEach(p => { m[p.status] = (m[p.status] || 0) + 1; });
+    return [
+      { nome: 'Todos', count: listaProdutos.length },
+      ...Object.entries(m).map(([n, c]) => ({ nome: n, count: c }))
+    ].sort((a, b) => {
+      if (a.nome === 'Todos') return -1;
+      if (b.nome === 'Todos') return 1;
+      return a.nome.localeCompare(b.nome);
     });
   }, [listaProdutos]);
 
   const produtosFiltrados = useMemo(() => {
     if (!listaProdutos) return [];
+    const buscaLower = busca.toLowerCase();
     return listaProdutos.filter(p => {
       const mc = filtroCategoria === 'Todos' || p.status === filtroCategoria;
-      const mb = busca === '' || p.nome.toLowerCase().includes(busca.toLowerCase()) || p.descricao.toLowerCase().includes(busca.toLowerCase());
+      const mb = busca === '' || p.nome.toLowerCase().includes(buscaLower) || p.descricao.toLowerCase().includes(buscaLower);
       return mc && mb;
     });
   }, [filtroCategoria, busca, listaProdutos]);
 
-  if (!aberto) return null;
-
-  function selecionarCor(item) {
-    setSelecoesCor(prev => { const n = { ...prev }; if (n[item.cat]?.id === item.id) delete n[item.cat]; else n[item.cat] = item; return n; });
-  }
-
-  function handleProdutoClick(produto) {
+  const handleProdutoClick = useCallback((produto) => {
     setProdutoSel(produto);
     const eM = ehMesa(produto.status);
     const tampos = getTamposDoProduto(produto);
     if (eM && tampos) {
       setTampoSel(tampos.find(t => temVariacaoParaTampo(produto, t)) || tampos[0] || null);
-    } else { setTampoSel(null); }
-    setMedidaIdx(0); setQtd(1); setSelecoesCor({}); setAbaCor('pintura');
+    } else {
+      setTampoSel(null);
+    }
+    setMedidaIdx(0);
+    setQtd(1);
+    setSelecoesCor({});
+    setAbaCor('pintura');
     setStep('detail');
-  }
+  }, []);
 
-  function handleTampoClick(t) {
+  const handleTampoClick = useCallback((t) => {
     if (!temVariacaoParaTampo(produtoSel, t)) return;
-    setTampoSel(t); setMedidaIdx(0);
-  }
+    setTampoSel(t);
+    setMedidaIdx(0);
+  }, [produtoSel]);
+
+  const selecionarCor = useCallback((item) => {
+    setSelecoesCor(prev => {
+      const n = { ...prev };
+      if (n[item.cat]?.id === item.id) delete n[item.cat];
+      else n[item.cat] = item;
+      return n;
+    });
+  }, []);
 
   const eMesa = ehMesa(produtoSel?.status);
   const tamposExibidos = getTamposDoProduto(produtoSel);
-  const varsFiltradas = eMesa && tampoSel ? (produtoSel?.variacoes || []).filter(v => v.tampo === tampoSel) : (produtoSel?.variacoes || []);
+  const varsFiltradas = eMesa && tampoSel
+    ? (produtoSel?.variacoes || []).filter(v => v.tampo === tampoSel)
+    : (produtoSel?.variacoes || []);
   const varAtual = varsFiltradas[medidaIdx] || varsFiltradas[0];
   const imgAtual = varAtual?.img || produtoSel?.img;
 
-  function handleConfirmar() {
+  const handleConfirmar = useCallback(() => {
     if (!varAtual?.preco || !produtoSel) return;
     const detalhes = [];
     if (varAtual.tampo) detalhes.push(`Tampo: ${varAtual.tampo}`);
@@ -206,98 +271,51 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, list
       _medidaIdx: medidaIdx,
       _cores: { ...selecoesCor },
     });
-  }
+  }, [varAtual, produtoSel, selecoesCor, imgAtual, qtd, medidaIdx, onSelecionar]);
 
-  const S = {
-    overlay: { position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 },
-    box: { background: '#fff', width: '100%', maxWidth: 920, maxHeight: '92vh', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' },
-    header: { padding: '16px 24px', borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 },
-    eyebrow: { fontSize: 10, color: '#999', letterSpacing: 1.5, textTransform: 'uppercase', margin: 0, fontFamily: "'Sora', sans-serif" },
-    title: { fontSize: 18, fontWeight: 600, margin: '2px 0 0', fontFamily: "'Sora', sans-serif", color: '#1a1a1a' },
-    closeBtn: { background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#888', padding: '4px 8px', borderRadius: 4, transition: 'color 0.15s' },
-    searchWrap: { padding: '12px 24px', borderBottom: '1px solid #eee', flexShrink: 0 },
-    searchInput: { width: '100%', padding: '10px 14px', border: '1px solid #ddd', borderRadius: 6, fontSize: 13, fontFamily: "'Sora', sans-serif", outline: 'none', transition: 'border-color 0.2s' },
-    filtrosWrap: { padding: '8px 24px', display: 'flex', gap: 6, overflowX: 'auto', borderBottom: '1px solid #eee', flexShrink: 0, scrollbarWidth: 'none' },
-    filtroBtn: (ativo) => ({ padding: '5px 12px', borderRadius: 20, border: '1.5px solid', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s', borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff', color: ativo ? '#fff' : '#666' }),
-    gridWrap: { flex: 1, overflowY: 'auto', padding: '16px 24px' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))', gap: 12 },
-    card: { border: '1px solid #e8e8e8', borderRadius: 8, overflow: 'hidden', cursor: 'pointer', transition: 'all 0.2s', background: '#fff' },
-    cardImg: { height: 115, background: '#f5f5f3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-    cardImgEl: { width: '100%', height: '100%', objectFit: 'cover' },
-    cardBody: { padding: '8px 10px 10px' },
-    cardNome: { fontSize: 11, fontWeight: 600, margin: '0 0 2px', lineHeight: 1.3, fontFamily: "'Sora', sans-serif", color: '#1a1a1a' },
-    cardStatus: { fontSize: 9, color: '#999', margin: 0, fontFamily: "'Sora', sans-serif" },
-    emptyState: { textAlign: 'center', padding: 50, color: '#aaa' },
-    detailWrap: { flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' },
-    detailImgWrap: { width: '100%', height: 220, background: '#f5f5f3', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 },
-    detailImg: { maxWidth: '90%', maxHeight: '90%', objectFit: 'contain', borderRadius: 4 },
-    detailContent: { padding: '20px 24px', flex: 1, overflowY: 'auto' },
-    badge: { display: 'inline-block', fontSize: 10, fontWeight: 600, color: '#888', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6, fontFamily: "'Sora', sans-serif" },
-    nome: { fontSize: 22, fontWeight: 700, margin: '0 0 4px', fontFamily: "'Sora', sans-serif", color: '#1a1a1a' },
-    desc: { fontSize: 12, color: '#777', margin: '0 0 18px', fontFamily: "'Sora', sans-serif", lineHeight: 1.5 },
-    sectionLabel: { fontSize: 10, fontWeight: 700, textTransform: 'uppercase', color: '#555', display: 'block', marginBottom: 8, fontFamily: "'Sora', sans-serif", letterSpacing: 0.3 },
-    pillRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 },
-    pill: (ativo, dispo) => ({ padding: '7px 16px', borderRadius: 6, border: '1.5px solid', fontSize: 12, cursor: dispo ? 'pointer' : 'not-allowed', fontFamily: "'Sora', sans-serif", fontWeight: 500, transition: 'all 0.15s', borderColor: ativo ? '#1a1a1a' : '#ddd', background: ativo ? '#1a1a1a' : '#fff', color: ativo ? '#fff' : (!dispo ? '#ccc' : '#555'), opacity: dispo ? 1 : 0.5 }),
-    corTabs: { display: 'flex', gap: 4, marginBottom: 10 },
-    corTab: (ativo) => ({ padding: '5px 14px', borderRadius: 4, border: 'none', cursor: 'pointer', fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, transition: 'all 0.15s', background: ativo ? '#1a1a1a' : '#f0f0ee', color: ativo ? '#fff' : '#777' }),
-    corChips: { display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 },
-    corChip: (sel) => ({ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', borderRadius: 8, border: '1.5px solid', borderColor: sel ? '#1a1a1a' : '#e8e8e8', background: sel ? '#f8f8f6' : '#fff', cursor: 'pointer', transition: 'all 0.15s' }),
-    corSwatch: (hex, sel) => ({ width: 24, height: 24, borderRadius: 6, background: hex, border: sel ? '2px solid #1a1a1a' : '1px solid rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: '#fff', flexShrink: 0 }),
-    corNome: { fontSize: 11, fontWeight: 500, fontFamily: "'Sora', sans-serif", color: '#333' },
-    paleta: { display: 'flex', gap: 6, marginBottom: 16 },
-    paletaDot: (hex) => ({ width: 26, height: 26, borderRadius: '50%', background: hex, border: '2px solid #fff', boxShadow: '0 0 0 1px #ddd', flexShrink: 0 }),
-    priceRow: { display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 8, padding: '16px 0 0', borderTop: '1px solid #eee' },
-    priceLabel: { fontSize: 10, color: '#999', margin: 0, fontFamily: "'Sora', sans-serif" },
-    priceValue: { fontSize: 24, fontWeight: 700, margin: '2px 0 0', fontFamily: "'Sora', sans-serif", color: '#1a1a1a' },
-    qtyBox: { display: 'flex', alignItems: 'center', border: '1px solid #ddd', borderRadius: 6, overflow: 'hidden' },
-    qtyBtn: { width: 34, height: 34, border: 'none', background: '#f8f8f6', fontSize: 16, cursor: 'pointer', fontFamily: "'Sora', sans-serif", color: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-    qtyVal: { width: 42, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 600, fontFamily: "'Sora', sans-serif", borderLeft: '1px solid #eee', borderRight: '1px solid #eee' },
-    footer: { padding: '14px 24px', borderTop: '1px solid #e0e0e0', display: 'flex', gap: 10, justifyContent: 'flex-end', flexShrink: 0 },
-    btnBack: { padding: '10px 20px', border: '1px solid #ddd', background: '#fff', borderRadius: 6, fontSize: 13, cursor: 'pointer', fontFamily: "'Sora', sans-serif", color: '#555', fontWeight: 500 },
-    btnConfirm: (ok) => ({ padding: '10px 28px', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: ok ? 'pointer' : 'not-allowed', fontFamily: "'Sora', sans-serif", background: ok ? '#1a1a1a' : '#ccc', color: '#fff', transition: 'opacity 0.15s' }),
-  };
+  if (!aberto) return null;
 
   return (
-    <div style={S.overlay} onClick={onFechar}>
-      <div style={S.box} onClick={e => e.stopPropagation()}>
-        <div style={S.header}>
+    <div className="modal-overlay" onClick={onFechar}>
+      <div className="modal-box" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
           <div>
-            <p style={S.eyebrow}>Kasaleve</p>
-            <h2 style={S.title}>{step === 'grid' ? 'Selecionar Produto' : produtoSel?.nome}</h2>
+            <p className="modal-eyebrow">Kasaleve</p>
+            <h2 className="modal-title">{step === 'grid' ? 'Selecionar Produto' : produtoSel?.nome}</h2>
           </div>
-          <button style={S.closeBtn} onClick={onFechar} onMouseEnter={e => e.target.style.color = '#1a1a1a'} onMouseLeave={e => e.target.style.color = '#888'}>✕</button>
+          <button className="modal-close-btn" onClick={onFechar}>✕</button>
         </div>
+
         {step === 'grid' ? (
           <>
-            <div style={S.searchWrap}>
-              <input type="text" placeholder="Buscar produto por nome..." value={busca} onChange={e => setBusca(e.target.value)} style={S.searchInput} onFocus={e => e.target.style.borderColor = '#1a1a1a'} onBlur={e => e.target.style.borderColor = '#ddd'} />
+            <div className="modal-search-wrap">
+              <input
+                type="text"
+                placeholder="Buscar produto por nome..."
+                value={busca}
+                onChange={e => setBusca(e.target.value)}
+                className="modal-search-input"
+              />
             </div>
-            <div style={S.filtrosWrap}>
+            <div className="modal-filtros-wrap">
               {categorias.map(c => (
-                <button key={c.nome} onClick={() => setFiltroCategoria(c.nome)} style={S.filtroBtn(filtroCategoria === c.nome)}>
+                <button
+                  key={c.nome}
+                  onClick={() => setFiltroCategoria(c.nome)}
+                  className={`modal-filtro-btn${filtroCategoria === c.nome ? ' modal-filtro-btn--ativo' : ''}`}
+                >
                   {c.nome !== 'Todos' && `${iconesCategoria[c.nome] || '📦'} `}{c.nome} ({c.count})
                 </button>
               ))}
             </div>
-            <div style={S.gridWrap}>
-              <div style={S.grid}>
+            <div className="modal-grid-wrap">
+              <div className="modal-grid">
                 {produtosFiltrados.map(p => (
-                  <div key={p.id} style={S.card} onClick={() => handleProdutoClick(p)}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = '#1a1a1a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8e8e8'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
-                  >
-                    <div style={S.cardImg}>
-                      {p.img ? <img src={p.img} alt={p.nome} style={S.cardImgEl} /> : <span style={{ fontSize: 36 }}>{iconesCategoria[p.status] || '📦'}</span>}
-                    </div>
-                    <div style={S.cardBody}>
-                      <p style={S.cardNome}>{p.nome}</p>
-                      <p style={S.cardStatus}>{iconesCategoria[p.status] || ''} {p.status}</p>
-                    </div>
-                  </div>
+                  <ProdutoCard key={p.id} produto={p} onClick={handleProdutoClick} />
                 ))}
               </div>
               {produtosFiltrados.length === 0 && (
-                <div style={S.emptyState}>
+                <div className="modal-empty-state">
                   <p style={{ fontSize: 32, margin: '0 0 8px' }}>🔍</p>
                   <p style={{ margin: 0, fontSize: 13 }}>Nenhum produto encontrado</p>
                 </div>
@@ -306,50 +324,110 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, list
           </>
         ) : (
           <>
-            <div style={S.detailWrap}>
-              <div style={S.detailImgWrap}>
-                {imgAtual ? <img src={imgAtual} alt={produtoSel?.nome} style={S.detailImg} /> : <span style={{ fontSize: 64 }}>{iconesCategoria[produtoSel?.status] || '📦'}</span>}
+            <div className="modal-detail-wrap">
+              <div className="modal-detail-img-wrap">
+                {imgAtual
+                  ? <img src={imgAtual} alt={produtoSel?.nome} className="modal-detail-img" loading="eager" />
+                  : <span style={{ fontSize: 64 }}>{iconesCategoria[produtoSel?.status] || '📦'}</span>
+                }
               </div>
-              <div style={S.detailContent}>
-                <span style={S.badge}>{iconesCategoria[produtoSel?.status]} {produtoSel?.status}</span>
-                <h3 style={S.nome}>{produtoSel?.nome}</h3>
-                <p style={S.desc}>{produtoSel?.descricao}</p>
+              <div className="modal-detail-content">
+                <span className="modal-badge">{iconesCategoria[produtoSel?.status]} {produtoSel?.status}</span>
+                <h3 className="modal-nome">{produtoSel?.nome}</h3>
+                <p className="modal-desc">{produtoSel?.descricao}</p>
+
                 {eMesa && tamposExibidos && tamposExibidos.length > 1 && (
-                  <><label style={S.sectionLabel}>Tipo de Tampo:</label>
-                  <div style={S.pillRow}>{tamposExibidos.map(t => { const disp = temVariacaoParaTampo(produtoSel, t); return (<button key={t} onClick={() => handleTampoClick(t)} disabled={!disp} style={S.pill(tampoSel === t, disp)}>{t}{!disp && ' ✕'}</button>); })}</div></>
+                  <>
+                    <label className="modal-section-label">Tipo de Tampo:</label>
+                    <div className="modal-pill-row">
+                      {tamposExibidos.map(t => {
+                        const disp = temVariacaoParaTampo(produtoSel, t);
+                        return (
+                          <button
+                            key={t}
+                            onClick={() => handleTampoClick(t)}
+                            disabled={!disp}
+                            className={`modal-pill${tampoSel === t ? ' modal-pill--ativo' : ''}${!disp ? ' modal-pill--disabled' : ''}`}
+                          >
+                            {t}{!disp && ' ✕'}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
+
                 {varsFiltradas.length > 1 && (
-                  <><label style={S.sectionLabel}>{eMesa ? 'Medida:' : 'Variação:'}</label>
-                  <div style={S.pillRow}>{varsFiltradas.map((v, i) => (<button key={i} onClick={() => setMedidaIdx(i)} style={S.pill(medidaIdx === i, true)}>{v.medida || `Opção ${i + 1}`}</button>))}</div></>
+                  <>
+                    <label className="modal-section-label">{eMesa ? 'Medida:' : 'Variação:'}</label>
+                    <div className="modal-pill-row">
+                      {varsFiltradas.map((v, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setMedidaIdx(i)}
+                          className={`modal-pill${medidaIdx === i ? ' modal-pill--ativo' : ''}`}
+                        >
+                          {v.medida || `Opção ${i + 1}`}
+                        </button>
+                      ))}
+                    </div>
+                  </>
                 )}
-                <label style={S.sectionLabel}>Personalização de Cores:</label>
-                <div style={S.corTabs}>
+
+                <label className="modal-section-label">Personalização de Cores:</label>
+                <div className="modal-cor-tabs">
                   {[{ id: 'pintura', label: 'Alumínio' }, { id: 'cordas', label: 'Cordas' }, { id: 'tecidos', label: 'Tecidos' }].map(a => (
-                    <button key={a.id} onClick={() => setAbaCor(a.id)} style={S.corTab(abaCor === a.id)}>{a.label}</button>
+                    <button
+                      key={a.id}
+                      onClick={() => setAbaCor(a.id)}
+                      className={`modal-cor-tab${abaCor === a.id ? ' modal-cor-tab--ativo' : ''}`}
+                    >
+                      {a.label}
+                    </button>
                   ))}
                 </div>
-                <div style={S.corChips}>
+                <div className="modal-cor-chips">
                   {COLOR_LISTS[abaCor].map(item => {
                     const sel = selecoesCor[item.cat]?.id === item.id;
-                    return (<div key={item.id} onClick={() => selecionarCor(item)} style={S.corChip(sel)}><div style={S.corSwatch(item.hex, sel)}>{sel && '✓'}</div><span style={S.corNome}>{item.nome}</span></div>);
+                    return (
+                      <div key={item.id} onClick={() => selecionarCor(item)} className={`modal-cor-chip${sel ? ' modal-cor-chip--sel' : ''}`}>
+                        <div className={`modal-cor-swatch${sel ? ' modal-cor-swatch--sel' : ''}`} style={{ background: item.hex }}>
+                          {sel && '✓'}
+                        </div>
+                        <span className="modal-cor-nome">{item.nome}</span>
+                      </div>
+                    );
                   })}
                 </div>
                 {Object.keys(selecoesCor).length > 0 && (
-                  <div style={S.paleta}>{Object.values(selecoesCor).map(s => <div key={s.id} style={S.paletaDot(s.hex)} title={s.nome} />)}</div>
+                  <div className="modal-paleta">
+                    {Object.values(selecoesCor).map(s => (
+                      <div key={s.id} className="modal-paleta-dot" style={{ background: s.hex }} title={s.nome} />
+                    ))}
+                  </div>
                 )}
-                <div style={S.priceRow}>
-                  <div><p style={S.priceLabel}>Preço unitário</p><p style={S.priceValue}>{varAtual?.preco ? fmtBRL(varAtual.preco) : '—'}</p></div>
-                  <div style={S.qtyBox}>
-                    <button style={S.qtyBtn} onClick={() => setQtd(q => Math.max(1, q - 1))}>−</button>
-                    <span style={S.qtyVal}>{qtd}</span>
-                    <button style={S.qtyBtn} onClick={() => setQtd(q => q + 1)}>+</button>
+                <div className="modal-price-row">
+                  <div>
+                    <p className="modal-price-label">Preço unitário</p>
+                    <p className="modal-price-value">{varAtual?.preco ? fmtBRL(varAtual.preco) : '—'}</p>
+                  </div>
+                  <div className="modal-qty-box">
+                    <button className="modal-qty-btn" onClick={() => setQtd(q => Math.max(1, q - 1))}>−</button>
+                    <span className="modal-qty-val">{qtd}</span>
+                    <button className="modal-qty-btn" onClick={() => setQtd(q => q + 1)}>+</button>
                   </div>
                 </div>
               </div>
             </div>
-            <div style={S.footer}>
-              <button style={S.btnBack} onClick={() => setStep('grid')}>← Voltar</button>
-              <button style={S.btnConfirm(!!varAtual?.preco)} onClick={handleConfirmar} disabled={!varAtual?.preco}>Confirmar Seleção</button>
+            <div className="modal-footer">
+              <button className="modal-btn-back" onClick={() => setStep('grid')}>← Voltar</button>
+              <button
+                className={`modal-btn-confirm${varAtual?.preco ? '' : ' modal-btn-confirm--disabled'}`}
+                onClick={handleConfirmar}
+                disabled={!varAtual?.preco}
+              >
+                Confirmar Seleção
+              </button>
             </div>
           </>
         )}
@@ -390,14 +468,21 @@ function EtapaNovoCliente({ onContinuar, onVoltar }) {
   const [form, setForm] = useState(CLIENTE_VAZIO);
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [cepErro, setCepErro] = useState('');
-  const set = (field) => (e) => setForm(p => ({ ...p, [field]: e.target.value }));
+  const set = useCallback((field) => (e) => setForm(p => ({ ...p, [field]: e.target.value })), []);
+
   async function handleCEP(e) {
-    const val = e.target.value; setForm(p => ({ ...p, cep: val })); setCepErro('');
+    const val = e.target.value;
+    setForm(p => ({ ...p, cep: val }));
+    setCepErro('');
     if (val.replace(/\D/g, '').length === 8) {
-      setBuscandoCep(true); const dados = await buscarCEP(val); setBuscandoCep(false);
-      if (dados) setForm(p => ({ ...p, ...dados })); else setCepErro('CEP não encontrado.');
+      setBuscandoCep(true);
+      const dados = await buscarCEP(val);
+      setBuscandoCep(false);
+      if (dados) setForm(p => ({ ...p, ...dados }));
+      else setCepErro('CEP não encontrado.');
     }
   }
+
   return (
     <div className="orc-bg">
       <div className="orc-paper orc-paper--narrow">
@@ -416,11 +501,77 @@ function EtapaNovoCliente({ onContinuar, onVoltar }) {
           <div className="orc-field"><label>Cidade</label><input className="orc-input" value={form.cidade} onChange={set('cidade')} /></div>
           <div className="orc-field"><label>Estado</label><input className="orc-input" value={form.estado} onChange={set('estado')} maxLength={2} placeholder="SP" /></div>
         </div>
-        <div className="orc-form-footer"><button className="orc-gate__btn orc-gate__btn--sim" onClick={() => onContinuar(form)}>Continuar para o orçamento →</button></div>
+        <div className="orc-form-footer">
+          <button className="orc-gate__btn orc-gate__btn--sim" onClick={() => onContinuar(form)}>Continuar para o orçamento →</button>
+        </div>
       </div>
     </div>
   );
 }
+
+// ════════════════════════════════════════════════════════
+//  LINHA DA TABELA — memoizada
+// ════════════════════════════════════════════════════════
+const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateItem, onRemoveItem, isLast }) {
+  return (
+    <tr>
+      <td className="center">
+        {item.image
+          ? <img src={item.image} className="orc-table-img" alt="" loading="lazy" />
+          : <span style={{ color: '#ccc', fontSize: 16 }}>—</span>
+        }
+      </td>
+      <td>
+        {item.nomeProduto ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, fontFamily: "'Sora', sans-serif" }}>{item.nomeProduto}</span>
+            <button
+              onClick={() => onAbrirModal(item.id)}
+              title="Alterar produto"
+              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: 12, padding: '0 2px' }}
+            >✎</button>
+          </div>
+        ) : (
+          <button
+            onClick={() => onAbrirModal(item.id)}
+            className="orc-btn-selecionar"
+          >
+            + Selecionar
+          </button>
+        )}
+      </td>
+      <td>
+        <div className="orc-desc-cell">
+          {item.nomeExtra && <span className="orc-desc-nome">{item.nomeExtra}</span>}
+          <input
+            type="text"
+            value={item.nomeExtra}
+            onChange={e => onUpdateItem(item.id, 'nomeExtra', e.target.value)}
+            placeholder="Cores, medidas, obs..."
+            className="orc-desc-extra"
+          />
+        </div>
+      </td>
+      <td className="center">
+        <input
+          type="number"
+          min="1"
+          value={item.qtd}
+          onChange={e => onUpdateItem(item.id, 'qtd', Number(e.target.value))}
+        />
+      </td>
+      <td className="right orc-unit-cell">
+        {unitario > 0 ? <span className="orc-unit-valor">{fmtBRL(unitario)}</span> : '—'}
+      </td>
+      <td className="right">{unitario > 0 ? fmtBRL(item.qtd * unitario) : '—'}</td>
+      <td className="center">
+        {!isLast && (
+          <button className="orc-btn-del" onClick={() => onRemoveItem(item.id)}>✕</button>
+        )}
+      </td>
+    </tr>
+  );
+});
 
 // ════════════════════════════════════════════════════════
 //  TELA PRINCIPAL — Orçamento
@@ -433,7 +584,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   const [clientes] = useState(API_CLIENTES);
   const [clienteId, setClienteId] = useState(clienteExistente ? String(clienteExistente.id) : '');
   const [dadosCliente, setDadosCliente] = useState(clienteInicial || CLIENTE_VAZIO);
-  const [itens, setItens] = useState([ITEM_VAZIO()]);
+  const [itens, setItens] = useState(() => [ITEM_VAZIO()]);
   const [editandoItemId, setEditandoItemId] = useState(null);
 
   useEffect(() => {
@@ -445,9 +596,9 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   // Limpa itens ao trocar de tabela de preço (preços diferentes)
   useEffect(() => { setItens([ITEM_VAZIO()]); }, [perfilId]);
 
-  const setDado = (field) => (e) => setDadosCliente(p => ({ ...p, [field]: e.target.value }));
-  const addItem = () => setItens(p => [...p, ITEM_VAZIO()]);
-  const removeItem = (id) => setItens(p => p.filter(i => i.id !== id));
+  const setDado = useCallback((field) => (e) => setDadosCliente(p => ({ ...p, [field]: e.target.value })), []);
+  const addItem = useCallback(() => setItens(p => [...p, ITEM_VAZIO()]), []);
+  const removeItem = useCallback((id) => setItens(p => p.filter(i => i.id !== id)), []);
   const updateItem = useCallback((id, field, value) => {
     setItens(prev => prev.map(item => item.id !== id ? item : { ...item, [field]: value }));
   }, []);
@@ -456,21 +607,27 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     setItens(prev => prev.map(item => item.id !== editandoItemId ? item : { ...item, ...dados }));
     setEditandoItemId(null);
   }, [editandoItemId]);
-  const abrirModalPara = (id) => setEditandoItemId(id);
+
+  const abrirModalPara = useCallback((id) => setEditandoItemId(id), []);
 
   // Lista de produtos conforme perfil selecionado
   const listaAtual = perfilId === 'lojista' ? produtosLojista : produtos;
 
   // Preço direto da lista (sem desconto, cada lista já tem seu preço)
-  const getUnitario = (item) => item.unitarioPadrao;
-  const totalProdutos = itens.reduce((acc, i) => acc + Number(i.qtd) * getUnitario(i), 0);
+  const getUnitario = useCallback((item) => item.unitarioPadrao, []);
 
-  // Frete: isento para região de Pederneiras
-  const semFrete = ehRegiaoSemFrete(dadosCliente.cidade);
-  const valorFrete = semFrete ? 0 : totalProdutos * FRETE_PERCENT;
-  const totalGeral = totalProdutos + valorFrete;
+  const { totalProdutos, semFrete, valorFrete, totalGeral } = useMemo(() => {
+    const total = itens.reduce((acc, i) => acc + Number(i.qtd) * i.unitarioPadrao, 0);
+    const sf = ehRegiaoSemFrete(dadosCliente.cidade);
+    const frete = sf ? 0 : total * FRETE_PERCENT;
+    return { totalProdutos: total, semFrete: sf, valorFrete: frete, totalGeral: total + frete };
+  }, [itens, dadosCliente.cidade]);
+
   const perfilAtual = PERFIS_PRECO.find(p => p.id === perfilId) || PERFIS_PRECO[0];
-  const itemEditando = editandoItemId ? itens.find(i => i.id === editandoItemId) : null;
+  const itemEditando = useMemo(
+    () => editandoItemId ? itens.find(i => i.id === editandoItemId) : null,
+    [editandoItemId, itens]
+  );
 
   // ────────────────────────────────────────────
   //  EXPORTAÇÃO PDF
@@ -541,7 +698,12 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
       const totalItem = Number(item.qtd) * unitario;
       const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 4);
       const rowHgt = Math.max(12, descLines.length * 4 + 6);
-      if (item.image) { try { const imgData = await getBase64ImageFromUrl(item.image); if (imgData) doc.addImage(imgData, 'JPEG', c1 + 1, y + 1, 10, 10); } catch {} }
+      if (item.image) {
+        try {
+          const imgData = await getBase64ImageFromUrl(item.image);
+          if (imgData) doc.addImage(imgData, 'JPEG', c1 + 1, y + 1, 10, 10);
+        } catch { }
+      }
       doc.setFontSize(9); doc.text(descLines, c2 + 2, y + 5);
       doc.text(String(item.qtd), c3 + 2, y + 6);
       doc.text(fmtBRL(unitario), c4 + 2, y + 6);
@@ -615,47 +777,60 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     const itemRows = itens.map((item) => {
       const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
       const unitario = getUnitario(item); const total = Number(item.qtd) * unitario;
-      return new TableRow({ children: [
-        new TableCell({ borders: cellBorder, children: [p([normal(item.nomeProduto || '-', { size: 16 })])] }),
-        new TableCell({ borders: cellBorder, children: [p([normal(descCompleta || '-', { size: 16 })])] }),
-        new TableCell({ borders: cellBorder, children: [p([normal(String(item.qtd), { size: 16 })], AlignmentType.CENTER)] }),
-        new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(unitario), { size: 16 })], AlignmentType.RIGHT)] }),
-        new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(total), { size: 16 })], AlignmentType.RIGHT)] }),
-      ]});
+      return new TableRow({
+        children: [
+          new TableCell({ borders: cellBorder, children: [p([normal(item.nomeProduto || '-', { size: 16 })])] }),
+          new TableCell({ borders: cellBorder, children: [p([normal(descCompleta || '-', { size: 16 })])] }),
+          new TableCell({ borders: cellBorder, children: [p([normal(String(item.qtd), { size: 16 })], AlignmentType.CENTER)] }),
+          new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(unitario), { size: 16 })], AlignmentType.RIGHT)] }),
+          new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(total), { size: 16 })], AlignmentType.RIGHT)] }),
+        ]
+      });
     });
 
     const termosParagraphs = TERMOS_PADRAO.flatMap(t => [p([bold(t.titulo + ': ', { size: 17 }), normal(t.texto, { size: 17 })]), p([])]);
     const freteTexto = semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete);
 
-    const doc = new Document({ sections: [{ children: [
-      p([bold('kasaleve', { size: 44 })]), p([normal('projeto  •  conforto', { size: 18 })]), p([]),
-      p([bold('ORÇAMENTO', { color: 'C81E1E', size: 32 })], AlignmentType.LEFT),
-      p([bold(`Enviado em: ${dataEmissao}`, { size: 18 })], AlignmentType.RIGHT), p([]),
-      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-        new TableRow({ children: [labelCell('CLIENTE:', dadosCliente.nome)] }),
-        new TableRow({ children: [labelCell('ENDEREÇO:', `${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, false)] }),
-        new TableRow({ children: [labelCell('CIDADE:', `${dadosCliente.cidade || ''} ${dadosCliente.estado ? '- ' + dadosCliente.estado : ''}`), labelCell('CEP:', dadosCliente.cep)] }),
-        new TableRow({ children: [labelCell('CNPJ/CPF:', dadosCliente.cpf, false), labelCell('IE/RG:', dadosCliente.ie, false)] }),
-        new TableRow({ children: [labelCell('CONTATO:', dadosCliente.telefone), labelCell('VENDEDORA:', dadosCliente.vendedora)] }),
-      ]}), p([]),
-      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-        new TableRow({ children: ['ITEM','DESCRIÇÃO','QTD','VALOR UNIT.','VALOR TOTAL'].map(h => new TableCell({ borders: cellBorder, shading: { type: ShadingType.CLEAR, fill: '3C3C3C' }, children: [p([bold(h, { color: 'FFFFFF', size: 16 })], h === 'QTD' ? AlignmentType.CENTER : h.includes('VALOR') ? AlignmentType.RIGHT : AlignmentType.LEFT)] })) }),
-        ...itemRows,
-      ]}), p([]),
-      p([bold('TOTAL: '), normal(fmtBRL(totalProdutos))], AlignmentType.RIGHT), p([]),
-      new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-        new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES GERAIS')], AlignmentType.CENTER)] })] }),
-        new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(freteTexto)])] })] }),
-        new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('VALOR PRODUTOS + FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(totalGeral))])] })] }),
-        new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([normal('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])] })] }),
-        new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES:')], AlignmentType.CENTER)] })] }),
-      ]}), p([]), ...termosParagraphs,
-      ...(observacoes ? [p([]), p([bold('OBSERVAÇÕES ESPECÍFICAS:')]), p([normal(observacoes)])] : []),
-      p([]), p([]), p([normal('_______________________________')], AlignmentType.CENTER), p([normal('Assinatura / Kasaleve')], AlignmentType.CENTER),
-    ]}]});
+    const doc = new Document({
+      sections: [{
+        children: [
+          p([bold('kasaleve', { size: 44 })]), p([normal('projeto  •  conforto', { size: 18 })]), p([]),
+          p([bold('ORÇAMENTO', { color: 'C81E1E', size: 32 })], AlignmentType.LEFT),
+          p([bold(`Enviado em: ${dataEmissao}`, { size: 18 })], AlignmentType.RIGHT), p([]),
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+              new TableRow({ children: [labelCell('CLIENTE:', dadosCliente.nome)] }),
+              new TableRow({ children: [labelCell('ENDEREÇO:', `${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, false)] }),
+              new TableRow({ children: [labelCell('CIDADE:', `${dadosCliente.cidade || ''} ${dadosCliente.estado ? '- ' + dadosCliente.estado : ''}`), labelCell('CEP:', dadosCliente.cep)] }),
+              new TableRow({ children: [labelCell('CNPJ/CPF:', dadosCliente.cpf, false), labelCell('IE/RG:', dadosCliente.ie, false)] }),
+              new TableRow({ children: [labelCell('CONTATO:', dadosCliente.telefone), labelCell('VENDEDORA:', dadosCliente.vendedora)] }),
+            ]
+          }), p([]),
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+              new TableRow({ children: ['ITEM', 'DESCRIÇÃO', 'QTD', 'VALOR UNIT.', 'VALOR TOTAL'].map(h => new TableCell({ borders: cellBorder, shading: { type: ShadingType.CLEAR, fill: '3C3C3C' }, children: [p([bold(h, { color: 'FFFFFF', size: 16 })], h === 'QTD' ? AlignmentType.CENTER : h.includes('VALOR') ? AlignmentType.RIGHT : AlignmentType.LEFT)] })) }),
+              ...itemRows,
+            ]
+          }), p([]),
+          p([bold('TOTAL: '), normal(fmtBRL(totalProdutos))], AlignmentType.RIGHT), p([]),
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
+              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES GERAIS')], AlignmentType.CENTER)] })] }),
+              new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(freteTexto)])] })] }),
+              new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('VALOR PRODUTOS + FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(totalGeral))])] })] }),
+              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([normal('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])] })] }),
+              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES:')], AlignmentType.CENTER)] })] }),
+            ]
+          }), p([]), ...termosParagraphs,
+          ...(observacoes ? [p([]), p([bold('OBSERVAÇÕES ESPECÍFICAS:')]), p([normal(observacoes)])] : []),
+          p([]), p([]), p([normal('_______________________________')], AlignmentType.CENTER), p([normal('Assinatura / Kasaleve')], AlignmentType.CENTER),
+        ]
+      }]
+    });
 
     const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
     a.href = url; a.download = `Orcamento_${numero}.docx`; a.click(); URL.revokeObjectURL(url);
   };
 
@@ -684,7 +859,11 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
           <span className="orc-perfil-label">Tabela de preço:</span>
           <div className="orc-perfil-btns">
             {PERFIS_PRECO.map(p => (
-              <button key={p.id} className={`orc-perfil-btn${perfilId === p.id ? ' orc-perfil-btn--ativo' : ''}`} onClick={() => setPerfilId(p.id)}>
+              <button
+                key={p.id}
+                className={`orc-perfil-btn${perfilId === p.id ? ' orc-perfil-btn--ativo' : ''}`}
+                onClick={() => setPerfilId(p.id)}
+              >
                 {p.label}
               </button>
             ))}
@@ -722,48 +901,26 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
         <section className="orc-section">
           <table className="orc-table">
             <thead><tr>
-              <th className="col-img center">Img</th><th className="col-item">Item</th><th className="col-desc">Descrição</th>
-              <th className="col-qtd center">Qtd</th><th className="col-unit right">Unit.</th><th className="col-total right">Total</th><th className="col-del"></th>
+              <th className="col-img center">Img</th>
+              <th className="col-item">Item</th>
+              <th className="col-desc">Descrição</th>
+              <th className="col-qtd center">Qtd</th>
+              <th className="col-unit right">Unit.</th>
+              <th className="col-total right">Total</th>
+              <th className="col-del"></th>
             </tr></thead>
             <tbody>
-              {itens.map((item) => {
-                const unitario = getUnitario(item);
-                return (
-                  <tr key={item.id}>
-                    <td className="center">
-                      {item.image ? <img src={item.image} className="orc-table-img" alt="" /> : <span style={{ color: '#ccc', fontSize: 16 }}>—</span>}
-                    </td>
-                    <td>
-                      {item.nomeProduto ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 11, fontWeight: 600, fontFamily: "'Sora', sans-serif" }}>{item.nomeProduto}</span>
-                          <button onClick={() => abrirModalPara(item.id)} title="Alterar produto" style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: 12, padding: '0 2px' }}>✎</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => abrirModalPara(item.id)} style={{
-                          padding: '6px 10px', border: '1px dashed #bbb', background: '#fafafa', cursor: 'pointer',
-                          fontSize: 11, color: '#777', borderRadius: 4, fontFamily: "'Sora', sans-serif", transition: 'all 0.15s',
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#1a1a1a'; e.currentTarget.style.color = '#1a1a1a'; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#bbb'; e.currentTarget.style.color = '#777'; }}
-                        >+ Selecionar</button>
-                      )}
-                    </td>
-                    <td>
-                      <div className="orc-desc-cell">
-                        {item.nomeExtra && <span className="orc-desc-nome">{item.nomeExtra}</span>}
-                        <input type="text" value={item.nomeExtra} onChange={e => updateItem(item.id, 'nomeExtra', e.target.value)} placeholder="Cores, medidas, obs..." className="orc-desc-extra" />
-                      </div>
-                    </td>
-                    <td className="center"><input type="number" min="1" value={item.qtd} onChange={e => updateItem(item.id, 'qtd', Number(e.target.value))} /></td>
-                    <td className="right orc-unit-cell">
-                      {unitario > 0 ? <span className="orc-unit-valor">{fmtBRL(unitario)}</span> : '—'}
-                    </td>
-                    <td className="right">{unitario > 0 ? fmtBRL(item.qtd * unitario) : '—'}</td>
-                    <td className="center">{itens.length > 1 && <button className="orc-btn-del" onClick={() => removeItem(item.id)}>✕</button>}</td>
-                  </tr>
-                );
-              })}
+              {itens.map((item, idx) => (
+                <ItemRow
+                  key={item.id}
+                  item={item}
+                  unitario={item.unitarioPadrao}
+                  onAbrirModal={abrirModalPara}
+                  onUpdateItem={updateItem}
+                  onRemoveItem={removeItem}
+                  isLast={itens.length <= 1}
+                />
+              ))}
             </tbody>
           </table>
           <button className="orc-btn-add" onClick={addItem}>+ Adicionar Item</button>
@@ -793,7 +950,13 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
         <section className="orc-section">
           <div className="orc-field">
             <label>Adicionar Observações ao Documento</label>
-            <textarea className="orc-input" rows={3} placeholder="Digite aqui observações específicas para este projeto..." value={observacoes} onChange={e => setObs(e.target.value)} />
+            <textarea
+              className="orc-input"
+              rows={3}
+              placeholder="Digite aqui observações específicas para este projeto..."
+              value={observacoes}
+              onChange={e => setObs(e.target.value)}
+            />
           </div>
         </section>
 
@@ -823,10 +986,10 @@ export default function Orcamento() {
   const [clienteInicial, setClienteInicial] = useState(null);
   const [clienteExistente, setClienteExistente] = useState(null);
 
-  const handleSim = () => { setClienteExistente({}); setEtapa('orcamento'); };
-  const handleNao = () => setEtapa('novo');
-  const handleNovo = (dados) => { setClienteInicial(dados); setClienteExistente(null); setEtapa('orcamento'); };
-  const handleVoltar = () => { setEtapa('gate'); setClienteInicial(null); setClienteExistente(null); };
+  const handleSim = useCallback(() => { setClienteExistente({}); setEtapa('orcamento'); }, []);
+  const handleNao = useCallback(() => setEtapa('novo'), []);
+  const handleNovo = useCallback((dados) => { setClienteInicial(dados); setClienteExistente(null); setEtapa('orcamento'); }, []);
+  const handleVoltar = useCallback(() => { setEtapa('gate'); setClienteInicial(null); setClienteExistente(null); }, []);
 
   if (etapa === 'gate') return <EtapaClienteExiste onSim={handleSim} onNao={handleNao} />;
   if (etapa === 'novo') return <EtapaNovoCliente onContinuar={handleNovo} onVoltar={() => setEtapa('gate')} />;
