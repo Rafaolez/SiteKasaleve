@@ -6,7 +6,7 @@ function AuthProvider({ children }) {
     // Inicia verificando se já tem token salvo (para não deslogar ao recarregar)
     const [loggedin, setLoggedin] = useState(true);
     const [role, setRole] = useState("Verdedora"); 
-    /* const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
+     /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
      const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
 
     const [id, setId] = useState(null);

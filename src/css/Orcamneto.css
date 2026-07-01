@@ -1065,3 +1065,44 @@ html, body {
   border-color: #1a1a1a;
   color: #1a1a1a;
 }
+
+/* ════════════════════════════ DESCONTO MINIMALISTA ═══════════════════════════ */
+.orc-desconto-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  background: #fafafa;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+.orc-desconto-box:focus-within {
+  border-color: var(--accent);
+  background: #fff;
+  border-style: solid;
+}
+.orc-desconto-box label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.orc-desconto-box input {
+  width: 50px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  background: #fff;
+}
+.orc-desconto-box input:focus { border-color: var(--accent); }
+.orc-desconto-box .pct { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.orc-desconto-box .val { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--red); }
+@media print { .orc-desconto-box { display: none !important; } }

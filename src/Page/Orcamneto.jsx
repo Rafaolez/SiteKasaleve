@@ -4,8 +4,16 @@ import BTNVolta from "../components/BTNVolta";
 import ProdutosAPILocal from '../assets/ProdutosAPILocal';
 import ProdutosApiLocalLojista from '../assets/ProdutosApiLocalLojista';
 
+import MostruarioPintura from '../assets/MostruarioPintura';
+import MostruarioCordas from '../assets/MostruarioCorda';
+import MostruarioTecidos from '../assets/MostruarioTecido';
+
 const produtos = ProdutosAPILocal;
 const produtosLojista = ProdutosApiLocalLojista;
+
+const PINTURA = MostruarioPintura;
+const CORDAS = MostruarioCordas;
+const TECIDOS = MostruarioTecidos;
 
 // ─── DADOS DA EMPRESA ──
 const DADOS_EMPRESA = {
@@ -63,21 +71,6 @@ const TERMOS_PADRAO = [
   { titulo: 'Foro', texto: 'Fica eleito o foro da cidade de [informar a cidade do cliente] para dirimir quaisquer questões decorrentes deste contrato.' },
 ];
 
-// ─── DADOS DE CORES ──
-const PINTURA = [
-  { id: 'p1', nome: 'Fendi', hex: '#8a7a58', cat: 'pintura' },
-  { id: 'p5', nome: 'Off White', hex: '#e8e4d8', cat: 'pintura' },
-  { id: 'p7', nome: 'Preto', hex: '#1a1a1a', cat: 'pintura' },
-];
-const CORDAS = [
-  { id: 'c1', nome: 'Verde Musgo', hex: '#4a5e3a', cat: 'corda' },
-  { id: 'c7', nome: 'Preto', hex: '#1a1a1a', cat: 'corda' },
-  { id: 'c3', nome: 'Mescla Areia', hex: '#c8b89a', cat: 'corda' },
-];
-const TECIDOS = [
-  { id: 't1', nome: 'Linho Natural', hex: '#c4b89a', cat: 'tecido' },
-  { id: 't6', nome: 'Azul Naval', hex: '#1e2f5a', cat: 'tecido' },
-];
 const COLOR_LISTS = { pintura: PINTURA, cordas: CORDAS, tecidos: TECIDOS };
 
 const TAMPOS_PADRAO = ['Ripado', 'Pizza', 'Alumínio'];
@@ -580,6 +573,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   const [numero] = useState(gerarNumero);
   const [dataEmissao] = useState(new Date().toLocaleDateString('pt-BR'));
   const [observacoes, setObs] = useState('');
+  const [descontoPerc, setDescontoPerc] = useState(0);
   const [perfilId, setPerfilId] = useState('padrao');
   const [clientes] = useState(API_CLIENTES);
   const [clienteId, setClienteId] = useState(clienteExistente ? String(clienteExistente.id) : '');
@@ -616,12 +610,14 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   // Preço direto da lista (sem desconto, cada lista já tem seu preço)
   const getUnitario = useCallback((item) => item.unitarioPadrao, []);
 
-  const { totalProdutos, semFrete, valorFrete, totalGeral } = useMemo(() => {
+  const { totalProdutos, semFrete, valorFrete, valorDesconto, subtotalComDesconto, totalGeral } = useMemo(() => {
     const total = itens.reduce((acc, i) => acc + Number(i.qtd) * i.unitarioPadrao, 0);
     const sf = ehRegiaoSemFrete(dadosCliente.cidade);
     const frete = sf ? 0 : total * FRETE_PERCENT;
-    return { totalProdutos: total, semFrete: sf, valorFrete: frete, totalGeral: total + frete };
-  }, [itens, dadosCliente.cidade]);
+    const desc = (descontoPerc > 0 && descontoPerc <= 100) ? total * (descontoPerc / 100) : 0;
+    const subtotal = total - desc;
+    return { totalProdutos: total, semFrete: sf, valorFrete: frete, valorDesconto: desc, subtotalComDesconto: subtotal, totalGeral: subtotal + frete };
+  }, [itens, dadosCliente.cidade, descontoPerc]);
 
   const perfilAtual = PERFIS_PRECO.find(p => p.id === perfilId) || PERFIS_PRECO[0];
   const itemEditando = useMemo(
@@ -716,12 +712,26 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('TOTAL:', c4, y + 6);
     doc.setFillColor(225, 225, 225); doc.rect(c6 - 55, y, 55, 9, 'F');
     doc.setDrawColor(150); doc.rect(c6 - 55, y, 55, 9);
-    doc.text(`R$ ${totalProdutos.toFixed(2).replace('.', ',')}`, c6 - 52, y + 6); y += 18;
+    doc.text(`R$ ${subtotalComDesconto.toFixed(2).replace('.', ',')}`, c6 - 52, y + 6); y += 18;
 
     const colDivisor = L + 55;
     doc.setDrawColor(0); doc.setLineWidth(0.3); doc.rect(L, y, R - L, 8);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
     doc.text('TERMOS E CONDIÇÕES GERAIS', (L + R) / 2, y + 5.5, { align: 'center' }); y += 8;
+
+    // Desconto (aparece na caixa de termos, antes do frete, se houver)
+    if (descontoPerc > 0) {
+      doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(200, 30, 30);
+      doc.text(`DESCONTO (${descontoPerc}%)`, L + 2, y + 6);
+      doc.text(`- R$ ${valorDesconto.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6);
+      doc.setTextColor(0, 0, 0); y += 9;
+    }
+
+    doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
+    
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
@@ -766,64 +776,313 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   };
 
   const exportarDOCX = async () => {
-    const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType, WidthType, BorderStyle, ShadingType } = await import('docx');
-    const bold = (t, opts = {}) => new TextRun({ text: t, bold: true, color: opts.color, size: opts.size });
-    const normal = (t, opts = {}) => new TextRun({ text: t, color: opts.color, size: opts.size });
-    const p = (children, align = AlignmentType.LEFT) => new Paragraph({ children, alignment: align });
-    const grayShade = { type: ShadingType.CLEAR, fill: 'E1E1E1' };
-    const cellBorder = { top: { style: BorderStyle.SINGLE, size: 2, color: '999999' }, bottom: { style: BorderStyle.SINGLE, size: 2, color: '999999' }, left: { style: BorderStyle.SINGLE, size: 2, color: '999999' }, right: { style: BorderStyle.SINGLE, size: 2, color: '999999' } };
-    const labelCell = (label, value, gray = true) => new TableCell({ borders: cellBorder, shading: gray ? grayShade : undefined, children: [p([bold(label + ' ', { size: 16 })]), p([normal(value || '', { size: 18 })])] });
+    const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType, WidthType, BorderStyle, ShadingType, ImageRun } = await import('docx');
 
-    const itemRows = itens.map((item) => {
-      const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
-      const unitario = getUnitario(item); const total = Number(item.qtd) * unitario;
-      return new TableRow({
+    // ── Cores ──
+    const RED = 'C81E1E';
+    const DARK = '3C3C3C';
+    const BLUE = '2563EB';
+    const GRAY_BG = 'E1E1E1';
+    const TEXT = '1A1A1A';
+    const MUTED = '555555';
+    const WHITE = 'FFFFFF';
+
+    // ── Helpers texto ──
+    const bold = (t, o = {}) => new TextRun({ text: t, bold: true, color: o.color || TEXT, size: o.size || 20, font: 'Arial' });
+    const normal = (t, o = {}) => new TextRun({ text: t, color: o.color || TEXT, size: o.size || 20, font: 'Arial' });
+    const italic = (t, o = {}) => new TextRun({ text: t, italics: true, color: o.color || MUTED, size: o.size || 20, font: 'Arial' });
+    const p = (children, align = AlignmentType.LEFT, sp = {}) => new Paragraph({ children, alignment: align, spacing: { before: sp.before || 0, after: sp.after || 0, line: 240 } });
+
+    // ── Bordas ──
+    const bThin = { top: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, bottom: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, left: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, right: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' } };
+    const bDark = { top: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, left: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, right: { style: BorderStyle.SINGLE, size: 2, color: '000000' } };
+    const bNone = { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } };
+    const bThickRight = { ...bThin, right: { style: BorderStyle.SINGLE, size: 8, color: '999999' } };
+
+    // ── Shading ──
+    const sGray = { type: ShadingType.CLEAR, fill: GRAY_BG };
+    const sDark = { type: ShadingType.CLEAR, fill: DARK };
+    const sWhite = { type: ShadingType.CLEAR, fill: WHITE };
+
+    // ── Extrair base64 puro de data URL ──
+    const extractBase64 = (dataUrl) => {
+      if (!dataUrl) return null;
+      const parts = dataUrl.split(',');
+      if (parts.length < 2) return null;
+      const mimeMatch = parts[0].match(/data:image\/(\w+);/);
+      const type = mimeMatch ? mimeMatch[1] : 'png';
+      return { data: parts[1], type };
+    };
+
+    // ── Células cliente ──
+    const cFull = (label, val, gray = true) => new TableCell({
+      borders: bThin, columnSpan: 2, shading: gray ? sGray : sWhite,
+      children: [p([bold(label + ' ', { size: 16 }), normal(val || '', { size: 18 })])]
+    });
+    const cHalf = (label, val, gray = true) => new TableCell({
+      borders: bThin, shading: gray ? sGray : sWhite, width: { size: 50, type: WidthType.PERCENTAGE },
+      children: [p([bold(label + ' ', { size: 16 }), normal(val || '', { size: 18 })])]
+    });
+    const row2 = (l1, v1, l2, v2, g = true) => new TableRow({ children: [cHalf(l1, v1, g), cHalf(l2, v2, g)] });
+
+    // ── Células header itens ──
+    const hCell = (txt, align = AlignmentType.LEFT, w) => {
+      const o = { borders: bThin, shading: sDark, verticalAlign: 'center', children: [p([bold(txt, { color: WHITE, size: 16 })], align)] };
+      if (w) o.width = { size: w, type: WidthType.PERCENTAGE };
+      return new TableCell(o);
+    };
+
+    // ── Células dados itens ──
+    const dCell = (children, align = AlignmentType.LEFT, w, thickRight = false) => {
+      const o = { borders: thickRight ? bThickRight : bThin, verticalAlign: 'center', children };
+      if (w) o.width = { size: w, type: WidthType.PERCENTAGE };
+      return new TableCell(o);
+    };
+
+    // ── Montar linhas de itens COM IMAGENS ──
+    const itemRows = [];
+    for (const item of itens) {
+      const desc = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
+      const u = getUnitario(item);
+      const tot = Number(item.qtd) * u;
+
+      // Tentar carregar imagem do produto
+      let imgParagraph = p([normal('—', { size: 14, color: 'CCCCCC' })], AlignmentType.CENTER);
+      if (item.image) {
+        try {
+          const b64 = await getBase64ImageFromUrl(item.image);
+          const extracted = extractBase64(b64);
+          if (extracted) {
+            const imgType = (extracted.type === 'jpg' || extracted.type === 'jpeg') ? 'jpg' : 'png';
+            imgParagraph = p([new ImageRun({
+              data: extracted.data,
+              transformation: { width: 28, height: 28 },
+              type: imgType
+            })], AlignmentType.CENTER);
+          }
+        } catch (e) { /* fallback para traço */ }
+      }
+
+      itemRows.push(new TableRow({
         children: [
-          new TableCell({ borders: cellBorder, children: [p([normal(item.nomeProduto || '-', { size: 16 })])] }),
-          new TableCell({ borders: cellBorder, children: [p([normal(descCompleta || '-', { size: 16 })])] }),
-          new TableCell({ borders: cellBorder, children: [p([normal(String(item.qtd), { size: 16 })], AlignmentType.CENTER)] }),
-          new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(unitario), { size: 16 })], AlignmentType.RIGHT)] }),
-          new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(total), { size: 16 })], AlignmentType.RIGHT)] }),
+          dCell([imgParagraph], AlignmentType.CENTER, 8),
+          dCell([p([normal(item.nomeProduto || '—', { size: 16 })])], AlignmentType.LEFT, 17),
+          dCell([p([normal(desc || '—', { size: 16 })])], AlignmentType.LEFT, 40),
+          dCell([p([normal(String(item.qtd), { size: 16 })])], AlignmentType.CENTER, 10),
+          dCell([p([normal(fmtBRL(u), { size: 16 })])], AlignmentType.RIGHT, 12, true),
+          dCell([p([normal(fmtBRL(tot), { size: 16 })])], AlignmentType.RIGHT, 13),
         ]
-      });
+      }));
+    }
+
+    // ── Células termos ──
+    const tTitle = (txt) => new TableCell({
+      borders: bDark, columnSpan: 2, shading: sWhite,
+      children: [p([bold(txt, { size: 20 })], AlignmentType.CENTER)]
+    });
+    const tLabel = (txt) => new TableCell({
+      borders: bDark, width: { size: 35, type: WidthType.PERCENTAGE }, shading: sGray,
+      children: [p([bold(txt, { size: 18 })])]
+    });
+    const tValue = (txt) => new TableCell({
+      borders: bDark, width: { size: 65, type: WidthType.PERCENTAGE },
+      children: [p([normal(txt, { size: 18 })])]
     });
 
-    const termosParagraphs = TERMOS_PADRAO.flatMap(t => [p([bold(t.titulo + ': ', { size: 17 }), normal(t.texto, { size: 17 })]), p([])]);
+    // ── Parágrafos de termos ──
+    const termosP = TERMOS_PADRAO.flatMap(t => [
+      p([bold(t.titulo + ': ', { size: 17 }), normal(t.texto, { size: 17, color: '333333' })], AlignmentType.JUSTIFIED, { before: 40, after: 60 })
+    ]);
+
     const freteTexto = semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete);
 
+    // ══════════════════════════════════════════
+    //  MONTAR DOCUMENTO
+    // ══════════════════════════════════════════
     const doc = new Document({
       sections: [{
+        properties: {
+          page: { margin: { top: 600, right: 600, bottom: 500, left: 600 } }
+        },
         children: [
-          p([bold('kasaleve', { size: 44 })]), p([normal('projeto  •  conforto', { size: 18 })]), p([]),
-          p([bold('ORÇAMENTO', { color: 'C81E1E', size: 32 })], AlignmentType.LEFT),
-          p([bold(`Enviado em: ${dataEmissao}`, { size: 18 })], AlignmentType.RIGHT), p([]),
+          // ── CABEÇALHO: Logo esquerda + Empresa direita ──
           new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-              new TableRow({ children: [labelCell('CLIENTE:', dadosCliente.nome)] }),
-              new TableRow({ children: [labelCell('ENDEREÇO:', `${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, false)] }),
-              new TableRow({ children: [labelCell('CIDADE:', `${dadosCliente.cidade || ''} ${dadosCliente.estado ? '- ' + dadosCliente.estado : ''}`), labelCell('CEP:', dadosCliente.cep)] }),
-              new TableRow({ children: [labelCell('CNPJ/CPF:', dadosCliente.cpf, false), labelCell('IE/RG:', dadosCliente.ie, false)] }),
-              new TableRow({ children: [labelCell('CONTATO:', dadosCliente.telefone), labelCell('VENDEDORA:', dadosCliente.vendedora)] }),
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [new TableRow({
+              children: [
+                new TableCell({
+                  borders: bNone, width: { size: 50, type: WidthType.PERCENTAGE }, children: [
+                    p([bold('kasaleve', { size: 48, color: '2A2A2A' })], AlignmentType.LEFT, { after: 0 }),
+                    p([normal('projeto  •  conforto', { size: 18, color: MUTED })], AlignmentType.LEFT, { after: 0 }),
+                  ]
+                }),
+                new TableCell({
+                  borders: bNone, width: { size: 50, type: WidthType.PERCENTAGE }, verticalAlign: 'top', children: [
+                    p([bold(DADOS_EMPRESA.razaoSocial, { size: 14 })], AlignmentType.RIGHT, { after: 0 }),
+                    p([normal(DADOS_EMPRESA.endereco, { size: 14, color: MUTED })], AlignmentType.RIGHT, { after: 0 }),
+                    p([normal(DADOS_EMPRESA.site, { size: 14, color: BLUE })], AlignmentType.RIGHT, { after: 0 }),
+                    p([normal(DADOS_EMPRESA.telefone, { size: 14, color: MUTED })], AlignmentType.RIGHT, { after: 0 }),
+                  ]
+                }),
+              ]
+            })]
+          }),
+          p([]),
+
+          // ── TÍTULO ORÇAMENTO + Data ──
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [new TableRow({
+              children: [
+                new TableCell({
+                  borders: bNone, width: { size: 50, type: WidthType.PERCENTAGE }, children: [
+                    p([bold('ORÇAMENTO', { size: 38, color: RED })], AlignmentType.LEFT),
+                  ]
+                }),
+                new TableCell({
+                  borders: bNone, width: { size: 50, type: WidthType.PERCENTAGE }, children: [
+                    p([bold('Enviado em: ', { size: 18 }), bold(dataEmissao, { size: 18 })], AlignmentType.RIGHT),
+                  ]
+                }),
+              ]
+            })]
+          }),
+          p([]),
+
+          // ── DADOS DO CLIENTE ──
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              new TableRow({ children: [cFull('CLIENTE:', dadosCliente.nome, true)] }),
+              new TableRow({ children: [cFull('ENDEREÇO:', `${dadosCliente.endereco || ''} ${dadosCliente.numero || ''}`, false)] }),
+              row2('CIDADE:', `${dadosCliente.cidade || ''} ${dadosCliente.estado ? '- ' + dadosCliente.estado : ''}`, 'CEP:', dadosCliente.cep, true),
+              row2('CNPJ/CPF:', dadosCliente.cpf, 'IE/RG:', dadosCliente.ie, false),
+              row2('CONTATO:', dadosCliente.telefone, 'VENDEDORA:', dadosCliente.vendedora, true),
             ]
-          }), p([]),
+          }),
+          p([]),
+
+          // ── TABELA DE ITENS COM IMAGENS ──
           new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-              new TableRow({ children: ['ITEM', 'DESCRIÇÃO', 'QTD', 'VALOR UNIT.', 'VALOR TOTAL'].map(h => new TableCell({ borders: cellBorder, shading: { type: ShadingType.CLEAR, fill: '3C3C3C' }, children: [p([bold(h, { color: 'FFFFFF', size: 16 })], h === 'QTD' ? AlignmentType.CENTER : h.includes('VALOR') ? AlignmentType.RIGHT : AlignmentType.LEFT)] })) }),
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              new TableRow({
+                children: [
+                  hCell('Img', AlignmentType.CENTER, 8),
+                  hCell('ITEM', AlignmentType.LEFT, 17),
+                  hCell('DESCRIÇÃO', AlignmentType.LEFT, 40),
+                  hCell('QTD', AlignmentType.CENTER, 10),
+                  hCell('VALOR UNIT.', AlignmentType.RIGHT, 12),
+                  hCell('VALOR TOTAL', AlignmentType.RIGHT, 13),
+                ]
+              }),
               ...itemRows,
             ]
-          }), p([]),
-          p([bold('TOTAL: '), normal(fmtBRL(totalProdutos))], AlignmentType.RIGHT), p([]),
+          }),
+          p([]),
+
+          
+
+          // ── DESCONTO (só aparece se > 0) ──
+          ...(descontoPerc > 0 ? [
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [new TableRow({
+                children: [
+                  new TableCell({
+                    borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
+                      p([bold(`DESCONTO (${descontoPerc}%):`, { size: 20, color: RED })], AlignmentType.RIGHT, { before: 40 })
+                    ]
+                  }),
+                  new TableCell({
+                    borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
+                      p([bold(`- ${fmtBRL(valorDesconto)}`, { size: 20, color: RED })], AlignmentType.RIGHT, { before: 40 })
+                    ]
+                  }),
+                ]
+              })]
+            }),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [new TableRow({
+                children: [
+                  new TableCell({
+                    borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
+                      p([bold('SUBTOTAL:', { size: 22 })], AlignmentType.RIGHT, { before: 40 })
+                    ]
+                  }),
+                  new TableCell({
+                    borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
+                      p([bold(fmtBRL(subtotalComDesconto), { size: 22 })], AlignmentType.RIGHT, { before: 40 })
+                    ]
+                  }),
+                ]
+              })]
+            }),
+          ] : []),
+          p([]),
+
+          // ── TOTAL (Já com desconto aplicado) ──
           new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE }, rows: [
-              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES GERAIS')], AlignmentType.CENTER)] })] }),
-              new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(freteTexto)])] })] }),
-              new TableRow({ children: [new TableCell({ borders: cellBorder, children: [p([bold('VALOR PRODUTOS + FRETE')])] }), new TableCell({ borders: cellBorder, children: [p([normal(fmtBRL(totalGeral))])] })] }),
-              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([normal('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])] })] }),
-              new TableRow({ children: [new TableCell({ borders: cellBorder, columnSpan: 2, children: [p([bold('TERMOS E CONDIÇÕES:')], AlignmentType.CENTER)] })] }),
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [new TableRow({
+              children: [
+                new TableCell({
+                  borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
+                    p([bold('TOTAL:', { size: 22 })], AlignmentType.RIGHT, { before: 40 })
+                  ]
+                }),
+                new TableCell({
+                  borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
+                    p([bold(fmtBRL(subtotalComDesconto), { size: 22 })], AlignmentType.RIGHT, { before: 40 })
+                  ]
+                }),
+              ]
+            })]
+          }),
+          p([]),
+
+          // ── TERMOS E CONDIÇÕES GERAIS ──
+                    new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES GERAIS')] }),
+              // Desconto integrado na tabela de termos
+              ...(descontoPerc > 0 ? [new TableRow({ children: [
+                new TableCell({ borders: bDark, width: { size: 35, type: WidthType.PERCENTAGE }, shading: sGray, children: [p([bold(`DESCONTO (${descontoPerc}%)`, { size: 18, color: RED })])] }),
+                new TableCell({ borders: bDark, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([normal(`- ${fmtBRL(valorDesconto)}`, { size: 18, color: RED })])] })
+              ] })] : []),
+              new TableRow({ children: [tLabel('FRETE'), tValue(freteTexto)] }),
+              new TableRow({ children: [tLabel('VALOR PRODUTOS + FRETE'), tValue(fmtBRL(totalGeral))] }),
+              new TableRow({
+                children: [
+                  new TableCell({
+                    borders: bDark, columnSpan: 2, children: [
+                      p([italic('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])
+                    ]
+                  })
+                ]
+              }),
+              new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES:')] }),
             ]
-          }), p([]), ...termosParagraphs,
-          ...(observacoes ? [p([]), p([bold('OBSERVAÇÕES ESPECÍFICAS:')]), p([normal(observacoes)])] : []),
-          p([]), p([]), p([normal('_______________________________')], AlignmentType.CENTER), p([normal('Assinatura / Kasaleve')], AlignmentType.CENTER),
+          }),
+          p([]),
+
+          // ── TEXTO DOS TERMOS ──
+          ...termosP,
+          p([]),
+
+          // ── OBSERVAÇÕES ──
+          ...(observacoes ? [
+            p([bold('OBSERVAÇÕES ESPECÍFICAS:', { size: 18 })], AlignmentType.LEFT, { before: 80, after: 30 }),
+            p([normal(observacoes, { size: 18 })], AlignmentType.JUSTIFIED),
+          ] : []),
+
+          // ── ASSINATURA ──
+          p([]),
+          p([]),
+          p([normal('_______________________________', { size: 20, color: '000000' })], AlignmentType.CENTER, { before: 400 }),
+          p([normal('Assinatura / Kasaleve', { size: 18, color: MUTED })], AlignmentType.CENTER),
         ]
       }]
     });
@@ -831,9 +1090,11 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     const blob = await Packer.toBlob(doc);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `Orcamento_${numero}.docx`; a.click(); URL.revokeObjectURL(url);
+    a.href = url;
+    a.download = `Orcamento_${numero}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
-
   return (
     <div className="orc-bg">
       <div className="orc-paper">
@@ -926,7 +1187,21 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
           <button className="orc-btn-add" onClick={addItem}>+ Adicionar Item</button>
           <div className="orc-total-row">
             <span>TOTAL:</span>
-            <span className="orc-total-valor">{fmtBRL(totalProdutos)}</span>
+            <span className="orc-total-valor">{fmtBRL(subtotalComDesconto)}</span>
+          </div>
+
+          <div className="orc-desconto-box">
+            <label>Desconto:</label>
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value={descontoPerc || ''}
+              onChange={e => setDescontoPerc(Math.min(100, Math.max(0, Number(e.target.value))))}
+              placeholder="0"
+            />
+            <span className="pct">%</span>
+            {descontoPerc > 0 && <span className="val">− {fmtBRL(valorDesconto)}</span>}
           </div>
         </section>
 
