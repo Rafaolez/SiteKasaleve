@@ -1106,3 +1106,62 @@ html, body {
 .orc-desconto-box .pct { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 .orc-desconto-box .val { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--red); }
 @media print { .orc-desconto-box { display: none !important; } }
+
+/* ── Estilos para Itens Avulsos e Customizados ── */
+.orc-table-img-container {
+  width: 32px;
+  height: 32px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  margin: 0 auto;
+  transition: all 0.2s;
+}
+.orc-table-img-container:hover {
+  border-color: var(--blue);
+  background: #f0f7ff;
+}
+.orc-table-img-placeholder {
+  color: #999;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.orc-item-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.orc-input-item-nome {
+  flex: 1;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  font-family: var(--font) !important;
+}
+.orc-btn-catalogo {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+.orc-btn-catalogo:hover {
+  opacity: 1;
+}
+.orc-item-vazio {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.orc-input-item-nome--vazio {
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  color: #999 !important;
+  padding: 2px 0 !important;
+}

@@ -505,32 +505,80 @@ function EtapaNovoCliente({ onContinuar, onVoltar }) {
 // ════════════════════════════════════════════════════════
 //  LINHA DA TABELA — memoizada
 // ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+//  LINHA DA TABELA — memoizada
+// ════════════════════════════════════════════════════════
 const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateItem, onRemoveItem, isLast }) {
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdateItem(item.id, 'image', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <tr>
       <td className="center">
-        {item.image
-          ? <img src={item.image} className="orc-table-img" alt="" loading="lazy" />
-          : <span style={{ color: '#ccc', fontSize: 16 }}>—</span>
-        }
+        <div
+          className="orc-table-img-container"
+          onClick={() => fileInputRef.current.click()}
+          title="Clique para carregar imagem"
+        >
+          {item.image
+            ? <img src={item.image} className="orc-table-img" alt="" loading="lazy" />
+            : <span className="orc-table-img-placeholder">+</span>
+          }
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
+        </div>
       </td>
       <td>
         {item.nomeProduto ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, fontFamily: "'Sora', sans-serif" }}>{item.nomeProduto}</span>
+          // ── Produto já preenchido: campo editável + botão pra trocar do catálogo ──
+          <div className="orc-item-cell">
+            <input
+              type="text"
+              value={item.nomeProduto}
+              onChange={e => onUpdateItem(item.id, 'nomeProduto', e.target.value)}
+              placeholder="Nome do produto..."
+              className="orc-input-item-nome"
+            />
             <button
               onClick={() => onAbrirModal(item.id)}
-              title="Alterar produto"
-              style={{ background: 'none', border: 'none', color: '#2563eb', cursor: 'pointer', fontSize: 12, padding: '0 2px' }}
-            >✎</button>
+              title="Selecionar/alterar do catálogo"
+              className="orc-btn-catalogo"
+            >
+              🗂️
+            </button>
           </div>
         ) : (
-          <button
-            onClick={() => onAbrirModal(item.id)}
-            className="orc-btn-selecionar"
-          >
-            + Selecionar
-          </button>
+          // ── Vazio: botão de destaque pro catálogo + opção de digitar manualmente ──
+          <div className="orc-item-vazio">
+            <button
+              onClick={() => onAbrirModal(item.id)}
+              className="orc-btn-selecionar"
+            >
+              🗂️ Selecionar do catálogo
+            </button>
+            <input
+              type="text"
+              value={item.nomeProduto}
+              onChange={e => onUpdateItem(item.id, 'nomeProduto', e.target.value)}
+              placeholder="ou digite o nome manualmente..."
+              className="orc-input-item-nome orc-input-item-nome--vazio"
+            />
+          </div>
         )}
       </td>
       <td>
@@ -554,7 +602,14 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
         />
       </td>
       <td className="right orc-unit-cell">
-        {unitario > 0 ? <span className="orc-unit-valor">{fmtBRL(unitario)}</span> : '—'}
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          value={unitario || 0}
+          onChange={e => onUpdateItem(item.id, 'unitarioPadrao', Number(e.target.value))}
+          style={{ textAlign: 'right', width: '100%', border: '1px solid #eee', borderRadius: '4px', padding: '4px' }}
+        />
       </td>
       <td className="right">{unitario > 0 ? fmtBRL(item.qtd * unitario) : '—'}</td>
       <td className="center">
@@ -565,7 +620,6 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
     </tr>
   );
 });
-
 // ════════════════════════════════════════════════════════
 //  TELA PRINCIPAL — Orçamento
 // ════════════════════════════════════════════════════════
@@ -672,47 +726,68 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     grayRow('CONTATO:', dadosCliente.telefone, L, halfW);
     grayRow('VENDEDORA:', dadosCliente.vendedora, L + halfW + 2, halfW); y += rowH + 8;
 
-    const c1 = L, c2 = L + 14, c3 = R - 75, c4 = R - 55, c5 = R - 30, c6 = R;
-    const headerH = 10;
-    doc.setFillColor(60, 60, 60); doc.rect(c1, y, c6 - c1, headerH, 'F');
-    doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
-    doc.text('ITEM', c1 + 2, y + 6.5); doc.text('DESCRIÇÃO', c2 + 2, y + 6.5);
-    doc.text('QUANTIDADE', c3 + 2, y + 6.5); doc.text('VALOR UNIT.', c4 + 2, y + 6.5);
-    doc.text('VALOR TOTAL', c6 - 2, y + 6.5, { align: 'right' }); y += headerH;
-    doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal');
+    // ── Colunas com mais espaço, evitando overflow ──
+const c1 = L, c2 = c1 + 18, c6 = R, c5 = c6 - 25, c4 = c5 - 25, c3 = c4 - 18;
+const headerH = 10;
+doc.setFillColor(60, 60, 60); doc.rect(c1, y, c6 - c1, headerH, 'F');
+doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+doc.text('ITEM', c1 + 2, y + 6.5); doc.text('DESCRIÇÃO', c2 + 2, y + 6.5);
+doc.text('QTD', c3 + 2, y + 6.5); doc.text('VALOR UNIT.', c4 + 2, y + 6.5);
+doc.text('VALOR TOTAL', c6 - 2, y + 6.5, { align: 'right' }); y += headerH;
+doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal');
 
-    const lineCols = (yTop, h) => {
-      doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.2); doc.rect(c1, yTop, c6 - c1, h);
-      doc.line(c2, yTop, c2, yTop + h); doc.line(c3, yTop, c3, yTop + h); doc.line(c4, yTop, c4, yTop + h);
-      doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.5); doc.line(c5, yTop, c5, yTop + h);
-    };
+const lineCols = (yTop, h) => {
+  doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.2); doc.rect(c1, yTop, c6 - c1, h);
+  doc.line(c2, yTop, c2, yTop + h); doc.line(c3, yTop, c3, yTop + h); doc.line(c4, yTop, c4, yTop + h);
+  doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.5); doc.line(c5, yTop, c5, yTop + h);
+};
 
-    for (let i = 0; i < itens.length; i++) {
-      const item = itens[i];
-      const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
-      const unitario = getUnitario(item);
-      const totalItem = Number(item.qtd) * unitario;
-      const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 4);
-      const rowHgt = Math.max(12, descLines.length * 4 + 6);
-      if (item.image) {
-        try {
-          const imgData = await getBase64ImageFromUrl(item.image);
-          if (imgData) doc.addImage(imgData, 'JPEG', c1 + 1, y + 1, 10, 10);
-        } catch { }
+for (let i = 0; i < itens.length; i++) {
+  const item = itens[i];
+  const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
+  const unitario = getUnitario(item);
+  const totalItem = Number(item.qtd) * unitario;
+  const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 4);
+
+  // Altura da linha: maior valor entre imagem, texto da descrição e um mínimo confortável
+  const imgSize = 17;
+  const alturaTexto = descLines.length * 4 + 10; // padding de cima e baixo garantido
+  const alturaImagem = imgSize + 6;
+  const rowHgt = Math.max(14, alturaTexto, alturaImagem);
+
+  if (item.image) {
+    try {
+      let imgData = item.image;
+      if (!imgData.startsWith('data:')) {
+        imgData = await getBase64ImageFromUrl(item.image);
       }
-      doc.setFontSize(9); doc.text(descLines, c2 + 2, y + 5);
-      doc.text(String(item.qtd), c3 + 2, y + 6);
-      doc.text(fmtBRL(unitario), c4 + 2, y + 6);
-      doc.text(fmtBRL(totalItem), c6 - 2, y + 6, { align: 'right' });
-      lineCols(y, rowHgt); y += rowHgt;
-      if (y > 265) { doc.addPage(); y = 20; }
-    }
+      if (imgData) {
+        const format = imgData.includes('png') ? 'PNG' : 'JPEG';
+        const imgY = y + (rowHgt - imgSize) / 2;
+        doc.addImage(imgData, format, c1 + 1.5, imgY, imgSize, imgSize);
+      }
+    } catch (err) { console.error("Erro ao adicionar imagem ao PDF:", err); }
+  }
+
+  doc.setFontSize(9);
+  // Descrição alinhada ao topo com padding
+  doc.text(descLines, c2 + 2, y + 6);
+
+  // Valores centralizados verticalmente na linha
+  const centerY = y + rowHgt / 2 + 1.5;
+  doc.text(String(item.qtd), c3 + 2, centerY);
+  doc.text(fmtBRL(unitario), c4 + 2, centerY);
+  doc.text(fmtBRL(totalItem), c6 - 2, centerY, { align: 'right' });
+
+  lineCols(y, rowHgt); y += rowHgt;
+  if (y > 260) { doc.addPage(); y = 20; }
+}
 
     y += 6;
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('TOTAL:', c4, y + 6);
     doc.setFillColor(225, 225, 225); doc.rect(c6 - 55, y, 55, 9, 'F');
     doc.setDrawColor(150); doc.rect(c6 - 55, y, 55, 9);
-    doc.text(`R$ ${subtotalComDesconto.toFixed(2).replace('.', ',')}`, c6 - 52, y + 6); y += 18;
+    doc.text(fmtBRL(subtotalComDesconto), c6 - 52, y + 6); y += 18;
 
     const colDivisor = L + 55;
     doc.setDrawColor(0); doc.setLineWidth(0.3); doc.rect(L, y, R - L, 8);
@@ -724,23 +799,23 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
       doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(200, 30, 30);
       doc.text(`DESCONTO (${descontoPerc}%)`, L + 2, y + 6);
-      doc.text(`- R$ ${valorDesconto.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6);
+      doc.text(`- ${fmtBRL(valorDesconto)}`, colDivisor + 3, y + 6);
       doc.setTextColor(0, 0, 0); y += 9;
     }
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
-    
+
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
     doc.setFont('helvetica', 'normal');
-    doc.text(semFrete ? 'ISENTO (entrega local)' : `R$ ${valorFrete.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6); y += 9;
+    doc.text(semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete), colDivisor + 3, y + 6); y += 9;
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.text('VALOR PRODUTOS + FRETE', L + 2, y + 6);
-    doc.text(`R$ ${totalGeral.toFixed(2).replace('.', ',')}`, colDivisor + 3, y + 6); y += 9;
+    doc.text(fmtBRL(totalGeral), colDivisor + 3, y + 6); y += 9;
 
     doc.rect(L, y, R - L, 10); doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5);
     doc.text('Orçamento válido por 5 úteis dias após o envio.', L + 2, y + 6); y += 10;
@@ -981,7 +1056,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
           }),
           p([]),
 
-          
+
 
           // ── DESCONTO (só aparece se > 0) ──
           ...(descontoPerc > 0 ? [
@@ -1043,15 +1118,17 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
           p([]),
 
           // ── TERMOS E CONDIÇÕES GERAIS ──
-                    new Table({
+          new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
               new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES GERAIS')] }),
               // Desconto integrado na tabela de termos
-              ...(descontoPerc > 0 ? [new TableRow({ children: [
-                new TableCell({ borders: bDark, width: { size: 35, type: WidthType.PERCENTAGE }, shading: sGray, children: [p([bold(`DESCONTO (${descontoPerc}%)`, { size: 18, color: RED })])] }),
-                new TableCell({ borders: bDark, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([normal(`- ${fmtBRL(valorDesconto)}`, { size: 18, color: RED })])] })
-              ] })] : []),
+              ...(descontoPerc > 0 ? [new TableRow({
+                children: [
+                  new TableCell({ borders: bDark, width: { size: 35, type: WidthType.PERCENTAGE }, shading: sGray, children: [p([bold(`DESCONTO (${descontoPerc}%)`, { size: 18, color: RED })])] }),
+                  new TableCell({ borders: bDark, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([normal(`- ${fmtBRL(valorDesconto)}`, { size: 18, color: RED })])] })
+                ]
+              })] : []),
               new TableRow({ children: [tLabel('FRETE'), tValue(freteTexto)] }),
               new TableRow({ children: [tLabel('VALOR PRODUTOS + FRETE'), tValue(fmtBRL(totalGeral))] }),
               new TableRow({
