@@ -5,7 +5,7 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
     // Inicia verificando se já tem token salvo (para não deslogar ao recarregar)
     const [loggedin, setLoggedin] = useState(true);
-    const [role, setRole] = useState("Verdedora"); 
+    const [role, setRole] = useState("Programador"); 
      /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
      const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
 

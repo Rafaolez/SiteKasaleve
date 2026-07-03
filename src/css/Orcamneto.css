@@ -1165,3 +1165,159 @@ html, body {
   color: #999 !important;
   padding: 2px 0 !important;
 }
+/* ════════════════════════════ DESCONTO INDIVIDUAL POR ITEM ═══════════════════════════ */
+.col-desc-item { width: 52px; }
+
+.orc-desconto-cell {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  justify-content: center;
+}
+
+.orc-desconto-input {
+  width: 34px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  padding: 3px 2px;
+  text-align: center;
+  font-family: var(--font);
+  font-size: 11px;
+  outline: none;
+  background: #fff;
+  color: var(--red);
+  font-weight: 600;
+  transition: border-color .2s;
+}
+.orc-desconto-input:focus { border-color: var(--red); }
+.orc-desconto-input::placeholder { color: #ccc; font-weight: 400; }
+.orc-desconto-input::-webkit-inner-spin-button { display: none; }
+
+.orc-desconto-pct {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+  user-select: none;
+}
+
+/* Indicador visual de que há desconto aplicado no preço unitário */
+.orc-unit-cell--com-desc {
+  background: #fff5f5;
+}
+
+@media print {
+  .col-desc-item { display: none !important; }
+  .orc-desconto-cell { display: none !important; }
+}
+
+/* ════════════════════════════ RESUMO DE VALORES (TELA) ═══════════════════════════ */
+.orc-resumo {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 14px;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.orc-resumo__header {
+  background: var(--dark);
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 9px 12px;
+}
+
+.orc-resumo__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.orc-resumo__row:last-child { border-bottom: none; }
+
+.orc-resumo__row--alt { background: var(--gray-row); }
+
+.orc-resumo__label {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orc-resumo__valor {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Desconto dentro do resumo */
+.orc-resumo__desc-input {
+  width: 42px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  background: #fff;
+  color: var(--red);
+  transition: border-color .2s;
+}
+.orc-resumo__desc-input:focus { border-color: var(--red); }
+.orc-resumo__desc-input::-webkit-inner-spin-button { display: none; }
+.orc-resumo__desc-pct {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.orc-resumo__desc-valor {
+  color: var(--red);
+  font-weight: 700;
+  font-size: 12px;
+  min-width: 90px;
+  text-align: right;
+}
+
+/* Frete isento em verde */
+.orc-resumo__frete-isenso {
+  color: var(--green);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Total geral destaque */
+.orc-resumo__row--total {
+  background: var(--gray-row);
+  border-top: 2px solid var(--text);
+}
+.orc-resumo__row--total .orc-resumo__label {
+  font-size: 13px;
+}
+.orc-resumo__row--total .orc-resumo__valor {
+  font-size: 15px;
+}
+
+/* Validade */
+.orc-resumo__validade {
+  padding: 7px 14px;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+@media print { .orc-resumo { display: none !important; } }

@@ -43,10 +43,9 @@ const CIDADES_SEM_FRETE = [
   'Pederneiras', 'Bauru', 'Agudos', 'Lençóis Paulista', 'Piratininga',
   'Avaí', 'Bocaina', 'Ubirajara', 'Iacanga', 'Arealva',
   'Duartina', 'Pongaí', 'Macatuba', 'Bariri', 'Boracéia',
-  'Areiópolis', 'Getulina', 'Igaraçu do Tietê',
+  'Areiópolis', 'Getulina', 'Igaraçu do Tietê', 'Grosfillex',
 ];
 
-// Pre-compute normalized set for O(1) lookup
 const CIDADES_SEM_FRETE_NORM = new Set(
   CIDADES_SEM_FRETE.map(m => m.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase())
 );
@@ -59,7 +58,8 @@ function ehRegiaoSemFrete(cidade) {
 
 const fmtBRL = (v) => Number(v).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const gerarNumero = () => `KL-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
-const ITEM_VAZIO = () => ({ id: Date.now() + Math.random(), nomeProduto: '', nomeExtra: '', qtd: 1, unitarioPadrao: 0, image: '', _tampo: '', _medidaIdx: 0, _cores: {} });
+// ← NOVO: descontoItem adicionado ao item vazio
+const ITEM_VAZIO = () => ({ id: Date.now() + Math.random(), nomeProduto: '', nomeExtra: '', qtd: 1, unitarioPadrao: 0, image: '', _tampo: '', _medidaIdx: 0, _cores: {}, descontoItem: 0 });
 const CLIENTE_VAZIO = { nome: '', telefone: '', email: '', cep: '', endereco: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cpf: '', ie: '', vendedora: '' };
 
 const TERMOS_PADRAO = [
@@ -121,14 +121,11 @@ function temVariacaoParaTampo(produto, tampo) {
 }
 
 // ════════════════════════════════════════════════════════
-//  CARD DE PRODUTO — memoizado para evitar re-renders
+//  CARD DE PRODUTO — memoizado
 // ════════════════════════════════════════════════════════
 const ProdutoCard = memo(function ProdutoCard({ produto, onClick }) {
   return (
-    <div
-      className="modal-card"
-      onClick={() => onClick(produto)}
-    >
+    <div className="modal-card" onClick={() => onClick(produto)}>
       <div className="modal-card__img">
         {produto.img
           ? <img src={produto.img} alt={produto.nome} className="modal-card__img-el" loading="lazy" decoding="async" />
@@ -157,7 +154,6 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, list
   const [selecoesCor, setSelecoesCor] = useState({});
   const [abaCor, setAbaCor] = useState('pintura');
 
-  // Reset state when modal opens
   useEffect(() => {
     if (!aberto) return;
     if (itemInicial?.nomeProduto && listaProdutos) {
@@ -254,6 +250,7 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, list
     if (selecoesCor.pintura) detalhes.push(`Alumínio: ${selecoesCor.pintura.nome}`);
     if (selecoesCor.corda) detalhes.push(`Corda: ${selecoesCor.corda.nome}`);
     if (selecoesCor.tecido) detalhes.push(`Tecido: ${selecoesCor.tecido.nome}`);
+    // ← NÃO sobrescreve descontoItem — mantém o desconto individual que já existia
     onSelecionar({
       nomeProduto: produtoSel.nome,
       image: imgAtual || '',
@@ -503,13 +500,12 @@ function EtapaNovoCliente({ onContinuar, onVoltar }) {
 }
 
 // ════════════════════════════════════════════════════════
-//  LINHA DA TABELA — memoizada
-// ════════════════════════════════════════════════════════
-// ════════════════════════════════════════════════════════
-//  LINHA DA TABELA — memoizada
+//  LINHA DA TABELA — memoizada (COM DESCONTO INDIVIDUAL)
 // ════════════════════════════════════════════════════════
 const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateItem, onRemoveItem, isLast }) {
   const fileInputRef = useRef(null);
+  const temDesconto = item.descontoItem > 0 && item.descontoItem <= 100;
+  const precoOriginal = item.unitarioPadrao || 0;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -545,7 +541,6 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
       </td>
       <td>
         {item.nomeProduto ? (
-          // ── Produto já preenchido: campo editável + botão pra trocar do catálogo ──
           <div className="orc-item-cell">
             <input
               type="text"
@@ -563,7 +558,6 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
             </button>
           </div>
         ) : (
-          // ── Vazio: botão de destaque pro catálogo + opção de digitar manualmente ──
           <div className="orc-item-vazio">
             <button
               onClick={() => onAbrirModal(item.id)}
@@ -601,15 +595,40 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
           onChange={e => onUpdateItem(item.id, 'qtd', Number(e.target.value))}
         />
       </td>
-      <td className="right orc-unit-cell">
-        <input
-          type="number"
-          step="0.01"
-          min="0"
-          value={unitario || 0}
-          onChange={e => onUpdateItem(item.id, 'unitarioPadrao', Number(e.target.value))}
-          style={{ textAlign: 'right', width: '100%', border: '1px solid #eee', borderRadius: '4px', padding: '4px' }}
-        />
+      {/* ← NOVO: Coluna de desconto individual por item */}
+      <td className="center col-desc-item">
+        <div className="orc-desconto-cell">
+          <input
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={item.descontoItem || ''}
+            onChange={e => onUpdateItem(item.id, 'descontoItem', Math.min(100, Math.max(0, Number(e.target.value))))}
+            placeholder="0"
+            className="orc-desconto-input"
+            title="Desconto individual (%)"
+          />
+          <span className="orc-desconto-pct">%</span>
+        </div>
+      </td>
+      {/* ← MODIFICADO: Mostra preço original riscado quando há desconto */}
+      <td className={`right orc-unit-cell${temDesconto ? ' orc-unit-cell--com-desc' : ''}`}>
+        {temDesconto ? (
+          <>
+            <span className="orc-unit-original">{fmtBRL(precoOriginal)}</span>
+            <span className="orc-unit-valor">{fmtBRL(unitario)}</span>
+          </>
+        ) : (
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            value={unitario || 0}
+            onChange={e => onUpdateItem(item.id, 'unitarioPadrao', Number(e.target.value))}
+            style={{ textAlign: 'right', width: '100%', border: '1px solid #eee', borderRadius: '4px', padding: '4px' }}
+          />
+        )}
       </td>
       <td className="right">{unitario > 0 ? fmtBRL(item.qtd * unitario) : '—'}</td>
       <td className="center">
@@ -620,6 +639,7 @@ const ItemRow = memo(function ItemRow({ item, unitario, onAbrirModal, onUpdateIt
     </tr>
   );
 });
+
 // ════════════════════════════════════════════════════════
 //  TELA PRINCIPAL — Orçamento
 // ════════════════════════════════════════════════════════
@@ -641,7 +661,6 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     if (c) setDadosCliente(c);
   }, [clienteId, clientes]);
 
-  // Limpa itens ao trocar de tabela de preço (preços diferentes)
   useEffect(() => { setItens([ITEM_VAZIO()]); }, [perfilId]);
 
   const setDado = useCallback((field) => (e) => setDadosCliente(p => ({ ...p, [field]: e.target.value })), []);
@@ -652,26 +671,37 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   }, []);
   const selecionarProdutoParaItem = useCallback((dados) => {
     if (!editandoItemId) return;
-    setItens(prev => prev.map(item => item.id !== editandoItemId ? item : { ...item, ...dados }));
+    // ← Preserva descontoItem ao re-selecionar produto do catálogo
+    setItens(prev => prev.map(item => {
+      if (item.id !== editandoItemId) return item;
+      const descontoAtual = item.descontoItem || 0;
+      return { ...item, ...dados, descontoItem: descontoAtual };
+    }));
     setEditandoItemId(null);
   }, [editandoItemId]);
 
   const abrirModalPara = useCallback((id) => setEditandoItemId(id), []);
 
-  // Lista de produtos conforme perfil selecionado
   const listaAtual = perfilId === 'lojista' ? produtosLojista : produtos;
 
-  // Preço direto da lista (sem desconto, cada lista já tem seu preço)
-  const getUnitario = useCallback((item) => item.unitarioPadrao, []);
+  // ← MODIFICADO: Aplica desconto individual invisível
+  const getUnitario = useCallback((item) => {
+    const base = item.unitarioPadrao || 0;
+    if (item.descontoItem > 0 && item.descontoItem <= 100) {
+      return Math.round(base * (1 - item.descontoItem / 100) * 100) / 100;
+    }
+    return base;
+  }, []);
 
+  // ← MODIFICADO: Usa getUnitario (com desconto individual) no total
   const { totalProdutos, semFrete, valorFrete, valorDesconto, subtotalComDesconto, totalGeral } = useMemo(() => {
-    const total = itens.reduce((acc, i) => acc + Number(i.qtd) * i.unitarioPadrao, 0);
+    const total = itens.reduce((acc, i) => acc + Number(i.qtd) * getUnitario(i), 0);
     const sf = ehRegiaoSemFrete(dadosCliente.cidade);
     const frete = sf ? 0 : total * FRETE_PERCENT;
     const desc = (descontoPerc > 0 && descontoPerc <= 100) ? total * (descontoPerc / 100) : 0;
     const subtotal = total - desc;
     return { totalProdutos: total, semFrete: sf, valorFrete: frete, valorDesconto: desc, subtotalComDesconto: subtotal, totalGeral: subtotal + frete };
-  }, [itens, dadosCliente.cidade, descontoPerc]);
+  }, [itens, dadosCliente.cidade, descontoPerc, getUnitario]);
 
   const perfilAtual = PERFIS_PRECO.find(p => p.id === perfilId) || PERFIS_PRECO[0];
   const itemEditando = useMemo(
@@ -680,7 +710,7 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
   );
 
   // ────────────────────────────────────────────
-  //  EXPORTAÇÃO PDF
+  //  EXPORTAÇÃO PDF (imagens maiores, sem coluna de desconto)
   // ────────────────────────────────────────────
   const handleExportar = async () => {
     const tipo = window.confirm('OK para PDF, Cancelar para DOCX') ? 'pdf' : 'docx';
@@ -726,92 +756,93 @@ function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
     grayRow('CONTATO:', dadosCliente.telefone, L, halfW);
     grayRow('VENDEDORA:', dadosCliente.vendedora, L + halfW + 2, halfW); y += rowH + 8;
 
-    // ── Colunas com mais espaço, evitando overflow ──
-const c1 = L, c2 = c1 + 18, c6 = R, c5 = c6 - 25, c4 = c5 - 25, c3 = c4 - 18;
-const headerH = 10;
-doc.setFillColor(60, 60, 60); doc.rect(c1, y, c6 - c1, headerH, 'F');
-doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
-doc.text('ITEM', c1 + 2, y + 6.5); doc.text('DESCRIÇÃO', c2 + 2, y + 6.5);
-doc.text('QTD', c3 + 2, y + 6.5); doc.text('VALOR UNIT.', c4 + 2, y + 6.5);
-doc.text('VALOR TOTAL', c6 - 2, y + 6.5, { align: 'right' }); y += headerH;
-doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal');
+        // ── Colunas ──
+    const c1 = L, c2 = c1 + 32, c6 = R, c5 = c6 - 25, c4 = c5 - 25, c3 = c4 - 18;
+    const headerH = 10;
+    doc.setFillColor(60, 60, 60); doc.rect(c1, y, c6 - c1, headerH, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5);
+    doc.text('ITEM', c1 + 2, y + 6.5); doc.text('DESCRIÇÃO', c2 + 2, y + 6.5);
+    doc.text('QTD', c3 + 2, y + 6.5); doc.text('VALOR UNIT.', c4 + 2, y + 6.5);
+    doc.text('VALOR TOTAL', c6 - 2, y + 6.5, { align: 'right' }); y += headerH;
+    doc.setTextColor(0, 0, 0); doc.setFont('helvetica', 'normal');
 
-const lineCols = (yTop, h) => {
-  doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.2); doc.rect(c1, yTop, c6 - c1, h);
-  doc.line(c2, yTop, c2, yTop + h); doc.line(c3, yTop, c3, yTop + h); doc.line(c4, yTop, c4, yTop + h);
-  doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.5); doc.line(c5, yTop, c5, yTop + h);
-};
+    const lineCols = (yTop, h) => {
+      doc.setDrawColor(200, 200, 200); doc.setLineWidth(0.2); doc.rect(c1, yTop, c6 - c1, h);
+      doc.line(c2, yTop, c2, yTop + h); doc.line(c3, yTop, c3, yTop + h); doc.line(c4, yTop, c4, yTop + h);
+      doc.setDrawColor(150, 150, 150); doc.setLineWidth(0.5); doc.line(c5, yTop, c5, yTop + h);
+    };
 
-for (let i = 0; i < itens.length; i++) {
-  const item = itens[i];
-  const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
-  const unitario = getUnitario(item);
-  const totalItem = Number(item.qtd) * unitario;
-  const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 4);
+    const topPad = 7;
+    const bottomPad = 5;
+    const lineH = 5.5;
 
-  // Altura da linha: maior valor entre imagem, texto da descrição e um mínimo confortável
-  const imgSize = 17;
-  const alturaTexto = descLines.length * 4 + 10; // padding de cima e baixo garantido
-  const alturaImagem = imgSize + 6;
-  const rowHgt = Math.max(14, alturaTexto, alturaImagem);
+    for (let i = 0; i < itens.length; i++) {
+      const item = itens[i];
+      const descCompleta = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
+      const unitario = getUnitario(item);
+      const totalItem = Number(item.qtd) * unitario;
+      const descLines = doc.splitTextToSize(descCompleta || '-', (c3 - c2) - 6);
 
-  if (item.image) {
-    try {
-      let imgData = item.image;
-      if (!imgData.startsWith('data:')) {
-        imgData = await getBase64ImageFromUrl(item.image);
+      const imgSize = 28;
+      const alturaTexto = descLines.length * lineH + topPad + bottomPad;
+      const alturaImagem = imgSize + 6;
+      const rowHgt = Math.max(14, alturaTexto, alturaImagem);
+
+      // Imagem centralizada na linha
+      if (item.image) {
+        try {
+          let imgData = item.image;
+          if (!imgData.startsWith('data:')) {
+            imgData = await getBase64ImageFromUrl(item.image);
+          }
+          if (imgData) {
+            const format = imgData.includes('png') ? 'PNG' : 'JPEG';
+            const imgY = y + (rowHgt - imgSize) / 2;
+            doc.addImage(imgData, format, c1 + 1.5, imgY, imgSize, imgSize);
+          }
+        } catch (err) { console.error("Erro ao adicionar imagem ao PDF:", err); }
       }
-      if (imgData) {
-        const format = imgData.includes('png') ? 'PNG' : 'JPEG';
-        const imgY = y + (rowHgt - imgSize) / 2;
-        doc.addImage(imgData, format, c1 + 1.5, imgY, imgSize, imgSize);
-      }
-    } catch (err) { console.error("Erro ao adicionar imagem ao PDF:", err); }
-  }
 
-  doc.setFontSize(9);
-  // Descrição alinhada ao topo com padding
-  doc.text(descLines, c2 + 2, y + 6);
+      // Descrição alinhada ao topo
+      doc.setFontSize(11);
+      doc.text(descLines, c2 + 3, y + topPad);
 
-  // Valores centralizados verticalmente na linha
-  const centerY = y + rowHgt / 2 + 1.5;
-  doc.text(String(item.qtd), c3 + 2, centerY);
-  doc.text(fmtBRL(unitario), c4 + 2, centerY);
-  doc.text(fmtBRL(totalItem), c6 - 2, centerY, { align: 'right' });
+      // Valores alinhados ao topo (não centralizados — evita desalinhamento entre linhas)
+      const valY = y + topPad + 1;
+      doc.setFontSize(11);
+      doc.text(String(item.qtd), c3 + 2, valY);
+      doc.text(fmtBRL(unitario), c4 + 2, valY);
+      doc.text(fmtBRL(totalItem), c6 - 2, valY, { align: 'right' });
 
-  lineCols(y, rowHgt); y += rowHgt;
-  if (y > 260) { doc.addPage(); y = 20; }
-}
+      lineCols(y, rowHgt); y += rowHgt;
+      if (y > 240) { doc.addPage(); y = 20; }
+    }
 
+    // ── Caixa cinza: SUBTOTAL (antes dos termos) ──
     y += 6;
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('TOTAL:', c4, y + 6);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.text('SUBTOTAL:', c4, y + 6);
     doc.setFillColor(225, 225, 225); doc.rect(c6 - 55, y, 55, 9, 'F');
     doc.setDrawColor(150); doc.rect(c6 - 55, y, 55, 9);
-    doc.text(fmtBRL(subtotalComDesconto), c6 - 52, y + 6); y += 18;
+    doc.text(fmtBRL(totalProdutos), c6 - 52, y + 6); y += 18;
 
     const colDivisor = L + 55;
     doc.setDrawColor(0); doc.setLineWidth(0.3); doc.rect(L, y, R - L, 8);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
     doc.text('TERMOS E CONDIÇÕES GERAIS', (L + R) / 2, y + 5.5, { align: 'center' }); y += 8;
 
-    // Desconto (aparece na caixa de termos, antes do frete, se houver)
+    // Desconto global (visível no PDF)
     if (descontoPerc > 0) {
       doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
       doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(200, 30, 30);
-      doc.text(`DESCONTO (${descontoPerc}%)`, L + 2, y + 6);
+      doc.text('DESCONTO', L + 2, y + 6);
       doc.text(`- ${fmtBRL(valorDesconto)}`, colDivisor + 3, y + 6);
       doc.setTextColor(0, 0, 0); y += 9;
     }
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(10);
-
-    doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('FRETE', L + 2, y + 6);
     doc.setFont('helvetica', 'normal');
-    doc.text(semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete), colDivisor + 3, y + 6); y += 9;
+    doc.text(semFrete ? 'ISENTO ' : fmtBRL(valorFrete), colDivisor + 3, y + 6); y += 9;
 
     doc.rect(L, y, R - L, 9); doc.line(colDivisor, y, colDivisor, y + 9);
     doc.setFont('helvetica', 'bold'); doc.text('VALOR PRODUTOS + FRETE', L + 2, y + 6);
@@ -853,7 +884,6 @@ for (let i = 0; i < itens.length; i++) {
   const exportarDOCX = async () => {
     const { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, AlignmentType, WidthType, BorderStyle, ShadingType, ImageRun } = await import('docx');
 
-    // ── Cores ──
     const RED = 'C81E1E';
     const DARK = '3C3C3C';
     const BLUE = '2563EB';
@@ -862,24 +892,20 @@ for (let i = 0; i < itens.length; i++) {
     const MUTED = '555555';
     const WHITE = 'FFFFFF';
 
-    // ── Helpers texto ──
     const bold = (t, o = {}) => new TextRun({ text: t, bold: true, color: o.color || TEXT, size: o.size || 20, font: 'Arial' });
     const normal = (t, o = {}) => new TextRun({ text: t, color: o.color || TEXT, size: o.size || 20, font: 'Arial' });
     const italic = (t, o = {}) => new TextRun({ text: t, italics: true, color: o.color || MUTED, size: o.size || 20, font: 'Arial' });
     const p = (children, align = AlignmentType.LEFT, sp = {}) => new Paragraph({ children, alignment: align, spacing: { before: sp.before || 0, after: sp.after || 0, line: 240 } });
 
-    // ── Bordas ──
     const bThin = { top: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, bottom: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, left: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' }, right: { style: BorderStyle.SINGLE, size: 1, color: 'AAAAAA' } };
     const bDark = { top: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, bottom: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, left: { style: BorderStyle.SINGLE, size: 2, color: '000000' }, right: { style: BorderStyle.SINGLE, size: 2, color: '000000' } };
     const bNone = { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } };
     const bThickRight = { ...bThin, right: { style: BorderStyle.SINGLE, size: 8, color: '999999' } };
 
-    // ── Shading ──
     const sGray = { type: ShadingType.CLEAR, fill: GRAY_BG };
     const sDark = { type: ShadingType.CLEAR, fill: DARK };
     const sWhite = { type: ShadingType.CLEAR, fill: WHITE };
 
-    // ── Extrair base64 puro de data URL ──
     const extractBase64 = (dataUrl) => {
       if (!dataUrl) return null;
       const parts = dataUrl.split(',');
@@ -889,7 +915,6 @@ for (let i = 0; i < itens.length; i++) {
       return { data: parts[1], type };
     };
 
-    // ── Células cliente ──
     const cFull = (label, val, gray = true) => new TableCell({
       borders: bThin, columnSpan: 2, shading: gray ? sGray : sWhite,
       children: [p([bold(label + ' ', { size: 16 }), normal(val || '', { size: 18 })])]
@@ -900,28 +925,26 @@ for (let i = 0; i < itens.length; i++) {
     });
     const row2 = (l1, v1, l2, v2, g = true) => new TableRow({ children: [cHalf(l1, v1, g), cHalf(l2, v2, g)] });
 
-    // ── Células header itens ──
     const hCell = (txt, align = AlignmentType.LEFT, w) => {
       const o = { borders: bThin, shading: sDark, verticalAlign: 'center', children: [p([bold(txt, { color: WHITE, size: 16 })], align)] };
       if (w) o.width = { size: w, type: WidthType.PERCENTAGE };
       return new TableCell(o);
     };
 
-    // ── Células dados itens ──
     const dCell = (children, align = AlignmentType.LEFT, w, thickRight = false) => {
       const o = { borders: thickRight ? bThickRight : bThin, verticalAlign: 'center', children };
       if (w) o.width = { size: w, type: WidthType.PERCENTAGE };
       return new TableCell(o);
     };
 
-    // ── Montar linhas de itens COM IMAGENS ──
+    // ← Linhas de itens SEM coluna de desconto, com imagens maiores
     const itemRows = [];
     for (const item of itens) {
       const desc = [item.nomeProduto, item.nomeExtra].filter(Boolean).join(' — ');
+      // ← Usa getUnitario (desconto individual embutido, invisível)
       const u = getUnitario(item);
       const tot = Number(item.qtd) * u;
 
-      // Tentar carregar imagem do produto
       let imgParagraph = p([normal('—', { size: 14, color: 'CCCCCC' })], AlignmentType.CENTER);
       if (item.image) {
         try {
@@ -929,20 +952,21 @@ for (let i = 0; i < itens.length; i++) {
           const extracted = extractBase64(b64);
           if (extracted) {
             const imgType = (extracted.type === 'jpg' || extracted.type === 'jpeg') ? 'jpg' : 'png';
+            // ← IMAGEM MAIOR: 45px (era 28px)
             imgParagraph = p([new ImageRun({
               data: extracted.data,
-              transformation: { width: 28, height: 28 },
+              transformation: { width: 45, height: 45 },
               type: imgType
             })], AlignmentType.CENTER);
           }
-        } catch (e) { /* fallback para traço */ }
+        } catch (e) { /* fallback */ }
       }
 
       itemRows.push(new TableRow({
         children: [
-          dCell([imgParagraph], AlignmentType.CENTER, 8),
+          dCell([imgParagraph], AlignmentType.CENTER, 10),
           dCell([p([normal(item.nomeProduto || '—', { size: 16 })])], AlignmentType.LEFT, 17),
-          dCell([p([normal(desc || '—', { size: 16 })])], AlignmentType.LEFT, 40),
+          dCell([p([normal(desc || '—', { size: 16 })])], AlignmentType.LEFT, 38),
           dCell([p([normal(String(item.qtd), { size: 16 })])], AlignmentType.CENTER, 10),
           dCell([p([normal(fmtBRL(u), { size: 16 })])], AlignmentType.RIGHT, 12, true),
           dCell([p([normal(fmtBRL(tot), { size: 16 })])], AlignmentType.RIGHT, 13),
@@ -950,7 +974,6 @@ for (let i = 0; i < itens.length; i++) {
       }));
     }
 
-    // ── Células termos ──
     const tTitle = (txt) => new TableCell({
       borders: bDark, columnSpan: 2, shading: sWhite,
       children: [p([bold(txt, { size: 20 })], AlignmentType.CENTER)]
@@ -964,23 +987,18 @@ for (let i = 0; i < itens.length; i++) {
       children: [p([normal(txt, { size: 18 })])]
     });
 
-    // ── Parágrafos de termos ──
     const termosP = TERMOS_PADRAO.flatMap(t => [
       p([bold(t.titulo + ': ', { size: 17 }), normal(t.texto, { size: 17, color: '333333' })], AlignmentType.JUSTIFIED, { before: 40, after: 60 })
     ]);
 
-    const freteTexto = semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete);
+    const freteTexto = semFrete ? 'ISENTO ' : fmtBRL(valorFrete);
 
-    // ══════════════════════════════════════════
-    //  MONTAR DOCUMENTO
-    // ══════════════════════════════════════════
     const doc = new Document({
       sections: [{
         properties: {
           page: { margin: { top: 600, right: 600, bottom: 500, left: 600 } }
         },
         children: [
-          // ── CABEÇALHO: Logo esquerda + Empresa direita ──
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [new TableRow({
@@ -1003,8 +1021,6 @@ for (let i = 0; i < itens.length; i++) {
             })]
           }),
           p([]),
-
-          // ── TÍTULO ORÇAMENTO + Data ──
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [new TableRow({
@@ -1023,8 +1039,6 @@ for (let i = 0; i < itens.length; i++) {
             })]
           }),
           p([]),
-
-          // ── DADOS DO CLIENTE ──
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
@@ -1036,16 +1050,15 @@ for (let i = 0; i < itens.length; i++) {
             ]
           }),
           p([]),
-
-          // ── TABELA DE ITENS COM IMAGENS ──
+          // ← Tabela de itens SEM coluna de desconto
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
               new TableRow({
                 children: [
-                  hCell('Img', AlignmentType.CENTER, 8),
+                  hCell('Img', AlignmentType.CENTER, 10),
                   hCell('ITEM', AlignmentType.LEFT, 17),
-                  hCell('DESCRIÇÃO', AlignmentType.LEFT, 40),
+                  hCell('DESCRIÇÃO', AlignmentType.LEFT, 38),
                   hCell('QTD', AlignmentType.CENTER, 10),
                   hCell('VALOR UNIT.', AlignmentType.RIGHT, 12),
                   hCell('VALOR TOTAL', AlignmentType.RIGHT, 13),
@@ -1056,9 +1069,7 @@ for (let i = 0; i < itens.length; i++) {
           }),
           p([]),
 
-
-
-          // ── DESCONTO (só aparece se > 0) ──
+          // Desconto global (visível no DOCX)
           ...(descontoPerc > 0 ? [
             new Table({
               width: { size: 100, type: WidthType.PERCENTAGE },
@@ -1066,100 +1077,59 @@ for (let i = 0; i < itens.length; i++) {
                 children: [
                   new TableCell({
                     borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
-                      p([bold(`DESCONTO (${descontoPerc}%):`, { size: 20, color: RED })], AlignmentType.RIGHT, { before: 40 })
+                      p([bold('DESCONTO', { size: 20, color: RED })]),
                     ]
                   }),
                   new TableCell({
-                    borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
-                      p([bold(`- ${fmtBRL(valorDesconto)}`, { size: 20, color: RED })], AlignmentType.RIGHT, { before: 40 })
-                    ]
-                  }),
-                ]
-              })]
-            }),
-            new Table({
-              width: { size: 100, type: WidthType.PERCENTAGE },
-              rows: [new TableRow({
-                children: [
-                  new TableCell({
-                    borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
-                      p([bold('SUBTOTAL:', { size: 22 })], AlignmentType.RIGHT, { before: 40 })
-                    ]
-                  }),
-                  new TableCell({
-                    borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
-                      p([bold(fmtBRL(subtotalComDesconto), { size: 22 })], AlignmentType.RIGHT, { before: 40 })
+                    borders: bNone, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
+                      p([normal(`- ${fmtBRL(valorDesconto)}`, { size: 20, color: RED })], AlignmentType.RIGHT),
                     ]
                   }),
                 ]
               })]
             }),
           ] : []),
-          p([]),
 
-          // ── TOTAL (Já com desconto aplicado) ──
-          new Table({
-            width: { size: 100, type: WidthType.PERCENTAGE },
-            rows: [new TableRow({
-              children: [
-                new TableCell({
-                  borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [
-                    p([bold('TOTAL:', { size: 22 })], AlignmentType.RIGHT, { before: 40 })
-                  ]
-                }),
-                new TableCell({
-                  borders: bThin, shading: sGray, width: { size: 35, type: WidthType.PERCENTAGE }, children: [
-                    p([bold(fmtBRL(subtotalComDesconto), { size: 22 })], AlignmentType.RIGHT, { before: 40 })
-                  ]
-                }),
-              ]
-            })]
-          }),
-          p([]),
-
-          // ── TERMOS E CONDIÇÕES GERAIS ──
+          // Totais
           new Table({
             width: { size: 100, type: WidthType.PERCENTAGE },
             rows: [
-              new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES GERAIS')] }),
-              // Desconto integrado na tabela de termos
-              ...(descontoPerc > 0 ? [new TableRow({
-                children: [
-                  new TableCell({ borders: bDark, width: { size: 35, type: WidthType.PERCENTAGE }, shading: sGray, children: [p([bold(`DESCONTO (${descontoPerc}%)`, { size: 18, color: RED })])] }),
-                  new TableCell({ borders: bDark, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([normal(`- ${fmtBRL(valorDesconto)}`, { size: 18, color: RED })])] })
-                ]
-              })] : []),
-              new TableRow({ children: [tLabel('FRETE'), tValue(freteTexto)] }),
-              new TableRow({ children: [tLabel('VALOR PRODUTOS + FRETE'), tValue(fmtBRL(totalGeral))] }),
               new TableRow({
                 children: [
-                  new TableCell({
-                    borders: bDark, columnSpan: 2, children: [
-                      p([italic('Orçamento válido por 5 úteis dias após o envio.', { size: 16 })])
-                    ]
-                  })
+                  new TableCell({ borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([bold('FRETE:', { size: 20 })])] }),
+                  new TableCell({ borders: bNone, width: { size: 35, type: WidthType.PERCENTAGE }, children: [p([normal(freteTexto, { size: 20 })], AlignmentType.RIGHT)] }),
                 ]
               }),
-              new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES:')] }),
+              new TableRow({
+                children: [
+                  new TableCell({ borders: bNone, width: { size: 65, type: WidthType.PERCENTAGE }, children: [p([bold('VALOR PRODUTOS + FRETE:', { size: 22 })])] }),
+                  new TableCell({ borders: bNone, width: { size: 35, type: WidthType.PERCENTAGE }, children: [p([bold(fmtBRL(totalGeral), { size: 22 })], AlignmentType.RIGHT)] }),
+                ]
+              }),
             ]
           }),
           p([]),
 
-          // ── TEXTO DOS TERMOS ──
-          ...termosP,
+          // Termos
+          new Table({
+            width: { size: 100, type: WidthType.PERCENTAGE },
+            rows: [
+              new TableRow({ children: [tTitle('TERMOS E CONDIÇÕES GERAIS')] }),
+              new TableRow({ children: [tLabel('Validade'), tValue('Orçamento válido por 5 dias úteis após o envio.')] }),
+              ...TERMOS_PADRAO.map(t => new TableRow({ children: [tLabel(t.titulo), tValue(t.texto)] })),
+            ]
+          }),
           p([]),
 
-          // ── OBSERVAÇÕES ──
           ...(observacoes ? [
-            p([bold('OBSERVAÇÕES ESPECÍFICAS:', { size: 18 })], AlignmentType.LEFT, { before: 80, after: 30 }),
-            p([normal(observacoes, { size: 18 })], AlignmentType.JUSTIFIED),
+            p([bold('OBSERVAÇÕES ESPECÍFICAS:', { size: 18 })]),
+            p([normal(observacoes, { size: 18 })]),
+            p([]),
           ] : []),
 
-          // ── ASSINATURA ──
           p([]),
-          p([]),
-          p([normal('_______________________________', { size: 20, color: '000000' })], AlignmentType.CENTER, { before: 400 }),
-          p([normal('Assinatura / Kasaleve', { size: 18, color: MUTED })], AlignmentType.CENTER),
+          p([bold('_________________________________________', { size: 18 })], AlignmentType.CENTER),
+          p([bold('Assinatura / Kasaleve', { size: 18, color: MUTED })], AlignmentType.CENTER),
         ]
       }]
     });
@@ -1167,160 +1137,225 @@ for (let i = 0; i < itens.length; i++) {
     const blob = await Packer.toBlob(doc);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `Orcamento_${numero}.docx`;
-    a.click();
+    a.href = url; a.download = `Orcamento_${numero}.docx`; a.click();
     URL.revokeObjectURL(url);
   };
+
+  // ────────────────────────────────────────────
+  //  RENDER
+  // ────────────────────────────────────────────
   return (
     <div className="orc-bg">
       <div className="orc-paper">
-        <button className="orc-back-link" onClick={onVoltar}>← Recomeçar</button>
-        <header className="orc-header">
+        <button className="orc-back-link" onClick={onVoltar}>← Voltar</button>
+
+        {/* CABEÇALHO */}
+        <div className="orc-header">
           <div className="orc-logo">
-            <span className="orc-logo__name">kasaleve</span>
-            <span className="orc-logo__tag">projeto <span className="orc-logo__dot">•</span> conforto</span>
-            <div className="orc-logo__underline" />
+            <span className="orc-logo__name">kasaleve<span className="orc-logo__dot">.</span></span>
+            <span className="orc-logo__tag">projeto • conforto</span>
+            <div className="orc-logo__underline"></div>
           </div>
           <div className="orc-empresa-info">
-            <p>{DADOS_EMPRESA.razaoSocial}</p><p>{DADOS_EMPRESA.endereco}</p>
-            <p className="orc-empresa-info__link">{DADOS_EMPRESA.site}</p><p>{DADOS_EMPRESA.telefone}</p>
+            <p>{DADOS_EMPRESA.razaoSocial}</p>
+            <p>{DADOS_EMPRESA.endereco}</p>
+            <p><a href={`https://${DADOS_EMPRESA.site}`} className="orc-empresa-info__link" target="_blank" rel="noreferrer">{DADOS_EMPRESA.site}</a></p>
+            <p>{DADOS_EMPRESA.telefone}</p>
           </div>
-        </header>
-
-        <div className="orc-titulo-row">
-          <h1 className="orc-titulo-orcamento">ORÇAMENTO</h1>
-          <div className="orc-enviado-em">Enviado em: <strong>{dataEmissao}</strong></div>
         </div>
 
-        <section className="orc-perfil-section">
+        <div className="orc-titulo-row">
+          <span className="orc-titulo-orcamento">ORÇAMENTO</span>
+          <span className="orc-enviado-em">Enviado em: <strong>{dataEmissao}</strong></span>
+        </div>
+
+        {/* PERFIL DE PREÇO */}
+        <div className="orc-perfil-section">
           <span className="orc-perfil-label">Tabela de preço:</span>
           <div className="orc-perfil-btns">
-            {PERFIS_PRECO.map(p => (
+            {PERFIS_PRECO.map(pf => (
               <button
-                key={p.id}
-                className={`orc-perfil-btn${perfilId === p.id ? ' orc-perfil-btn--ativo' : ''}`}
-                onClick={() => setPerfilId(p.id)}
+                key={pf.id}
+                onClick={() => setPerfilId(pf.id)}
+                className={`orc-perfil-btn${perfilId === pf.id ? ' orc-perfil-btn--ativo' : ''}`}
               >
-                {p.label}
+                {pf.label}
+                {pf.id === 'lojista' && <span className="orc-perfil-badge">ESPECIAL</span>}
               </button>
             ))}
           </div>
-          <span className="orc-perfil-hint" style={{ color: semFrete ? '#16a34a' : '#2563eb' }}>
-            {semFrete ? '✓ Entrega local — frete isento' : 'Frete calculado automaticamente'}
-          </span>
-        </section>
+          {perfilId === 'lojista' && <span className="orc-perfil-hint">✓ Preços exclusivos para lojistas aplicados</span>}
+        </div>
 
-        <section className="orc-cliente-bloco">
-          {clienteExistente !== null && (
+        {/* CLIENTE */}
+        <div className="orc-cliente-bloco">
+          {clienteExistente && (
             <div className="orc-select-cliente">
-              <select className="orc-input" value={clienteId} onChange={e => setClienteId(e.target.value)}>
-                <option value="">— Selecione um cliente para preencher —</option>
-                {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              <div className="orc-row">
+                <label>Cliente</label>
+                <select value={clienteId} onChange={e => setClienteId(e.target.value)} className="orc-input" style={{ padding: '4px 6px', border: '1px solid var(--border)', borderRadius: '2px' }}>
+                  <option value="">Selecione...</option>
+                  {clientes.map(c => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select>
+              </div>
             </div>
           )}
-          <div className="orc-row orc-row--gray"><label>CLIENTE:</label><input value={dadosCliente.nome} onChange={setDado('nome')} placeholder="Nome do cliente" /></div>
-          <div className="orc-row"><label>ENDEREÇO:</label><input value={dadosCliente.endereco} onChange={setDado('endereco')} placeholder="Rua, número..." /></div>
-          <div className="orc-row-split">
-            <div className="orc-row orc-row--gray orc-row--half"><label>CIDADE:</label><input value={dadosCliente.cidade} onChange={setDado('cidade')} placeholder="Cidade - UF" /></div>
-            <div className="orc-row orc-row--gray orc-row--half"><label>CEP:</label><input value={dadosCliente.cep} onChange={setDado('cep')} placeholder="00000-000" /></div>
+          <div className="orc-row orc-row--gray">
+            <label>Nome</label>
+            <input value={dadosCliente.nome} onChange={setDado('nome')} placeholder="Nome do cliente" />
+          </div>
+          <div className="orc-row">
+            <label>Endereço</label>
+            <input value={dadosCliente.endereco} onChange={setDado('endereco')} placeholder="Rua, Av..." />
           </div>
           <div className="orc-row-split">
-            <div className="orc-row orc-row--half"><label>CNPJ/CPF:</label><input value={dadosCliente.cpf} onChange={setDado('cpf')} placeholder="000.000.000-00" /></div>
-            <div className="orc-row orc-row--half"><label>IE/RG:</label><input value={dadosCliente.ie} onChange={setDado('ie')} placeholder="—" /></div>
+            <div className="orc-row orc-row--half orc-row--gray">
+              <label>Cidade</label>
+              <input value={dadosCliente.cidade} onChange={setDado('cidade')} placeholder="Cidade" />
+            </div>
+            <div className="orc-row orc-row--half orc-row--gray">
+              <label>Estado</label>
+              <input value={dadosCliente.estado} onChange={setDado('estado')} placeholder="UF" maxLength={2} />
+            </div>
           </div>
           <div className="orc-row-split">
-            <div className="orc-row orc-row--gray orc-row--half"><label>CONTATO:</label><input value={dadosCliente.telefone} onChange={setDado('telefone')} placeholder="(11) 99999-0000" /></div>
-            <div className="orc-row orc-row--gray orc-row--half"><label>VENDEDORA:</label><input value={dadosCliente.vendedora} onChange={setDado('vendedora')} placeholder="Nome da vendedora" /></div>
+            <div className="orc-row orc-row--half">
+              <label>CPF/CNPJ</label>
+              <input value={dadosCliente.cpf} onChange={setDado('cpf')} placeholder="000.000.000-00" />
+            </div>
+            <div className="orc-row orc-row--half">
+              <label>IE/RG</label>
+              <input value={dadosCliente.ie} onChange={setDado('ie')} placeholder="" />
+            </div>
           </div>
-        </section>
+          <div className="orc-row-split">
+            <div className="orc-row orc-row--half orc-row--gray">
+              <label>Telefone</label>
+              <input value={dadosCliente.telefone} onChange={setDado('telefone')} placeholder="(00) 00000-0000" />
+            </div>
+            <div className="orc-row orc-row--half orc-row--gray">
+              <label>Vendedora</label>
+              <input value={dadosCliente.vendedora} onChange={setDado('vendedora')} placeholder="Nome da vendedora" />
+            </div>
+          </div>
+        </div>
 
-        <section className="orc-section">
+        {/* TABELA DE ITENS */}
+        <div className="orc-section">
           <table className="orc-table">
-            <thead><tr>
-              <th className="col-img center">Img</th>
-              <th className="col-item">Item</th>
-              <th className="col-desc">Descrição</th>
-              <th className="col-qtd center">Qtd</th>
-              <th className="col-unit right">Unit.</th>
-              <th className="col-total right">Total</th>
-              <th className="col-del"></th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th className="center col-img">Img</th>
+                <th className="col-item">Item</th>
+                <th className="col-desc">Descrição</th>
+                <th className="center col-qtd">Qtd</th>
+                {/* ← NOVO: Coluna de desconto individual */}
+                <th className="center col-desc-item">Desc.</th>
+                <th className="right col-unit">Valor Unit.</th>
+                <th className="right col-total">Total</th>
+                <th className="center col-del"></th>
+              </tr>
+            </thead>
             <tbody>
               {itens.map((item, idx) => (
                 <ItemRow
                   key={item.id}
                   item={item}
-                  unitario={item.unitarioPadrao}
+                  unitario={getUnitario(item)}
                   onAbrirModal={abrirModalPara}
                   onUpdateItem={updateItem}
                   onRemoveItem={removeItem}
-                  isLast={itens.length <= 1}
+                  isLast={idx === itens.length - 1}
                 />
               ))}
             </tbody>
           </table>
-          <button className="orc-btn-add" onClick={addItem}>+ Adicionar Item</button>
-          <div className="orc-total-row">
-            <span>TOTAL:</span>
-            <span className="orc-total-valor">{fmtBRL(subtotalComDesconto)}</span>
+          <button className="orc-btn-add" onClick={addItem}>+ Adicionar item</button>
+        </div>
+
+               {/* ═══ RESUMO DE VALORES ═══ */}
+        <div className="orc-resumo">
+          <div className="orc-resumo__header">Resumo de Valores</div>
+
+          {/* Subtotal */}
+          <div className="orc-resumo__row orc-resumo__row--alt">
+            <span className="orc-resumo__label">Subtotal Produtos</span>
+            <span className="orc-resumo__valor">{fmtBRL(totalProdutos)}</span>
           </div>
 
-          <div className="orc-desconto-box">
-            <label>Desconto:</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={descontoPerc || ''}
-              onChange={e => setDescontoPerc(Math.min(100, Math.max(0, Number(e.target.value))))}
-              placeholder="0"
-            />
-            <span className="pct">%</span>
-            {descontoPerc > 0 && <span className="val">− {fmtBRL(valorDesconto)}</span>}
+          {/* Desconto global */}
+          <div className="orc-resumo__row">
+            <span className="orc-resumo__label">
+              Desconto
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={descontoPerc || ''}
+                onChange={e => setDescontoPerc(Math.min(100, Math.max(0, Number(e.target.value))))}
+                placeholder="0"
+                className="orc-resumo__desc-input"
+              />
+              <span className="orc-resumo__desc-pct">%</span>
+            </span>
+            <span className="orc-resumo__desc-valor">
+              {descontoPerc > 0 ? `- ${fmtBRL(valorDesconto)}` : '—'}
+            </span>
           </div>
-        </section>
 
-        <section className="orc-termos-box">
-          <div className="orc-termos-box__titulo">TERMOS E CONDIÇÕES GERAIS</div>
+          {/* Frete */}
+          <div className="orc-resumo__row orc-resumo__row--alt">
+            <span className="orc-resumo__label">Frete</span>
+            {semFrete ? (
+              <span className="orc-resumo__frete-isenso">ISENTO</span>
+            ) : (
+              <span className="orc-resumo__valor">{fmtBRL(valorFrete)}</span>
+            )}
+          </div>
+
+          {/* Total Geral */}
+          <div className="orc-resumo__row orc-resumo__row--total">
+            <span className="orc-resumo__label">Total Geral</span>
+            <span className="orc-resumo__valor">{fmtBRL(totalGeral)}</span>
+          </div>
+
+          <div className="orc-resumo__validade">Orçamento válido por 5 dias úteis após o envio.</div>
+        </div>
+
+        {/* OBSERVAÇÕES */}
+        <div className="orc-field" style={{ marginTop: 16 }}>
+          <label>Observações (opcional)</label>
+          <textarea className="orc-input" rows={3} value={observacoes} onChange={e => setObs(e.target.value)} placeholder="Observações adicionais para este orçamento..." />
+        </div>
+
+        {/* TERMOS */}
+        <div className="orc-termos-box" style={{ marginTop: 20 }}>
+          <div className="orc-termos-box__titulo">Termos e Condições Gerais</div>
           <div className="orc-termos-box__linha">
-            <span className="orc-termos-box__label">FRETE</span>
-            <span>{semFrete ? 'ISENTO (entrega local)' : fmtBRL(valorFrete)}</span>
+            <span>Validade</span>
+            <span>Orçamento válido por 5 dias úteis após o envio.</span>
           </div>
-          <div className="orc-termos-box__linha">
-            <span className="orc-termos-box__label">VALOR PRODUTOS + FRETE</span>
-            <span>{fmtBRL(totalGeral)}</span>
-          </div>
-          <div className="orc-termos-box__validade">Orçamento válido por 5 úteis dias após o envio.</div>
-          <div className="orc-termos-box__titulo">TERMOS E CONDIÇÕES:</div>
-          <div className="orc-termos-box__texto">
-            {TERMOS_PADRAO.map((t, i) => (<p key={i}><strong>{t.titulo}:</strong> {t.texto}</p>))}
-          </div>
-        </section>
+          {TERMOS_PADRAO.map((t, i) => (
+            <div key={i} className="orc-termos-box__linha">
+              <span>{t.titulo}</span>
+              <span>{t.texto}</span>
+            </div>
+          ))}
+        </div>
 
-        <section className="orc-section">
-          <div className="orc-field">
-            <label>Adicionar Observações ao Documento</label>
-            <textarea
-              className="orc-input"
-              rows={3}
-              placeholder="Digite aqui observações específicas para este projeto..."
-              value={observacoes}
-              onChange={e => setObs(e.target.value)}
-            />
-          </div>
-        </section>
-
+        {/* ASSINATURA */}
         <div className="orc-assinatura-box">
           <div className="orc-assinatura-line">Assinatura / Kasaleve</div>
         </div>
 
-        <button className="orc-btn-export" onClick={handleExportar}>GERAR ARQUIVO (PDF / DOCX)</button>
+        {/* EXPORTAR */}
+        <button className="orc-btn-export" onClick={handleExportar}>EXPORTAR ORÇAMENTO (PDF / DOCX)</button>
       </div>
 
+      {/* MODAL */}
       <ModalSeletorProduto
-        aberto={editandoItemId !== null}
+        aberto={!!editandoItemId}
         onFechar={() => setEditandoItemId(null)}
         onSelecionar={selecionarProdutoParaItem}
         itemInicial={itemEditando}
@@ -1331,19 +1366,68 @@ for (let i = 0; i < itens.length; i++) {
 }
 
 // ════════════════════════════════════════════════════════
-//  RAIZ
+//  COMPONENTE PRINCIPAL (roteamento interno)
 // ════════════════════════════════════════════════════════
 export default function Orcamento() {
-  const [etapa, setEtapa] = useState('gate');
-  const [clienteInicial, setClienteInicial] = useState(null);
+  const [etapa, setEtapa] = useState('gate'); // gate | novo | principal
+  const [clienteNovo, setClienteNovo] = useState(null);
   const [clienteExistente, setClienteExistente] = useState(null);
 
-  const handleSim = useCallback(() => { setClienteExistente({}); setEtapa('orcamento'); }, []);
-  const handleNao = useCallback(() => setEtapa('novo'), []);
-  const handleNovo = useCallback((dados) => { setClienteInicial(dados); setClienteExistente(null); setEtapa('orcamento'); }, []);
-  const handleVoltar = useCallback(() => { setEtapa('gate'); setClienteInicial(null); setClienteExistente(null); }, []);
+  if (etapa === 'gate') {
+    return (
+      <EtapaClienteExiste
+        onSim={() => setEtapa('selecionar')}
+        onNao={() => setEtapa('novo')}
+      />
+    );
+  }
 
-  if (etapa === 'gate') return <EtapaClienteExiste onSim={handleSim} onNao={handleNao} />;
-  if (etapa === 'novo') return <EtapaNovoCliente onContinuar={handleNovo} onVoltar={() => setEtapa('gate')} />;
-  return <TelaOrcamento clienteInicial={clienteInicial} clienteExistente={clienteExistente} onVoltar={handleVoltar} />;
+  if (etapa === 'selecionar') {
+    return (
+      <div className="orc-bg">
+        <div className="orc-paper orc-paper--narrow">
+          <button className="orc-back-link" onClick={() => setEtapa('gate')}>← Voltar</button>
+          <h2 className="orc-form-title">Selecionar Cliente</h2>
+          <p className="orc-section__hint">Escolha um cliente cadastrado para o orçamento.</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {API_CLIENTES.map(c => (
+              <button
+                key={c.id}
+                onClick={() => { setClienteExistente(c); setEtapa('principal'); }}
+                style={{
+                  padding: '12px 16px', border: '1px solid var(--border)', borderRadius: 6,
+                  background: '#fff', cursor: 'pointer', textAlign: 'left',
+                  fontFamily: 'var(--font)', fontSize: 13, transition: 'border-color .15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+              >
+                <strong>{c.nome}</strong>
+                <span style={{ display: 'block', fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                  {c.cidade}/{c.estado} — {c.telefone}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (etapa === 'novo') {
+    return (
+      <EtapaNovoCliente
+        onContinuar={(dados) => { setClienteNovo(dados); setEtapa('principal'); }}
+        onVoltar={() => setEtapa('gate')}
+      />
+    );
+  }
+
+  return (
+    <TelaOrcamento
+      clienteInicial={clienteNovo}
+      clienteExistente={clienteExistente}
+      onVoltar={() => setEtapa('gate')}
+    />
+  );
 }
