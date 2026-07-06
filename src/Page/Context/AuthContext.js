@@ -5,7 +5,7 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
     // Inicia verificando se já tem token salvo (para não deslogar ao recarregar)
     const [loggedin, setLoggedin] = useState(true);
-    const [role, setRole] = useState("Programador"); 
+    const [role, setRole] = useState("Programador"); // */ 
      /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
      const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
 
@@ -44,11 +44,13 @@ function AuthProvider({ children }) {
                 // Define o cargo baseado no nome de usuário digitado
                 let assignedRole = "Vendedora"; // Padrão para qualquer usuário desconhecido
 
-                if (username.toLowerCase() === "programador") {
+                if (username.toLowerCase() === "Programador") {
                     assignedRole = "Programador";
-                } else if (username.toLowerCase() === "cheia") {
+                } else if (username.toLowerCase() === "Chefa") {
                     assignedRole = "Chefa";
-                } else if (username.toLowerCase() === "vendedora") {
+                } else if (username.toLowerCase() === "GerenteVendas") {
+                    assignedRole = "GerenteVendas";
+                }else if (username.toLowerCase() === "Vendedora") {
                     assignedRole = "Vendedora";
                 }
 

@@ -4,7 +4,7 @@ import Clienti from './Page/Clienti.jsx';
 import Login from './Page/Login.jsx';
 import CradastroPro from './Page/CadastroPro.jsx';
 import Foto from './Page/Foto.jsx';
-import Orcamneto from './Page/Orcamneto.jsx'
+import Orcamneto from './Page/Orcamento.js'
 import PGBTDetalhe from './Page/PGBTDetalhe.jsx';
 import PGBTEditar from './Page/PGBTEditar.jsx';
 import Carrinho from './Page/Carrinho.jsx'; 

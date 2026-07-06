@@ -7,23 +7,48 @@ import ImgMG2 from '../Imagens/ImagemCarrocel.jpg';
 import ImgMG3 from '../Imagens/CarroHome.jpg';
 import { AuthContext } from './Context/AuthContext';
 
-// ─── nav items (TUDO - O que o Programador vê) ───────────
-const navItems = [
-  { to: "/clienti",          label: "Clientes",            icon: "👥", desc: "Gerencie sua base de clientes",       color: "#E8F4FD", accent: "#2E86AB" },
-  { to: "/Orcamneto",        label: "Orçamento",           icon: "📋", desc: "Crie e acompanhe orçamentos",         color: "#FFF8E7", accent: "#F4A261" },
-  { to: "/Foto",             label: "Fotos",               icon: "🖼️", desc: "Galeria de projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
-  { to: "/cadastroPro",      label: "Cadastro de Produto", icon: "📦", desc: "Gerencie o catálogo de produtos",     color: "#F5F0FF", accent: "#7C3AED" },
-  { to: "/Carrinho",         label: "Carrinho",            icon: "🛒", desc: "Personalize e finalize pedidos",      color: "#FFF1F2", accent: "#E11D48" },
-  { to: "/Monitoramento/IA", label: "Monitorar IA",        icon: "🤖", desc: "Painel de IA do WhatsApp",            color: "#F0F9FF", accent: "#0369A1" },
-  { to: "/Tarefas",          label: "Tarefas",             icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
+// ─── Todos os itens de navegação possíveis ────────────────
+const allNavItems = [
+  { to: "/clienti",              label: "Clientes",             icon: "👥", desc: "Gerencie sua base de clientes",       color: "#E8F4FD", accent: "#2E86AB" },
+  { to: "/Orcamneto",            label: "Orçamento",            icon: "📋", desc: "Crie e acompanhe orçamentos",         color: "#FFF8E7", accent: "#F4A261" },
+  { to: "/Foto",                 label: "Fotos",                icon: "🖼️", desc: "Galeria de projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
+  { to: "/cadastroPro",          label: "Cadastro de Produto",  icon: "📦", desc: "Gerencie o catálogo de produtos",     color: "#F5F0FF", accent: "#7C3AED" },
+  { to: "/Carrinho",             label: "Carrinho",             icon: "🛒", desc: "Personalize e finalize pedidos",      color: "#FFF1F2", accent: "#E11D48" },
+  { to: "/Monitoramento/IA",     label: "Monitorar IA",         icon: "🤖", desc: "Painel de IA do WhatsApp",            color: "#F0F9FF", accent: "#0369A1" },
+  { to: "/Tarefas",              label: "Tarefas",              icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
+  { to: "/MapaRepresentantes",   label: "Mapa Representantes",  icon: "📍", desc: "Localização dos representantes",      color: "#ECFDF5", accent: "#059669" }, // NOVO ITEM
 ];
 
-// ─── nav items restritos (O que Chefa, Vendedora e Deslogados veem) ──
-const navItemsSemLogin = [
-  { to: "/Orcamneto", label: "Orçamento", icon: "📋", desc: "Solicite um orçamento personalizado", color: "#FFF8E7", accent: "#F4A261" },
-  { to: "/Foto",      label: "Fotos",     icon: "🖼️", desc: "Veja nossos projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
-  { to: "/Carrinho",  label: "Carrinho",  icon: "🛒", desc: "Explore e personalize os produtos",    color: "#FFF1F2", accent: "#E11D48" },
-];
+// ─── Função que retorna os menus liberados para cada cargo ─
+const getItemsByRole = (role, isLoggedIn) => {
+  // Se não estiver logado, vê só o básico
+  if (!isLoggedIn) {
+    return allNavItems.filter(item => ["/Foto", "/Orcamneto", "/Carrinho"].includes(item.to));
+  }
+
+  // Mapeamento de permissões por cargo (usando os "to" dos menus)
+  const permissions = {
+    "Programador": [
+      "/clienti", "/Orcamneto", "/Foto", "/cadastroPro", "/Carrinho", 
+      "/Monitoramento/IA", "/Tarefas", "/MapaRepresentantes"
+    ],
+    "Chefa": [
+      "/cadastroPro", "/clienti", "/Orcamneto", "/Carrinho", "/Foto", 
+    ],
+    "GerenteVendas": [
+      "/Orcamneto", "/cadastroPro", "/clienti", "/Carrinho", "/Foto"
+    ],
+    "Vendedora": [
+      "/Orcamneto", "/clienti", "/Foto", "/Carrinho"
+    ],
+  };
+
+  // Pega as rotas liberadas para o cargo, ou um array vazio se o cargo não existir
+  const allowedRoutes = permissions[role] || [];
+
+  // Filtra e retorna apenas os itens que o usuário tem permissão de ver
+  return allNavItems.filter(item => allowedRoutes.includes(item.to));
+};
 
 // ─── Slides do carrossel ──────────────────────────────────
 const slides = [
@@ -114,13 +139,10 @@ function NavCard({ item, index }) {
 
 // ─── MAIN ────────────────────────────────────────────────
 export default function Home() {
-  // Pega o cargo junto com o estado de logado
   const { loggedin, role } = useContext(AuthContext);
 
-  // NOVA LÓGICA DE PERMISSÃO:
-  // Se for programador, vê a lista completa (navItems).
-  // Se for Chefa, Vendedora, ou NÃO ESTIVER LOGADO, vê a lista restrita (navItemsSemLogin).
-  const items = role === "Programador" ? navItems : navItemsSemLogin;
+  // Chama a função passando o cargo e se está logado
+  const items = getItemsByRole(role, loggedin);
 
   return (
     <div className="hm-page">
