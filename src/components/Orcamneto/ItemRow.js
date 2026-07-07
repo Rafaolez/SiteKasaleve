@@ -1,4 +1,3 @@
-
 import React, { memo, useRef, useCallback } from 'react';
 import { fmtBRL } from '../../utils/orcamentoHelpers';
 

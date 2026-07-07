@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useCallback, useMemo, memo, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { 
   ehMesa, 
   getTamposDoProduto, 
@@ -12,7 +11,6 @@ import MostruarioTecidos from '../../assets/MostruarioTecido';
 
 const COLOR_LISTS = { pintura: MostruarioPintura, cordas: MostruarioCordas, tecidos: MostruarioTecidos };
 
-// Otimização: ProdutoCard já usa memo, mas vamos garantir que as props sejam estáveis
 export const ProdutoCard = memo(function ProdutoCard({ produto, onClick }) {
   const handleClick = useCallback(() => onClick(produto), [produto, onClick]);
   
@@ -43,7 +41,6 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
   const [selecoesCor, setSelecoesCor] = useState({});
   const [abaCor, setAbaCor] = useState('pintura');
 
-  // Otimização: Debounce para a busca para evitar filtragem a cada tecla pressionada
   const [buscaDebounced, setBuscaDebounced] = useState('');
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -233,7 +230,7 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
               {eMesa && tamposExibidos && tamposExibidos.length > 1 && (
                 <>
                   <label className="modal-section-label">Tipo de Tampo:</label>
-                  <div className="modal-tampo-grid">
+                  <div className="modal-pill-row">
                     {tamposExibidos.map(t => {
                       const disp = temVariacaoParaTampo(produtoSel, t);
                       return (
@@ -241,7 +238,7 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
                           key={t}
                           onClick={() => handleTampoClick(t)}
                           disabled={!disp}
-                          className={`modal-tampo-btn${tampoSel === t ? ' modal-tampo-btn--ativo' : ''}${!disp ? ' modal-tampo-btn--disabled' : ''}`}
+                          className={`modal-pill${tampoSel === t ? ' modal-pill--active' : ''}${!disp ? ' modal-pill--disabled' : ''}`}
                         >
                           {t}
                         </button>
@@ -254,12 +251,12 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
               {varsFiltradas.length > 1 && (
                 <>
                   <label className="modal-section-label">Medida / Variação:</label>
-                  <div className="modal-medida-grid">
+                  <div className="modal-pill-row">
                     {varsFiltradas.map((v, i) => (
                       <button
                         key={i}
                         onClick={() => setMedidaIdx(i)}
-                        className={`modal-medida-btn${medidaIdx === i ? ' modal-medida-btn--ativo' : ''}`}
+                        className={`modal-pill${medidaIdx === i ? ' modal-pill--active' : ''}`}
                       >
                         {v.medida}
                       </button>
@@ -274,18 +271,18 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
                     <button
                       key={k}
                       onClick={() => setAbaCor(k)}
-                      className={`modal-tab-btn${abaCor === k ? ' modal-tab-btn--ativo' : ''}`}
+                      className={`modal-cor-tab${abaCor === k ? ' modal-cor-tab--active' : ''}`}
                     >
                       {k.charAt(0).toUpperCase() + k.slice(1)}
                       {selecoesCor[k] && <span className="modal-tab-check">✓</span>}
                     </button>
                   ))}
                 </div>
-                <div className="modal-cores-grid">
+                <div className="modal-cor-grid">
                   {COLOR_LISTS[abaCor].map(c => (
                     <div
                       key={c.id}
-                      className={`modal-cor-item${selecoesCor[abaCor]?.id === c.id ? ' modal-cor-item--ativo' : ''}`}
+                      className={`modal-cor-chip${selecoesCor[abaCor]?.id === c.id ? ' modal-cor-chip--active' : ''}`}
                       onClick={() => selecionarCor({ ...c, cat: abaCor })}
                       title={c.nome}
                     >
@@ -296,20 +293,20 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
                 </div>
               </div>
 
-              <div className="modal-footer-actions">
-                <div className="modal-qtd-wrap">
+              <div className="modal-price-row">
+                <div className="modal-qty-box">
                   <label>Qtd:</label>
                   <input type="number" min="1" value={qtd} onChange={e => setQtd(Number(e.target.value))} />
                 </div>
-                <div className="modal-preco-final">
-                  <span className="modal-preco-label">Valor Unitário:</span>
-                  <span className="modal-preco-valor">
+                <div className="modal-price-final">
+                  <span className="modal-price-label">Valor Unitário:</span>
+                  <span className="modal-price-valor">
                     {varAtual?.preco ? varAtual.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '—'}
                   </span>
                 </div>
               </div>
 
-              <div className="modal-bottom-btns">
+              <div className="modal-footer">
                 <button className="modal-btn-back" onClick={() => setStep('grid')}>← Voltar</button>
                 <button className="modal-btn-confirm" onClick={handleConfirmar} disabled={!varAtual?.preco}>
                   Confirmar Seleção

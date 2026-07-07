@@ -43,7 +43,7 @@ const CIDADES_SEM_FRETE = [
   'Pederneiras', 'Bauru', 'Agudos', 'Lençóis Paulista', 'Piratininga',
   'Avaí', 'Bocaina', 'Ubirajara', 'Iacanga', 'Arealva',
   'Duartina', 'Pongaí', 'Macatuba', 'Bariri', 'Boracéia',
-  'Areiópolis', 'Getulina', 'Igaraçu do Tietê', 'Grosfillex',
+  'Areiópolis', 'Getulina', 'Igaraçu do Tietê', 'Grosfillex', 'Jaú', 'Lençóis Paulista', 'Lins', 'Marília',  
 ];
 
 const CIDADES_SEM_FRETE_NORM = new Set(

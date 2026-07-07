@@ -5,6 +5,7 @@ import Login from './Page/Login.jsx';
 import CradastroPro from './Page/CadastroPro.jsx';
 import Foto from './Page/Foto.jsx';
 import Orcamneto from './Page/Orcamento.js'
+import OrcamnetoTeste from './Page/testetstet.jsx'
 import PGBTDetalhe from './Page/PGBTDetalhe.jsx';
 import PGBTEditar from './Page/PGBTEditar.jsx';
 import Carrinho from './Page/Carrinho.jsx'; 
@@ -22,7 +23,8 @@ function AppRautes() {
                 <Route path="/Login" element={<Login />} />
                 <Route path='/cadastroPro' element={<CradastroPro/>} />
                 <Route path="/Foto" element={<Foto/>} />
-                <Route path="/Orcamneto" element={<Orcamneto/>} />
+                <Route path="OrcamnetoTeste" element={<Orcamneto/>} />
+                <Route path="/Orcamneto" element={<OrcamnetoTeste/>} />
                 <Route path="/DetalheCliente" element={<PGBTDetalhe/>} />
                 <Route path="/Carrinho" element={<Carrinho/>} />
                 <Route path="/editarCliente" element={<PGBTEditar/>} />

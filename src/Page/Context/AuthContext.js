@@ -5,9 +5,9 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
     // Inicia verificando se já tem token salvo (para não deslogar ao recarregar)
     const [loggedin, setLoggedin] = useState(true);
-    const [role, setRole] = useState("Programador"); // */ 
-     /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
-     const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
+    const [role, setRole] = useState("Vendedora"); // */ 
+    /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
+    const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
 
     const [id, setId] = useState(null);
     const [error, setError] = useState(null);
@@ -50,7 +50,7 @@ function AuthProvider({ children }) {
                     assignedRole = "Chefa";
                 } else if (username.toLowerCase() === "GerenteVendas") {
                     assignedRole = "GerenteVendas";
-                }else if (username.toLowerCase() === "Vendedora") {
+                } else if (username.toLowerCase() === "Vendedora") {
                     assignedRole = "Vendedora";
                 }
 

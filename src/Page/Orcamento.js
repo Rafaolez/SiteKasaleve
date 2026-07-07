@@ -1,9 +1,7 @@
-
-import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react'; // Adicione o useContext aqui
+import React, { useState, useEffect, useCallback, useMemo, useContext } from 'react';
 import '../css/Orcamneto.css';
-import BTNVolta from "../components/BTNVolta"; // Garanta que este import exista para a etapa de seleção
-import { AuthContext } from './Context/AuthContext'; // Adicione esta linha
-
+import BTNVolta from "../components/BTNVolta";
+import { AuthContext } from './Context/AuthContext';
 
 // Utils & Helpers
 import { 
@@ -15,7 +13,8 @@ import {
   fmtBRL, 
   gerarNumero, 
   ITEM_VAZIO, 
-  CLIENTE_VAZIO 
+  CLIENTE_VAZIO,
+  TERMOS_PADRAO
 } from '../utils/orcamentoHelpers';
 import { handleExportar } from '../utils/exportarOrcamento';
 
@@ -29,8 +28,57 @@ import ModalSeletorProduto from '../components/Orcamneto/ModalSeletorProduto';
 import EtapaNovoCliente from '../components/Orcamneto/EtapaNovoCliente';
 import ItemRow from '../components/Orcamneto/ItemRow';
 
+export default function Orcamento() {
+  const { loggedin } = useContext(AuthContext);
+  const [etapa, setEtapa] = useState('gate'); 
+  const [clienteExistente, setClienteExistente] = useState(null);
+  const [clienteNovo, setClienteNovo] = useState(null); // <--- ADICIONE ISSO AQUI
 
-export default function TelaOrcamento({ clienteInicial, clienteExistente, onVoltar }) {
+  if (!loggedin) return <TelaBloqueadaOrcamento />;
+
+  if (etapa === 'gate') {
+    return (
+      <div className="orc-bg">
+        {/* ... seu código do gate original ... */}
+      </div>
+    );
+  }
+
+  if (etapa === 'selecionar') {
+    return (
+      <div className="orc-bg">
+        {/* ... seu código de seleção original ... */}
+      </div>
+    );
+  }
+
+  // <--- COLE ESTA BLOCO AQUI (Aparelva antes do return da TelaPrincipal) --->
+  if (etapa === 'novo') {
+    return (
+      <EtapaNovoCliente 
+        onContinuar={(dadosDoFormulario) => {
+          setClienteNovo(dadosDoFormulario);
+          setEtapa('principal');
+        }}
+        onVoltar={() => setEtapa('gate')}
+      />
+    );
+  }
+
+  return (
+    <TelaPrincipal 
+      clienteInicial={clienteNovo} // <--- MUDE AQUI (era `etapa === 'novo' ? CLIENTE_VAZIO : null`)
+      clienteExistente={clienteExistente}
+      onVoltar={() => {
+        setEtapa('gate');
+        setClienteExistente(null);
+      }}
+    />
+  );
+}
+  // ... mantenha todo o seu código da TelaPrincipal exatamente como está ...
+
+function TelaPrincipal({ clienteInicial, clienteExistente, onVoltar }) {
   // ─── ESTADOS ───
   const [numero] = useState(gerarNumero);
   const [dataEmissao] = useState(new Date().toLocaleDateString('pt-BR'));
@@ -39,7 +87,7 @@ export default function TelaOrcamento({ clienteInicial, clienteExistente, onVolt
   const [perfilId, setPerfilId] = useState('padrao');
   const [clientes] = useState(API_CLIENTES);
   const [clienteId, setClienteId] = useState(clienteExistente ? String(clienteExistente.id) : '');
-  const [dadosCliente, setDadosCliente] = useState(clienteInicial || CLIENTE_VAZIO);
+  const [dadosCliente, setDadosCliente] = useState(clienteExistente || clienteInicial || CLIENTE_VAZIO);
   const [itens, setItens] = useState(() => [ITEM_VAZIO()]);
   const [editandoItemId, setEditandoItemId] = useState(null);
 
@@ -260,6 +308,22 @@ export default function TelaOrcamento({ clienteInicial, clienteExistente, onVolt
           <div className="orc-resumo__validade">Orçamento válido por 5 dias úteis.</div>
         </div>
 
+        {/* TERMOS E CONDIÇÕES (PREVIEW) */}
+        <div className="orc-section">
+          <div className="orc-termos-box">
+            <div className="orc-termos-box__titulo">Termos e Condições Gerais</div>
+            {TERMOS_PADRAO.map((t, i) => (
+              <div key={i} className="orc-termos-box__linha">
+                <span>{t.titulo}</span>
+                <span>{t.texto}</span>
+              </div>
+            ))}
+            <div className="orc-termos-box__validade">
+              Validade: Orçamento válido por 5 dias úteis após o envio.
+            </div>
+          </div>
+        </div>
+
         {/* OBSERVAÇÕES */}
         <div className="orc-section">
           <label className="orc-section-title">Observações Específicas:</label>
@@ -269,6 +333,18 @@ export default function TelaOrcamento({ clienteInicial, clienteExistente, onVolt
             onChange={e => setObs(e.target.value)}
             placeholder="Ex: Condições de pagamento, prazos de entrega específicos, etc..."
           />
+        </div>
+
+        {/* ASSINATURAS */}
+        <div className="orc-assinaturas">
+          <div className="orc-assinatura-item">
+            <div className="orc-assinatura-linha"></div>
+            <p>Kasaleve Industria Decor Moveis LTDA</p>
+          </div>
+          <div className="orc-assinatura-item">
+            <div className="orc-assinatura-linha"></div>
+            <p>{dadosCliente.nome || 'Assinatura do Cliente'}</p>
+          </div>
         </div>
 
         {/* AÇÕES FINAIS */}
@@ -292,7 +368,5 @@ export default function TelaOrcamento({ clienteInicial, clienteExistente, onVolt
         listaProdutos={listaAtual}
       />
     </div>
-    
   );
-  
 }
