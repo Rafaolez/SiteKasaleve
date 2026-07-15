@@ -56,7 +56,7 @@ export default function Orcamento() {
   if (etapa === 'novo') {
     return (
       <EtapaNovoCliente 
-        onContinuar={(dadosDoFormulario) => {
+        onContinuar={(dadosDoFormulario) => { 
           setClienteNovo(dadosDoFormulario);
           setEtapa('principal');
         }}
