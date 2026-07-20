@@ -4,62 +4,115 @@
    PGTDetalhe.css
    Tela de detalhes do cliente
 ════════════════════════════ */
- 
+
 .detail-page {
-  min-height: 100vh;
-  background: var(--bg);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 40px 5% 80px;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 5% 80px;
 }
- 
+
 .detail-container {
-  width: 100%; max-width: 640px;
-  animation: fadeUp 0.35s ease both;
+    width: 100%;
+    max-width: 640px;
+    animation: fadeUp 0.35s ease both;
 }
- 
-.detail-header { margin-bottom: 28px; }
+
+.detail-header {
+    margin-bottom: 28px;
+}
+
 .detail-header__eyebrow {
-  font-size: 11px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
 }
+
 .detail-header__title {
-  font-family: var(--font-display);
-  font-size: 34px; font-weight: 500; color: var(--text); line-height: 1;
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
 }
- 
+
 /* Info rows */
-.detail-info { padding: 8px 0; }
+.detail-info {
+    padding: 8px 0;
+}
+
 .info-row {
-  display: flex; align-items: center;
-  gap: 16px; padding: 16px 32px;
-  transition: background .15s;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 32px;
+    transition: background .15s;
 }
-.info-row:hover { background: var(--surface-alt); }
- 
+
+.info-row:hover {
+    background: var(--surface-alt);
+}
+
 .info-row__icon {
-  font-size: 18px;
-  width: 36px; height: 36px;
-  background: var(--surface-alt);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
-.info-row__content { display: flex; flex-direction: column; gap: 2px; }
+
+.info-row__content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
 .info-row__label {
-  font-size: 11px; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--text-muted); font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
 }
-.info-row__value { font-size: 15px; color: var(--text); font-weight: 400; }
- 
+
+.info-row__value {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 400;
+}
+
 @media (max-width: 600px) {
-  .detail-card__hero { padding: 24px 20px 20px; }
-  .detail-divider    { margin: 0 20px; }
-  .info-row          { padding: 14px 20px; }
-  .detail-actions    { padding: 20px; flex-direction: column; }
-  .detail-actions .btn-action { flex: unset; width: 100%; }
+    .detail-card__hero {
+        padding: 24px 20px 20px;
+    }
+
+    .detail-divider {
+        margin: 0 20px;
+    }
+
+    .info-row {
+        padding: 14px 20px;
+    }
+
+    .detail-actions {
+        padding: 20px;
+        flex-direction: column;
+    }
+
+    .detail-actions .btn-action {
+        flex: unset;
+        width: 100%;
+    }
 }
 
 /* ════════════════════════════
@@ -168,8 +221,15 @@
 }
 
 @keyframes tabFade {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ════════════════════════════
@@ -220,9 +280,17 @@
     letter-spacing: 0.8px;
 }
 
-.report-summary__card--received .report-summary__label { color: #15803d; }
-.report-summary__card--pending .report-summary__label { color: #92400e; }
-.report-summary__card--overdue .report-summary__label { color: #991b1b; }
+.report-summary__card--received .report-summary__label {
+    color: #15803d;
+}
+
+.report-summary__card--pending .report-summary__label {
+    color: #92400e;
+}
+
+.report-summary__card--overdue .report-summary__label {
+    color: #991b1b;
+}
 
 .report-summary__value {
     font-size: 22px;
@@ -230,9 +298,17 @@
     letter-spacing: -0.5px;
 }
 
-.report-summary__card--received .report-summary__value { color: #166534; }
-.report-summary__card--pending .report-summary__value { color: #78350f; }
-.report-summary__card--overdue .report-summary__value { color: #7f1d1d; }
+.report-summary__card--received .report-summary__value {
+    color: #166534;
+}
+
+.report-summary__card--pending .report-summary__value {
+    color: #78350f;
+}
+
+.report-summary__card--overdue .report-summary__value {
+    color: #7f1d1d;
+}
 
 .report-summary__count {
     font-size: 11px;
@@ -240,9 +316,17 @@
     margin-top: 2px;
 }
 
-.report-summary__card--received .report-summary__count { color: #16a34a; }
-.report-summary__card--pending .report-summary__count { color: #b45309; }
-.report-summary__card--overdue .report-summary__count { color: #dc2626; }
+.report-summary__card--received .report-summary__count {
+    color: #16a34a;
+}
+
+.report-summary__card--pending .report-summary__count {
+    color: #b45309;
+}
+
+.report-summary__card--overdue .report-summary__count {
+    color: #dc2626;
+}
 
 /* ════════════════════════════
    Relatório: Tabela
@@ -679,8 +763,13 @@
 }
 
 @keyframes overlayIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .modal {
@@ -695,8 +784,15 @@
 }
 
 @keyframes modalIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* Header */
@@ -1025,8 +1121,15 @@
     }
 
     @keyframes modalSlideUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .modal__header {
@@ -1054,7 +1157,584 @@
         width: 100%;
         justify-content: center;
     }
+
+    /* ════════════════════════════
+   Checklist do Pedido
+════════════════════════════ */
+
+    .cl-content {
+        padding: 24px 32px 32px !important;
+    }
+
+    /* Botão Gerar Checklist no card de orçamento */
+    .cl-generate-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: #fff;
+        background: var(--accent, #1b7a5a);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(27, 122, 90, 0.2);
+    }
+
+    .cl-generate-btn:hover {
+        background: var(--accent-hover, #15956d);
+        transform: translateY(-1px);
+    }
+
+    /* Empty state do checklist */
+    .cl-empty-hint {
+        font-size: 12px;
+        color: var(--text-muted);
+        max-width: 320px;
+        text-align: center;
+    }
+
+    /* Cabeçalho do pedido */
+    .cl-header-grid {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 24px;
+        align-items: end;
+    }
+
+    .cl-header-block {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .cl-header-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted);
+    }
+
+    .cl-header-value {
+        font-size: 14px;
+        color: var(--text);
+        font-weight: 500;
+    }
+
+    .cl-header-value--num {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--accent, #1b7a5a);
+        letter-spacing: 0.5px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .cl-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 20px 0;
+    }
+
+    /* Campos de data/vendedor */
+    .cl-fields-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 14px;
+    }
+
+    .cl-fields-grid--full {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .cl-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .cl-field-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+    }
+
+    .cl-input,
+    .cl-select {
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--text);
+        background: var(--bg-input, #f8f9fb);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .cl-input:hover,
+    .cl-select:hover {
+        border-color: var(--border-hover, #c8cbd5);
+    }
+
+    .cl-input:focus,
+    .cl-select:focus {
+        border-color: var(--accent, #1b7a5a);
+        box-shadow: 0 0 0 3px rgba(27, 122, 90, 0.1);
+        background: #fff;
+    }
+
+    .cl-select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%239ca3b4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 32px;
+    }
+
+    .cl-select option {
+        background: #fff;
+        color: var(--text);
+    }
+
+    .cl-textarea {
+        width: 100%;
+        padding: 9px 12px;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--text);
+        background: var(--bg-input, #f8f9fb);
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
+        outline: none;
+        resize: vertical;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .cl-textarea:hover {
+        border-color: var(--border-hover, #c8cbd5);
+    }
+
+    .cl-textarea:focus {
+        border-color: var(--accent, #1b7a5a);
+        box-shadow: 0 0 0 3px rgba(27, 122, 90, 0.1);
+        background: #fff;
+    }
+
+    /* Título da seção de itens */
+    .cl-section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-bottom: 12px;
+    }
+
+    .cl-section-title svg {
+        color: var(--accent, #1b7a5a);
+    }
+
+    .cl-progress {
+        margin-left: auto;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--accent, #1b7a5a);
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    /* Tabela do checklist */
+    .cl-table-wrap {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 12px;
+    }
+
+    .cl-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .cl-table thead {
+        background: var(--surface-alt);
+    }
+
+    .cl-table th {
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .cl-th-check {
+        width: 44px;
+        text-align: center;
+    }
+
+    .cl-th-qty {
+        width: 70px;
+    }
+
+    .cl-th-price {
+        width: 110px;
+    }
+
+    .cl-th-total {
+        width: 120px;
+    }
+
+    .cl-th-actions {
+        width: 44px;
+    }
+
+    .cl-table td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .cl-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .cl-table tbody tr {
+        transition: background 0.15s;
+    }
+
+    .cl-table tbody tr:hover {
+        background: var(--surface-alt);
+    }
+
+    /* Checkbox customizado */
+    .cl-td-check {
+        text-align: center;
+    }
+
+    .cl-checkbox {
+        width: 22px;
+        height: 22px;
+        border: 2px solid var(--border);
+        border-radius: 6px;
+        background: #fff;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        color: #fff;
+    }
+
+    .cl-checkbox:hover {
+        border-color: var(--accent, #1b7a5a);
+    }
+
+    .cl-checkbox--checked {
+        background: var(--accent, #1b7a5a);
+        border-color: var(--accent, #1b7a5a);
+    }
+
+    /* Linha conferida */
+    .cl-row--checked {
+        background: #f0fdf4 !important;
+    }
+
+    .cl-row--checked .cl-item-input {
+        color: var(--text-secondary);
+        text-decoration: line-through;
+        text-decoration-color: #bbf7d0;
+    }
+
+    /* Inputs dentro da tabela */
+    .cl-item-input {
+        width: 100%;
+        padding: 7px 10px;
+        font-size: 13px;
+        font-family: inherit;
+        color: var(--text);
+        background: transparent;
+        border: 1.5px solid transparent;
+        border-radius: 6px;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .cl-item-input:hover {
+        background: #fff;
+        border-color: var(--border);
+    }
+
+    .cl-item-input:focus {
+        background: #fff;
+        border-color: var(--accent, #1b7a5a);
+        box-shadow: 0 0 0 2px rgba(27, 122, 90, 0.1);
+    }
+
+    .cl-item-input--num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+    }
+
+    .cl-td-qty {
+        text-align: center;
+    }
+
+    .cl-td-price {
+        text-align: right;
+    }
+
+    .cl-td-total {
+        text-align: right;
+    }
+
+    .cl-td-actions {
+        text-align: center;
+    }
+
+    .cl-subtotal {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
+    /* Botão remover item */
+    .cl-remove-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+    }
+
+    .cl-remove-btn:hover {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #dc2626;
+    }
+
+    /* Botão adicionar item */
+    .cl-add-item-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        font-size: 12px;
+        font-weight: 600;
+        font-family: inherit;
+        color: var(--text-secondary);
+        background: transparent;
+        border: 1.5px dashed var(--border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .cl-add-item-btn:hover {
+        border-color: var(--accent, #1b7a5a);
+        color: var(--accent, #1b7a5a);
+        background: rgba(27, 122, 90, 0.04);
+    }
+
+    /* Totais */
+    .cl-totals {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 380px;
+        margin-left: auto;
+    }
+
+    .cl-totals-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .cl-totals-row label {
+        cursor: default;
+    }
+
+    .cl-totals-input {
+        width: 110px;
+        padding: 6px 10px;
+        font-size: 13px;
+        font-family: inherit;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+        color: var(--text);
+        background: var(--bg-input, #f8f9fb);
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        outline: none;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .cl-totals-input:hover {
+        border-color: var(--border-hover, #c8cbd5);
+    }
+
+    .cl-totals-input:focus {
+        border-color: var(--accent, #1b7a5a);
+        box-shadow: 0 0 0 2px rgba(27, 122, 90, 0.1);
+        background: #fff;
+    }
+
+    .cl-totals-row--final {
+        padding-top: 10px;
+        border-top: 2px solid var(--border);
+        margin-top: 4px;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .cl-total-final {
+        color: var(--accent, #1b7a5a);
+        font-size: 18px;
+    }
+
+    /* Barra de progresso */
+    .cl-progress-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 4px;
+    }
+
+    .cl-progress-bar {
+        flex: 1;
+        height: 8px;
+        background: var(--border);
+        border-radius: 100px;
+        overflow: hidden;
+    }
+
+    .cl-progress-bar__fill {
+        height: 100%;
+        background: var(--accent, #1b7a5a);
+        border-radius: 100px;
+        transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .cl-progress-text {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent, #1b7a5a);
+        white-space: nowrap;
+        min-width: 65px;
+        text-align: right;
+    }
+
+    /* Botão salvar */
+    .cl-save-bar {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+    }
+
+    .cl-save-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 32px;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+        color: #fff;
+        background: var(--accent, #1b7a5a);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 16px rgba(27, 122, 90, 0.25);
+    }
+
+    .cl-save-btn:hover {
+        background: var(--accent-hover, #15956d);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 24px rgba(27, 122, 90, 0.3);
+    }
+
+    .cl-save-btn--saved {
+        background: #15803d;
+    }
+
+    /* ═══ Responsivo Checklist ═══ */
+    @media (max-width: 768px) {
+        .cl-content {
+            padding: 20px 16px 24px !important;
+        }
+
+        .cl-header-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .cl-fields-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .cl-fields-grid--full {
+            grid-template-columns: 1fr;
+        }
+
+        .cl-table th:nth-child(n+3):nth-child(-n+5),
+        .cl-table td:nth-child(n+3):nth-child(-n+5) {
+            display: none;
+        }
+
+        .cl-th-check,
+        .cl-td-check {
+            width: 36px;
+        }
+
+        .cl-th-actions,
+        .cl-td-actions {
+            width: 36px;
+        }
+
+        .cl-totals {
+            max-width: 100%;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .cl-fields-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 }
+
 /*.CXDetalhe {
     margin-inline: auto;
     padding: 0.5rem;
