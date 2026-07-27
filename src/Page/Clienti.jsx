@@ -114,14 +114,14 @@ function Clienti() {
         </div>
 
         {/* ── Stats ── */}
-        <div className="stats-row">
+        <div className="cli-stats-row">
           <StatCard label="Total de clientes" value={client.length} icon="👥" />
           <StatCard label="Ativos" value={client.length} icon="✅" />
           <StatCard label="Novos este mês" value={Math.min(client.length, 5)} icon="📈" />
         </div>
 
         {/* ── Busca + Filtros ── */}
-        <div className="toolbar">
+        <div className="cli-toolbar">
           <div className="search-box">
             <span className="search-box__icon">🔍</span>
             <input
@@ -148,7 +148,7 @@ function Clienti() {
 
         {/* ── Tabela ── */}
         <div className="table-wrap">
-          <div className="table-head">
+          <div className="cli-table-head">
             <span>Cliente</span>
             <span>E-mail</span>
             <span>Status</span>
@@ -162,7 +162,7 @@ function Clienti() {
             </div>
           ) : (
             filtered.map((item, i) => (
-              <div className="table-row" key={item.id} style={{ animationDelay: `${i * 0.04}s` }}>
+              <div className="cli-table-row" key={item.id} style={{ animationDelay: `${i * 0.04}s` }}>
 
                 <div className="table-row__name">
                   <Avatar first={item.name.firstname} last={item.name.lastname} />
@@ -174,7 +174,7 @@ function Clienti() {
                   </div>
                 </div>
 
-                <div className="table-row__email">{item.email}</div>
+                <div className="cli-table-row__email">{item.email}</div>
 
                 <div><StatusBadge status="Ativo" /></div>
 

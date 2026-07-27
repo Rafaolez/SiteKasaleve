@@ -10,7 +10,7 @@ function StatusBadge({ label, type = 'default' }) {
 
 function SkeletonRow() {
     return (
-        <div className="table-row table-row--skeleton">
+        <div className="cpro-table-row cpro-table-row--skeleton">
             <div className="skeleton skeleton--img" />
             <div className="skeleton-lines">
                 <div className="skeleton skeleton--line" />
@@ -45,7 +45,7 @@ function CradastroPro() {
 
     if (!loggedin) {
         return (
-            <div className="detail-page">
+            <div className="cpro-detail-page">
                 <MenuPage />
                 <div className="detail-empty">
                     <span>🔒</span>
@@ -62,7 +62,7 @@ function CradastroPro() {
     );
 
     return (<><MenuPage />
-        <div className="detail-page">
+        <div className="cpro-detail-page">
 
             <div className="products-container">
 
@@ -79,7 +79,7 @@ function CradastroPro() {
                 </div>
 
                 {/* ── Stats ── */}
-                <div className="stats-row">
+                <div className="cpro-stats-row">
                     <div className="stat-card">
                         <span className="stat-card__icon">📦</span>
                         <div>
@@ -104,7 +104,7 @@ function CradastroPro() {
                 </div>
 
                 {/* ── Search ── */}
-                <div className="toolbar">
+                <div className="cpro-toolbar">
                     <div className="search-box">
                         <span className="search-box__icon">🔍</span>
                         <input
@@ -119,7 +119,7 @@ function CradastroPro() {
 
                 {/* ── Table ── */}
                 <div className="table-wrap">
-                    <div className="table-head products-grid">
+                    <div className="cpro-table-head products-grid">
                         <span>Produto</span>
                         <span>Preço</span>
                         <span>Descrição</span>
@@ -137,7 +137,7 @@ function CradastroPro() {
                     ) : (
                         filtered.map((item, i) => (
                             <div
-                                className="table-row products-grid"
+                                className="cpro-table-row products-grid"
                                 key={item.id}
                                 style={{ animationDelay: `${i * 0.03}s` }}
                             >

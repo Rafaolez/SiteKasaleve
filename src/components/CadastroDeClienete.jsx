@@ -244,9 +244,9 @@ function CadastroDeCliente() {
   return (
     <div className="cadastro-cliente">
       {/* Toast */}
-      <div className={`toast ${toast.show ? "toast--visible" : ""} toast--${toast.type}`}>
-        <span className="toast__icon">{toast.type === "success" ? "✓" : "!"}</span>
-        <span className="toast__msg">{toast.message}</span>
+      <div className={`cdcli-toast ${toast.show ? "cdcli-toast--visible" : ""} cdcli-toast--${toast.type}`}>
+        <span className="cdcli-toast__icon">{toast.type === "success" ? "✓" : "!"}</span>
+        <span className="cdcli-toast__msg">{toast.message}</span>
       </div>
 
       {/* Header */}

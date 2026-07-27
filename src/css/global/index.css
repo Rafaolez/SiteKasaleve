@@ -1,0 +1,12 @@
+/* ==========================================================================
+   CSS PAI DO PROJETO
+   Importar UMA ÚNICA VEZ no ponto de entrada da aplicação (src/index.js).
+   Define tudo que é essencial e compartilhado por todas as telas:
+   paleta de cores, tipografia, reset e regras de responsividade.
+
+   Ordem de import importa: tokens -> reset -> responsive.
+   ========================================================================== */
+
+@import './_tokens.css';
+@import './_reset.css';
+@import './_responsive.css';

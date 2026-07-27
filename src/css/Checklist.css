@@ -1,0 +1,131 @@
+.chk-bg {
+  min-height: 100vh;
+  background: #f5f5f0;
+  padding: 24px;
+}
+
+.chk-paper {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.chk-titulo {
+  font-family: 'Sora', sans-serif;
+  margin-bottom: 16px;
+}
+
+.chk-form-novo {
+  border: 1px solid #e5e5e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chk-input {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'Lora', serif;
+}
+
+.chk-item-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chk-btn-remover {
+  background: #fdecea;
+  color: #b3261e;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.chk-btn-add {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed #999;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.chk-btn-salvar {
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.chk-btn-salvar:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.chk-erro {
+  background: #fdecea;
+  color: #b3261e;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.chk-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chk-card {
+  border: 1px solid #e5e5e0;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.chk-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.chk-card-header h4 { flex: 1; margin: 0; }
+
+.chk-badge-concluido, .chk-badge-pendente {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.chk-badge-concluido { background: #e6f4ea; color: #1e7e34; }
+.chk-badge-pendente { background: #fff4e0; color: #a15c00; }
+
+.chk-btn-excluir {
+  background: none;
+  border: none;
+  color: #b3261e;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.chk-itens { list-style: none; padding: 0; margin: 0; }
+.chk-itens li { padding: 4px 0; }
+.chk-itens label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.chk-item-riscado { text-decoration: line-through; color: #999; }
+
+.chk-bloqueado {
+  max-width: 480px;
+  margin: 80px auto;
+  text-align: center;
+  font-family: 'Lora', serif;
+}

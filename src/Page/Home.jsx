@@ -16,6 +16,7 @@ const allNavItems = [
   { to: "/Carrinho",             label: "Carrinho",             icon: "🛒", desc: "Personalize e finalize pedidos",      color: "#FFF1F2", accent: "#E11D48" },
   { to: "/Monitoramento/IA",     label: "Monitorar IA",         icon: "🤖", desc: "Painel de IA do WhatsApp",            color: "#F0F9FF", accent: "#0369A1" },
   { to: "/Tarefas",              label: "Tarefas",              icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
+  { to: "/Checklist",            label: "Checklists",           icon: "🗒️", desc: "Crie e acompanhe checklists",         color: "#EEF2FF", accent: "#4338CA" },
   { to: "/MapaRepresentantes",   label: "Mapa Representantes",  icon: "📍", desc: "Localização dos representantes",      color: "#ECFDF5", accent: "#059669" }, // NOVO ITEM
 ];
 

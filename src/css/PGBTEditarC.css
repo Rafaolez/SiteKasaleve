@@ -5,7 +5,7 @@
    Tela de edição de cliente
 ════════════════════════════ */
  
-.detail-page {
+.edit-detail-page {
   min-height: 100vh;
   background: var(--bg);
   display: flex;
@@ -14,17 +14,17 @@
   padding: 40px 5% 80px;
 }
  
-.detail-container {
+.edit-detail-container {
   width: 100%; max-width: 680px;
   animation: fadeUp 0.35s ease both;
 }
  
-.detail-header { margin-bottom: 28px; }
-.detail-header__eyebrow {
+.edit-detail-header { margin-bottom: 28px; }
+.edit-detail-header__eyebrow {
   font-size: 11px; letter-spacing: 2.5px;
   text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-bottom: 6px;
 }
-.detail-header__title {
+.edit-detail-header__title {
   font-family: var(--font-display);
   font-size: 34px; font-weight: 500; color: var(--text); line-height: 1; margin-bottom: 8px;
 }
@@ -73,10 +73,10 @@
 }
  
 @media (max-width: 600px) {
-  .detail-card__hero { padding: 24px 20px 20px; }
-  .detail-divider    { margin: 0 20px; }
+  .edit-detail-card__hero { padding: 24px 20px 20px; }
+  .edit-detail-divider    { margin: 0 20px; }
   .edit-form         { padding: 20px; }
   .edit-form__row    { grid-template-columns: 1fr; }
-  .detail-actions    { padding: 20px; flex-direction: column; }
-  .detail-actions .btn-action { flex: unset; width: 100%; }
+  .edit-detail-actions    { padding: 20px; flex-direction: column; }
+  .edit-detail-actions .edit-btn-action { flex: unset; width: 100%; }
 }

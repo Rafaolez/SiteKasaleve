@@ -52,7 +52,7 @@ function Foto() {
                     <div className="foto-header">
                         <BTNVolta />
                         <div className="foto-header__titles">
-                            <p className="eyebrow">Galeria</p>
+                            <p className="mae-eyebrow">Galeria</p>
                             <h1 className="foto-title">Fotos</h1>
                         </div>
                     </div>
@@ -102,10 +102,6 @@ function Foto() {
                     <p className="foto-section__label">Mapa de Representantes</p>
 
                     <br />
-
-                    <p className="foto-section__label">Filtre por categoria</p>
-                    <string>Tete</string>
-
                     <div className="map-wrap">
 
                         {/* Legenda */}

@@ -41,7 +41,7 @@ function PGBTEditar() {
 
     if (!clienteSelecionado) {
         return (
-            <div className="detail-page">
+            <div className="edit-detail-page">
                 <div className="detail-empty">
                     <span>◎</span>
                     <p>Nenhum cliente selecionado.</p>
@@ -57,13 +57,13 @@ function PGBTEditar() {
     const fullName = `${form.firstname} ${form.lastname}`.trim();
 
     return (
-        <div className="detail-page">
-            <div className="detail-container">
+        <div className="edit-detail-page">
+            <div className="edit-detail-container">
 
                 {/* ── Header ── */}
-                <div className="detail-header">
-                    <p className="detail-header__eyebrow">Gestão de Clientes</p>
-                    <h1 className="detail-header__title">Editar Cliente</h1>
+                <div className="edit-detail-header">
+                    <p className="edit-detail-header__eyebrow">Gestão de Clientes</p>
+                    <h1 className="edit-detail-header__title">Editar Cliente</h1>
                     <p className="detail-header__sub">
                         Alterando informações de <strong>{clienteSelecionado.name.firstname} {clienteSelecionado.name.lastname}</strong>
                     </p>
@@ -73,7 +73,7 @@ function PGBTEditar() {
                 <div className="detail-card">
 
                     {/* Hero */}
-                    <div className="detail-card__hero">
+                    <div className="edit-detail-card__hero">
                         <div className="detail-avatar">
                             {form.firstname[0]}{form.lastname[0]}
                         </div>
@@ -85,7 +85,7 @@ function PGBTEditar() {
                         </div>
                     </div>
 
-                    <div className="detail-divider" />
+                    <div className="edit-detail-divider" />
 
                     {/* Form */}
                     <div className="edit-form">
@@ -137,15 +137,15 @@ function PGBTEditar() {
                         />
                     </div>
 
-                    <div className="detail-divider" />
+                    <div className="edit-detail-divider" />
 
                     {/* Actions */}
-                    <div className="detail-actions">
+                    <div className="edit-detail-actions">
                         <Link to="/clienti" className="link-clean">
-                            <button className="btn-action btn-action--back">← Voltar</button>
+                            <button className="edit-btn-action edit-btn-action--back">← Voltar</button>
                         </Link>
-                        <button className="btn-action btn-action--save" onClick={PGBTSalvar}>💾 Salvar</button>
-                        <button className="btn-action btn-action--delete">🗑 Excluir</button>
+                        <button className="edit-btn-action edit-btn-action--save" onClick={PGBTSalvar}>💾 Salvar</button>
+                        <button className="edit-btn-action edit-btn-action--delete">🗑 Excluir</button>
                     </div>
 
                 </div>

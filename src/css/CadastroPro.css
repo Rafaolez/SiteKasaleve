@@ -5,7 +5,7 @@
    Tela de listagem de produtos
 ════════════════════════════ */
  
-.detail-page {
+.cpro-detail-page {
   min-height: 100vh;
   background: var(--bg);
 }
@@ -39,7 +39,7 @@
   object-fit: contain;
   transition: transform .2s;
 }
-.table-row:hover .product-img { transform: scale(1.08); }
+.cpro-table-row:hover .product-img { transform: scale(1.08); }
  
 .product-price {
   font-size: 14px; font-weight: 600;
@@ -56,7 +56,7 @@
 }
  
 /* Skeleton */
-.table-row--skeleton { pointer-events: none; }
+.cpro-table-row--skeleton { pointer-events: none; }
 .skeleton--img     { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; }
 .skeleton--line    { height: 14px; width: 70%; margin-bottom: 6px; }
 .skeleton--line-sm { height: 10px; width: 40%; }
@@ -65,8 +65,8 @@
  
 @media (max-width: 900px) {
   .products-grid { grid-template-columns: 1fr; }
-  .table-head    { display: none; }
-  .table-row     { gap: 12px; padding: 16px; }
+  .cpro-table-head    { display: none; }
+  .cpro-table-row     { gap: 12px; padding: 16px; }
 }
 
 
@@ -172,3 +172,29 @@
 .DescricaoText {
     width: 30%;
 }*/
+/* ── Adicionado na reformulação: esta página usava .stats-row e .toolbar
+   sem nenhuma definição própria (dependia, por acidente de CSS global,
+   das regras definidas em Cliente.css/MaeDtodos.css). Agora tem estilo
+   próprio e devidamente isolado. ── */
+.cpro-stats-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.cpro-toolbar {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 767px) {
+  .cpro-stats-row,
+  .cpro-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

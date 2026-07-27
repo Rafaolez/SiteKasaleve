@@ -17,6 +17,8 @@ import {
   TERMOS_PADRAO
 } from '../utils/orcamentoHelpers';
 import { handleExportar } from '../utils/exportarOrcamento';
+import { salvarOrcamento } from '../utils/salvarOrcamentoApi';
+import { api } from '../services/api';
 
 // Assets
 import ProdutosAPILocal from '../assets/ProdutosAPILocal';
@@ -85,13 +87,37 @@ function TelaPrincipal({ clienteInicial, clienteExistente, onVoltar }) {
   const [observacoes, setObs] = useState('');
   const [descontoPerc, setDescontoPerc] = useState(0);
   const [perfilId, setPerfilId] = useState('padrao');
-  const [clientes] = useState(API_CLIENTES);
+  const [clientes, setClientes] = useState(API_CLIENTES);
   const [clienteId, setClienteId] = useState(clienteExistente ? String(clienteExistente.id) : '');
   const [dadosCliente, setDadosCliente] = useState(clienteExistente || clienteInicial || CLIENTE_VAZIO);
   const [itens, setItens] = useState(() => [ITEM_VAZIO()]);
   const [editandoItemId, setEditandoItemId] = useState(null);
+  const [salvando, setSalvando] = useState(false);
+  const [mensagemSalvar, setMensagemSalvar] = useState(null);
 
   // ─── EFEITOS ───
+  // Busca os clientes reais cadastrados no banco (fica em API_CLIENTES como
+  // fallback visual caso a API ainda não esteja no ar).
+  useEffect(() => {
+    (async () => {
+      try {
+        const clientesBanco = await api.get('/api/clientes');
+        setClientes(clientesBanco.map(c => ({
+          id: c.clienteId,
+          nome: c.nome,
+          telefone: c.telefone,
+          endereco: c.endereco,
+          cidade: c.cidade,
+          estado: c.estado,
+          cep: c.cep,
+          cpf: c.cpfCnpj,
+        })));
+      } catch {
+        // Mantém a lista de exemplo se a API não estiver disponível.
+      }
+    })();
+  }, []);
+
   useEffect(() => {
     if (!clienteId) return;
     const c = clientes.find(c => c.id === Number(clienteId));
@@ -162,6 +188,25 @@ function TelaPrincipal({ clienteInicial, clienteExistente, onVoltar }) {
     () => editandoItemId ? itens.find(i => i.id === editandoItemId) : null,
     [editandoItemId, itens]
   );
+
+  const salvar = useCallback(async () => {
+    setSalvando(true);
+    setMensagemSalvar(null);
+    try {
+      await salvarOrcamento({
+        clienteId,
+        itens,
+        getUnitario,
+        valorFrete,
+        observacoes,
+      });
+      setMensagemSalvar({ tipo: 'sucesso', texto: 'Orçamento salvo com sucesso no sistema!' });
+    } catch (err) {
+      setMensagemSalvar({ tipo: 'erro', texto: err.message || 'Não foi possível salvar o orçamento.' });
+    } finally {
+      setSalvando(false);
+    }
+  }, [clienteId, itens, getUnitario, valorFrete, observacoes]);
 
   const exportar = useCallback(() => handleExportar({
     dataEmissao,
@@ -349,10 +394,18 @@ function TelaPrincipal({ clienteInicial, clienteExistente, onVoltar }) {
 
         {/* AÇÕES FINAIS */}
         <div className="orc-final-actions">
+          <button className="orc-btn-export" onClick={salvar} disabled={salvando}>
+            {salvando ? 'Salvando...' : '☁️ Salvar Orçamento no Sistema'}
+          </button>
           <button className="orc-btn-export" onClick={exportar}>
             💾 Gerar Orçamento (PDF/DOCX)
           </button>
         </div>
+        {mensagemSalvar && (
+          <p className={mensagemSalvar.tipo === 'sucesso' ? 'orc-msg-sucesso' : 'orc-msg-erro'}>
+            {mensagemSalvar.texto}
+          </p>
+        )}
 
         <div className="orc-footer-brand">
           <p>Obrigado pela preferência!</p>

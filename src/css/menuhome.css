@@ -8,8 +8,8 @@
   justify-content: space-between;
   height: 64px; /* Aumentei 4px para dar mais respiro */
   padding: 0 32px;
-  background: #FDFCFA; /* Padronizado com a nova sidebar */
-  border-bottom: 1px solid #EFECEA; /* Borda mais sutil */
+  background: var(--color-surface-warm); /* Padronizado com a nova sidebar */
+  border-bottom: 1px solid var(--color-bg); /* Borda mais sutil */
   flex-shrink: 0;
   gap: 16px;
   z-index: 10;
@@ -39,7 +39,7 @@
   font-family: 'Georgia', serif;
   font-size: 11px;
   font-style: italic;
-  color: #B0A898;
+  color: var(--gray-500);
   letter-spacing: 2px;
   text-transform: lowercase;
   white-space: nowrap;
@@ -50,7 +50,7 @@
 }
 
 .mh-tagline__dot {
-  color: #C05830;
+  color: var(--color-accent);
   margin: 0 6px;
   font-style: normal;
 }
@@ -74,9 +74,9 @@
   font-size: 13px;
   font-weight: 600;
   letter-spacing: .3px;
-  color: #FDFCFA;
-  background: #1A1714;
-  border: 1.5px solid #1A1714;
+  color: var(--color-surface-warm);
+  background: var(--color-text);
+  border: 1.5px solid var(--color-text);
   border-radius: 10px; /* Mais arredondado */
   padding: 9px 20px;
   cursor: pointer;
@@ -85,8 +85,8 @@
 }
 
 .mh-btn-login:hover {
-  background: #C05830;
-  border-color: #C05830;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(192, 88, 48, 0.3);
 }

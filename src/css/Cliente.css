@@ -57,11 +57,11 @@
  
 @media (max-width: 768px) {
   .clients-grid  { grid-template-columns: 1fr; }
-  .table-head    { display: none; }
-  .table-row     { gap: 10px; padding: 16px; }
-  .table-row__email { white-space: normal; }
-  .stats-row     { flex-direction: column; }
-  .toolbar       { flex-direction: column; align-items: stretch; }
+  .cli-table-head    { display: none; }
+  .cli-table-row     { gap: 10px; padding: 16px; }
+  .cli-table-row__email { white-space: normal; }
+  .cli-stats-row     { flex-direction: column; }
+  .cli-toolbar       { flex-direction: column; align-items: stretch; }
 }
  
 /*meu codigo anterior, não sei se vou usar, mas vou deixar aqui pra não perder*/

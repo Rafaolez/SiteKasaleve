@@ -2,25 +2,25 @@
    Tema claro e elegante
    ============================ */
 .cadastro-cliente {
-  --bg-page: #f4f5f7;
-  --bg-card: #ffffff;
-  --bg-input: #f8f9fb;
-  --bg-input-hover: #f0f1f4;
-  --border: #e0e3ea;
-  --border-hover: #c8cbd5;
-  --border-focus: #1b7a5a;
-  --border-error: #d63031;
-  --text: #1a1d26;
-  --text-secondary: #5f6577;
-  --text-muted: #9ca3b4;
-  --accent: #1b7a5a;
-  --accent-hover: #15956d;
-  --accent-light: #e8f5ef;
-  --accent-glow: rgba(27, 122, 90, 0.1);
-  --error-light: #fef2f2;
-  --error-text: #d63031;
-  --success: #1b7a5a;
-  --success-light: #e8f5ef;
+  --bg-page: var(--gray-100);
+  --bg-card: var(--color-surface);
+  --bg-input: var(--color-surface-alt);
+  --bg-input-hover: var(--color-surface-alt);
+  --border: var(--gray-200);
+  --border-hover: var(--gray-300);
+  --border-focus: var(--color-primary);
+  --border-error: var(--color-danger);
+  --text: var(--color-text);
+  --text-secondary: var(--gray-600);
+  --text-muted: var(--gray-400);
+  --accent: var(--color-primary);
+  --accent-hover: var(--color-primary-500);
+  --accent-light: var(--color-border-light);
+  --accent-glow: var(--color-primary-a10);
+  --error-light: var(--color-danger-bg);
+  --error-text: var(--color-danger);
+  --success: var(--color-primary);
+  --success-light: var(--color-border-light);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
@@ -79,7 +79,7 @@
 .cc-status--ativo {
   background: var(--success-light);
   color: var(--success);
-  border: 1px solid rgba(27, 122, 90, 0.2);
+  border: 1px solid var(--color-primary-a20);
 }
 
 .cc-status__dot {
@@ -190,7 +190,7 @@
 .cc-input:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .form-group--error .cc-input {
@@ -213,7 +213,7 @@
 }
 
 .cc-select option {
-  background: #fff;
+  background: var(--color-surface);
   color: var(--text);
 }
 
@@ -343,25 +343,25 @@
 
 .cc-btn--primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
   box-shadow: 0 2px 8px rgba(27, 122, 90, 0.25);
 }
 
 .cc-btn--primary:hover {
   background: var(--accent-hover);
-  box-shadow: 0 4px 16px rgba(27, 122, 90, 0.3);
+  box-shadow: 0 4px 16px var(--color-primary-a30);
   transform: translateY(-1px);
 }
 
 .cc-btn--primary:active {
   transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(27, 122, 90, 0.2);
+  box-shadow: 0 1px 4px var(--color-primary-a20);
 }
 
 /* ============================
    Toast
    ============================ */
-.toast {
+.cdcli-toast {
   position: fixed;
   top: 24px;
   right: 24px;
@@ -380,19 +380,19 @@
   box-shadow: var(--shadow-lg);
 }
 
-.toast--visible { transform: translateX(0); opacity: 1; }
+.cdcli-toast--visible { transform: translateX(0); opacity: 1; }
 
-.toast--success {
+.cdcli-toast--success {
   background: var(--success);
-  color: #fff;
+  color: var(--color-surface);
 }
 
-.toast--error {
+.cdcli-toast--error {
   background: var(--error-text);
-  color: #fff;
+  color: var(--color-surface);
 }
 
-.toast__icon {
+.cdcli-toast__icon {
   display: flex;
   align-items: center;
   justify-content: center;

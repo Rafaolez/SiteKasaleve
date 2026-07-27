@@ -1,13 +1,16 @@
 import { createContext, useState, useEffect } from "react";
+import { api, ApiError } from "../../services/api";
 
 export const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-    // Inicia verificando se já tem token salvo (para não deslogar ao recarregar)
-    const [loggedin, setLoggedin] = useState(true);
-    const [role, setRole] = useState("Vendedora"); // */ 
-    /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
-    const [role, setRole] = useState(() => localStorage.getItem('role') || null); // NOVO: Estado do cargo*/
+    // Começa como "carregando" e confirma com o backend se já existe uma sessão
+    // válida (cookie httpOnly) antes de decidir o estado de login — isso evita
+    // both um "flash" de conteúdo protegido e a necessidade de guardar token no
+    // localStorage (mais seguro contra roubo de token via XSS).
+    const [loggedin, setLoggedin] = useState(false);
+    const [carregandoSessao, setCarregandoSessao] = useState(true);
+    const [role, setRole] = useState(null);
 
     const [id, setId] = useState(null);
     const [error, setError] = useState(null);
@@ -18,6 +21,28 @@ function AuthProvider({ children }) {
     const [IdPegaCliente, setIdPegaCliente] = useState(null);
     const clienteSelecionado = client.find(item => item.id === IdPegaCliente);
 
+    // Ao carregar o app, verifica se já existe uma sessão ativa no backend.
+    useEffect(() => {
+        (async () => {
+            try {
+                const usuario = await api.get('/api/auth/me');
+                aplicarUsuarioLogado(usuario);
+            } catch {
+                // Sem sessão ativa — comportamento normal para quem ainda não logou.
+            } finally {
+                setCarregandoSessao(false);
+            }
+        })();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    function aplicarUsuarioLogado(usuario) {
+        setUser(usuario);
+        setId(usuario.usuarioId);
+        setRole(usuario.cargo || 'Vendedora');
+        setLoggedin(true);
+    }
+
     async function Login(username, password) {
         setError(null);
 
@@ -27,59 +52,36 @@ function AuthProvider({ children }) {
         }
 
         try {
-            const res = await fetch("https://fakestoreapi.com/auth/login", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-            });
-
-            const json = await res.json();
-
-            if (json.token) {
-                localStorage.setItem('token', json.token);
-                setUser(json);
-                setLoggedin(true);
-
-                // ─── LÓGICA FALSA DE CARGO ───
-                // Define o cargo baseado no nome de usuário digitado
-                let assignedRole = "Vendedora"; // Padrão para qualquer usuário desconhecido
-
-                if (username.toLowerCase() === "Programador") {
-                    assignedRole = "Programador";
-                } else if (username.toLowerCase() === "Chefa") {
-                    assignedRole = "Chefa";
-                } else if (username.toLowerCase() === "GerenteVendas") {
-                    assignedRole = "GerenteVendas";
-                } else if (username.toLowerCase() === "Vendedora") {
-                    assignedRole = "Vendedora";
-                }
-
-                setRole(assignedRole);
-                localStorage.setItem('role', assignedRole); // Salva o cargo
-                // ─────────────────────────────
-
-            } else {
-                setError(json.message || 'Email ou senha incorretos.');
-            }
+            // O backend espera "Email" — o campo de usuário do formulário deve
+            // conter o email cadastrado.
+            const usuario = await api.post('/api/auth/login', { email: username, senha: password });
+            aplicarUsuarioLogado(usuario);
         } catch (err) {
-            setError('Erro ao conectar com o servidor.');
+            if (err instanceof ApiError && err.status === 401) {
+                setError('Email ou senha incorretos.');
+            } else {
+                setError('Erro ao conectar com o servidor.');
+            }
         }
     }
 
     // Função de Logout (Boa prática adicionar)
-    function Logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
+    async function Logout() {
+        try {
+            await api.post('/api/auth/logout');
+        } catch {
+            // mesmo se a chamada falhar, limpa o estado local
+        }
         setLoggedin(false);
         setRole(null);
         setUser(null);
+        setId(null);
     }
 
     async function getCliente() {
         try {
-            const res = await fetch('https://fakestoreapi.com/users');
-            const json = await res.json();
-            setCliente(json);
+            const clientes = await api.get('/api/clientes');
+            setCliente(clientes);
         } catch (err) {
             console.error("Erro ao buscar clientes:", err);
         }
@@ -88,6 +90,7 @@ function AuthProvider({ children }) {
     return (
         <AuthContext.Provider value={{
             loggedin,
+            carregandoSessao,
             Login,
             Logout, // Disponibilizando o logout
             error,

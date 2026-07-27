@@ -3,26 +3,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:           #f5f5f0;
-  --surface:      #ffffff;
-  --surface-alt:  #fafaf7;
-  --border:       #e8e8e2;
-  --border-hover: #d0d0c8;
-  --text:         #1a1a1a;
-  --text-muted:   #888880;
-  --text-light:   #b0b0a8;
-  --accent:       #1a1a1a;
-  --accent-hover: #333330;
-  --green:        #2d7d52;
-  --green-bg:     #edf7f2;
-  --red:          #e05c5c;
-  --red-bg:       #fdf0ee;
-  --yellow:       #f0a500;
-  --yellow-bg:    #fff8e6;
-  --blue:         #5b8dee;
-  --blue-bg:      #eff4ff;
-  --purple:       #9b59b6;
-  --purple-bg:    #f5edff;
+  --bg:           var(--color-bg);
+  --surface:      var(--color-surface);
+  --surface-alt:  var(--color-surface-alt);
+  --border:       var(--color-border-light);
+  --border-hover: var(--color-border-strong);
+  --text:         var(--color-text);
+  --text-muted:   var(--gray-500);
+  --text-light:   var(--gray-400);
+  --accent:       var(--color-text);
+  --accent-hover: var(--gray-800);
+  --green:        var(--color-primary);
+  --green-bg:     var(--color-primary-50);
+  --red:          var(--status-red);
+  --red-bg:       var(--color-danger-bg);
+  --yellow:       var(--status-yellow);
+  --yellow-bg:    var(--color-warning-bg);
+  --blue:         var(--status-blue);
+  --blue-bg:      var(--gray-100);
+  --purple:       var(--status-purple);
+  --purple-bg:    var(--gray-100);
   --shadow-sm:    0 1px 4px rgba(0,0,0,0.06);
   --shadow-md:    0 8px 32px rgba(0,0,0,0.10);
   --shadow-lg:    0 20px 60px rgba(0,0,0,0.16);
@@ -258,7 +258,7 @@ html, body {
   transition: all .15s;
 }
 .tk-chip:hover     { background: var(--bg); color: var(--text); }
-.tk-chip--active   { background: var(--accent); color: #fff; }
+.tk-chip--active   { background: var(--accent); color: var(--color-surface); }
 
 /* ════════════════════════════
    BOTÕES
@@ -279,14 +279,14 @@ html, body {
   white-space: nowrap;
 }
 .tk-btn--full    { width: 100%; }
-.tk-btn--primary { background: var(--accent); color: #fff; box-shadow: var(--shadow-sm); }
+.tk-btn--primary { background: var(--accent); color: var(--color-surface); box-shadow: var(--shadow-sm); }
 .tk-btn--primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
 .tk-btn--ghost   { background: none; border: 1px solid var(--border); color: var(--text-muted); }
 .tk-btn--ghost:hover   { border-color: var(--accent); color: var(--accent); }
-.tk-btn--danger  { background: var(--red-bg); color: var(--red); border: 1px solid #f5d0cc; }
-.tk-btn--danger:hover  { background: var(--red); color: #fff; }
-.tk-btn--foco    { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #ffe4a0; font-weight: 600; }
-.tk-btn--foco:hover    { background: var(--yellow); color: #fff; }
+.tk-btn--danger  { background: var(--red-bg); color: var(--red); border: 1px solid var(--color-danger-border); }
+.tk-btn--danger:hover  { background: var(--red); color: var(--color-surface); }
+.tk-btn--foco    { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--status-yellow); font-weight: 600; }
+.tk-btn--foco:hover    { background: var(--yellow); color: var(--color-surface); }
 
 /* ════════════════════════════
    CALENDÁRIO MINI
@@ -350,7 +350,7 @@ html, body {
 }
 .tk-cal-mini__day:hover      { background: var(--border); color: var(--text); }
 .tk-cal-mini__day--hoje      { background: var(--bg); color: var(--accent); font-weight: 700; }
-.tk-cal-mini__day--sel       { background: var(--accent) !important; color: #fff !important; font-weight: 700; }
+.tk-cal-mini__day--sel       { background: var(--accent) !important; color: var(--color-surface) !important; font-weight: 700; }
 .tk-cal-mini__dot {
   width: 4px;
   height: 4px;
@@ -436,7 +436,7 @@ html, body {
 }
 .tk-dia__num--hoje {
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
 }
 .tk-dia__count {
   font-size: 9px;
@@ -538,7 +538,7 @@ html, body {
   gap: 8px;
 }
 .tk-card:hover { box-shadow: var(--shadow-md); transform: translateX(3px); }
-.tk-card--atrasada { background: #fffcf5; }
+.tk-card--atrasada { background: var(--color-accent-light); }
 .tk-card--concluida { opacity: .55; }
 
 .tk-card__top {
@@ -865,7 +865,7 @@ html, body {
 .tk-checklist__add input:focus { border-color: var(--accent); border-style: solid; }
 .tk-checklist__add button {
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
   border: none;
   border-radius: var(--radius-sm);
   padding: 7px 14px;
@@ -912,7 +912,7 @@ html, body {
 .tk-comentarios__add input:focus { border-color: var(--accent); }
 .tk-comentarios__add button {
   background: var(--accent);
-  color: #fff; border: none;
+  color: var(--color-surface); border: none;
   border-radius: var(--radius-sm);
   padding: 8px 14px;
   font-size: 12px;

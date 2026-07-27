@@ -1,0 +1,87 @@
+/* ==========================================================================
+   RESPONSIVE.CSS
+   Utilitários e breakpoints padrão do projeto. Todos os arquivos de página
+   devem usar estes mesmos pontos de quebra:
+
+     >= 480px  -> celular grande      (--bp-sm)
+     >= 768px  -> tablet              (--bp-md)
+     >= 1024px -> notebook/desktop    (--bp-lg)
+     >= 1280px -> desktop grande      (--bp-xl)
+
+   Mobile-first: o CSS de cada página deve escrever o estilo base para
+   telas pequenas e usar min-width para adicionar/ajustar em telas maiores.
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-inline: var(--space-6);
+  }
+}
+
+/* Grade utilitária simples reutilizável nas páginas (listagens, cards) */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .grid-responsive--2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive--3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-responsive--4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Esconder/mostrar por breakpoint */
+.hide-mobile { display: none; }
+@media (min-width: 768px) {
+  .hide-mobile { display: initial; }
+  .hide-desktop { display: none; }
+}
+
+/* Tabelas responsivas: em telas pequenas, vira lista de cards.
+   Basta adicionar esta classe na <table> ou wrapper de tabela das páginas. */
+@media (max-width: 767px) {
+  .table-responsive thead {
+    display: none;
+  }
+  .table-responsive tr {
+    display: block;
+    margin-bottom: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+  .table-responsive td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border: none;
+  }
+  .table-responsive td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+}
+
+/* Tipografia fluida básica para títulos de página */
+.page-title {
+  font-size: var(--fs-lg);
+}
+@media (min-width: 768px) {
+  .page-title { font-size: var(--fs-xl); }
+}
+@media (min-width: 1280px) {
+  .page-title { font-size: var(--fs-xxl); }
+}

@@ -168,12 +168,12 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
   if (!aberto) return null;
 
   return (
-    <div className="modal-overlay" onClick={onFechar}>
+    <div className="orc-modal-overlay" onClick={onFechar}>
       <div className="modal-box" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
+        <div className="orc-modal-header">
           <div>
-            <p className="modal-eyebrow">Kasaleve</p>
-            <h2 className="modal-title">{step === 'grid' ? 'Selecionar Produto' : produtoSel?.nome}</h2>
+            <p className="orc-modal-eyebrow">Kasaleve</p>
+            <h2 className="orc-modal-title">{step === 'grid' ? 'Selecionar Produto' : produtoSel?.nome}</h2>
           </div>
           <button className="modal-close-btn" onClick={onFechar}>✕</button>
         </div>
@@ -200,8 +200,8 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
                 </button>
               ))}
             </div>
-            <div className="modal-grid-wrap">
-              <div className="modal-grid">
+            <div className="orc-modal-grid-wrap">
+              <div className="orc-modal-grid">
                 {produtosFiltrados.map(p => (
                   <ProdutoCard key={p.id} produto={p} onClick={handleProdutoClick} />
                 ))}
@@ -306,7 +306,7 @@ export default function ModalSeletorProduto({ aberto, onFechar, onSelecionar, it
                 </div>
               </div>
 
-              <div className="modal-footer">
+              <div className="orc-modal-footer">
                 <button className="modal-btn-back" onClick={() => setStep('grid')}>← Voltar</button>
                 <button className="modal-btn-confirm" onClick={handleConfirmar} disabled={!varAtual?.preco}>
                   Confirmar Seleção

@@ -3,16 +3,16 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:          #f5f0e8;   /* bege quente do documento */
-  --surface:     #ffffff;
-  --surface-alt: #faf8f4;
-  --border:      #e0d8cc;
-  --text:        #2a2018;
-  --text-muted:  #7a6e60;
-  --text-light:  #b0a898;
-  --accent:      #c05830;   /* laranja-terra da marca */
-  --accent-dark: #9a4020;
-  --green:       #3a5c30;
+  --bg:          var(--color-bg);   /* bege quente do documento */
+  --surface:     var(--color-surface);
+  --surface-alt: var(--color-accent-light);
+  --border:      var(--color-border-strong);
+  --text:        var(--color-text);
+  --text-muted:  var(--gray-500);
+  --text-light:  var(--gray-500);
+  --accent:      var(--color-accent);   /* laranja-terra da marca */
+  --accent-dark: var(--color-accent-dark);
+  --green:       var(--status-green);
   --shadow-sm:   0 1px 4px rgba(0,0,0,0.07);
   --shadow-md:   0 6px 24px rgba(0,0,0,0.10);
   --shadow-lg:   0 16px 48px rgba(0,0,0,0.13);
@@ -83,7 +83,7 @@ html, body {
 /* ── Badge seleção ── */
 .mos-sel-badge {
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
   font-size: 12px;
   font-weight: 600;
   padding: 6px 14px;
@@ -166,7 +166,7 @@ html, body {
   transition: all .18s;
 }
 .mos-tab:hover    { background: var(--bg); color: var(--text); }
-.mos-tab--active  { background: var(--accent); color: #fff; }
+.mos-tab--active  { background: var(--accent); color: var(--color-surface); }
 .mos-tab__count {
   font-size: 10px;
   background: rgba(0,0,0,0.1);
@@ -276,7 +276,7 @@ html, body {
 }
 .mos-card-corda__img {
   height: 140px;
-  background: #f0ede8;
+  background: var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,7 +302,7 @@ html, body {
     transparent 3px,
     rgba(0,0,0,0.1) 3px,
     rgba(0,0,0,0.1) 6px
-  ), var(--color, #999);
+  ), var(--color, var(--gray-400));
 }
 .mos-corda-visual__knot {
   width: 28px;
@@ -349,7 +349,7 @@ html, body {
   right: 8px;
   width: 22px; height: 22px;
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 700;
@@ -514,7 +514,7 @@ html, body {
   right: 8px;
   width: 22px; height: 22px;
   background: var(--accent);
-  color: #fff;
+  color: var(--color-surface);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 700;
@@ -581,7 +581,7 @@ html, body {
   cursor: pointer; padding: 2px 5px;
   border-radius: 4px; transition: all .15s;
 }
-.mos-painel__del:hover { color: var(--accent); background: #fdf0ee; }
+.mos-painel__del:hover { color: var(--accent); background: var(--color-danger-bg); }
 
 /* Empty aside */
 .mos-aside-empty {

@@ -120,10 +120,10 @@ function ModalPersonalizacao({ aberto, onFechar, onConfirmar, selecoes, setSelec
   }
   const listas = { pintura: PINTURA, cordas: CORDAS, tecidos: TECIDOS };
   return (
-    <div className="modal-overlay" onClick={onFechar}>
+    <div className="cart-modal-overlay" onClick={onFechar}>
       <div className="modal-drawer" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <div><p className="modal-eyebrow">Kasaleve</p><h2 className="modal-title">Escolher Cores</h2></div>
+        <div className="cart-modal-header">
+          <div><p className="cart-modal-eyebrow">Kasaleve</p><h2 className="cart-modal-title">Escolher Cores</h2></div>
           <button className="modal-close" onClick={onFechar}>✕</button>
         </div>
         <div className="modal-tabs">
@@ -132,7 +132,7 @@ function ModalPersonalizacao({ aberto, onFechar, onConfirmar, selecoes, setSelec
           ))}
         </div>
         <div className="modal-body">
-          <div className="modal-grid">
+          <div className="cart-modal-grid">
             {listas[aba].map(item => (
               <div key={item.id} className={`modal-chip-pintura ${selecoes[item.cat]?.id === item.id ? 'modal-chip--sel' : ''}`} onClick={() => selecionar(item)}>
                 <div className="modal-chip-pintura__placa" style={{ background: item.hex }}>{selecoes[item.cat]?.id === item.id && '✓'}</div>
@@ -141,7 +141,7 @@ function ModalPersonalizacao({ aberto, onFechar, onConfirmar, selecoes, setSelec
             ))}
           </div>
         </div>
-        <div className="modal-footer">
+        <div className="cart-modal-footer">
           <button className="modal-btn-limpar" onClick={() => setSelecoes({})}>Limpar</button>
           <button className="modal-btn-confirmar" onClick={onConfirmar}>Confirmar Seleção</button>
         </div>
@@ -527,7 +527,7 @@ function Carrinho() {
 
   return (
     <div className="loja-page"><MenuPage /><div className="loja-container">
-      <div className="loja-header"><BTNVolta /><div className="loja-header__text"><p className="eyebrow">Catálogo Kasaleve</p><h1 className="loja-title">{loggedin ? 'Monte seu Pedido' : 'Conheça nossos Produtos'}</h1></div><div className="loja-header__actions">{loggedin && carrinho.length > 0 && (<button className="btn-ver-carrinho" onClick={() => setTela('checkout')}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>Ver Carrinho ({carrinho.length}) →</button>)}</div></div>
+      <div className="loja-header"><BTNVolta /><div className="loja-header__text"><p className="cart-eyebrow">Catálogo Kasaleve</p><h1 className="loja-title">{loggedin ? 'Monte seu Pedido' : 'Conheça nossos Produtos'}</h1></div><div className="loja-header__actions">{loggedin && carrinho.length > 0 && (<button className="btn-ver-carrinho" onClick={() => setTela('checkout')}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" /></svg>Ver Carrinho ({carrinho.length}) →</button>)}</div></div>
       <div className="loja-search"><svg className="loja-search__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg><input type="text" className="loja-search__input" placeholder="Buscar produto..." value={busca} onChange={e => setBusca(e.target.value)} />{busca && <button className="loja-search__clear" onClick={() => setBusca('')}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>}</div>
       <div className="loja-filtros"><div className="loja-filtros__scroll">{categorias.map(c => (<button key={c.nome} className={`loja-filtro-btn ${filtroAtivo === c.nome ? 'loja-filtro-btn--active' : ''}`} onClick={() => setFiltroAtivo(c.nome)}>{c.nome !== 'Todos' && <span className="loja-filtro-btn__icon">{iconesCategoria[c.nome] || '📦'}</span>}<span className="loja-filtro-btn__label">{c.nome}</span><span className="loja-filtro-btn__count">{c.count}</span></button>))}</div></div>
       <div className="loja-resultados"><span>{produtosFiltrados.length} {produtosFiltrados.length === 1 ? 'produto encontrado' : 'produtos encontrados'}</span>{(filtroAtivo !== 'Todos' || busca) && <button className="loja-resultados__clear" onClick={() => { setFiltroAtivo('Todos'); setBusca(''); }}>Limpar filtros<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button>}</div>

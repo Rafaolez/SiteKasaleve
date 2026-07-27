@@ -95,7 +95,7 @@ function Login() {
           {BG_IMAGES.map((_, index) => (
             <span 
               key={index} 
-              className={`login-carousel__dot ${currentBg === index ? 'active' : ''}`}
+              className={`login-carousel__dot ${currentBg === index ? 'login-active' : ''}`}
               onClick={() => setCurrentBg(index)}
             />
           ))}

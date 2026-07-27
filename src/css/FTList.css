@@ -38,7 +38,7 @@
 .CXFT {
     height: 20rem;
     width: 20rem;
-    background-color: #cfcfcf;
+    background-color: var(--color-border-strong);
     border-radius: 2rem;
     margin-top: 2rem;
 }
