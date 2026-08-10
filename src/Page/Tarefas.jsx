@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import '../css/Tarefas.css';
 import BTNVolta from "../components/BTNVolta";
 import MenuPage from "../components/MenuPage";
+import MenuDeLado from '../components/MenuDeLado';
 
 // ─── constantes ──────────────────────────────────────────
 const HOJE = new Date();

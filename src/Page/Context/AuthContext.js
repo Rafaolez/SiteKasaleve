@@ -8,8 +8,13 @@ function AuthProvider({ children }) {
     // válida (cookie httpOnly) antes de decidir o estado de login — isso evita
     // both um "flash" de conteúdo protegido e a necessidade de guardar token no
     // localStorage (mais seguro contra roubo de token via XSS).
-    const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
-    const [role, setRole] = useState(() => localStorage.getItem('role') || null);
+   
+   
+    /*const [loggedin, setLoggedin] = useState(() => !!localStorage.getItem('token'));
+    const [role, setRole] = useState(() => localStorage.getItem('role') || null);//Quando tiver a API, somente par isso*/
+
+    const [loggedin, setLoggedin] = useState(true);
+    const [role, setRole] = useState("Programador"); // quando não estiver fincionando*/
 
     const [carregandoSessao, setCarregandoSessao] = useState(true);
 

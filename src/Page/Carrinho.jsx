@@ -6,81 +6,83 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from './Context/AuthContext';
 import ProdutosAPILocal from '../assets/ProdutosAPILocal';
 
+
+
 // ─── DADOS DE CORES — KASALEVE MOSTRUÁRIO ────────────────────────────────────
 
 // PINTURA ELETROSTÁTICA (Paleta Vol. II)
 const PINTURA = [
-  { id: 'p1',  nome: 'Fendi',        hex: '#8a7a58', cat: 'pintura' },
-  { id: 'p2',  nome: 'Marrom',       hex: '#6b3a2a', cat: 'pintura' },
-  { id: 'p3',  nome: 'Verde Olivia', hex: '#5a6040', cat: 'pintura' },
-  { id: 'p4',  nome: 'Verde Musgo',  hex: '#3d5238', cat: 'pintura' },
-  { id: 'p5',  nome: 'Off White',    hex: '#e8e4d8', cat: 'pintura' },
-  { id: 'p6',  nome: 'Cinza',        hex: '#6e6e6e', cat: 'pintura' },
-  { id: 'p7',  nome: 'Preto',        hex: '#1a1a1a', cat: 'pintura' },
-  { id: 'p8',  nome: 'Bege',         hex: '#c2a97e', cat: 'pintura' },
-  { id: 'p9',  nome: 'Terra Cota',   hex: '#b84c2b', cat: 'pintura' },
+  { id: 'p1', nome: 'Fendi', hex: '#8a7a58', cat: 'pintura' },
+  { id: 'p2', nome: 'Marrom', hex: '#6b3a2a', cat: 'pintura' },
+  { id: 'p3', nome: 'Verde Olivia', hex: '#5a6040', cat: 'pintura' },
+  { id: 'p4', nome: 'Verde Musgo', hex: '#3d5238', cat: 'pintura' },
+  { id: 'p5', nome: 'Off White', hex: '#e8e4d8', cat: 'pintura' },
+  { id: 'p6', nome: 'Cinza', hex: '#6e6e6e', cat: 'pintura' },
+  { id: 'p7', nome: 'Preto', hex: '#1a1a1a', cat: 'pintura' },
+  { id: 'p8', nome: 'Bege', hex: '#c2a97e', cat: 'pintura' },
+  { id: 'p9', nome: 'Terra Cota', hex: '#b84c2b', cat: 'pintura' },
 ];
 
 // CORDAS ARTESANAIS (Paleta Vol. I — cor do botão)
 const CORDAS = [
-  { id: 'c01', nome: 'Verde Musgo',        codigo: '#70292', hex: '#4a5e3a', cat: 'corda' },
-  { id: 'c02', nome: 'Azul Marinho',       codigo: '#70581', hex: '#1e2f5a', cat: 'corda' },
-  { id: 'c03', nome: 'Mescla Areia',       codigo: '#84202', hex: '#c8b89a', cat: 'corda' },
-  { id: 'c04', nome: 'Cinza',              codigo: '#70276', hex: '#7a8080', cat: 'corda' },
-  { id: 'c05', nome: 'Atenas',             codigo: '#93278', hex: '#d4a017', cat: 'corda' },
-  { id: 'c06', nome: 'Ocre',               codigo: '#82354', hex: '#c05a20', cat: 'corda' },
-  { id: 'c07', nome: 'Preto',              codigo: '#70268', hex: '#1a1a1a', cat: 'corda' },
-  { id: 'c08', nome: 'Mescla Marrom',      codigo: '#76554', hex: '#b0a090', cat: 'corda' },
-  { id: 'c09', nome: 'Mescla Duna',        codigo: '#95562', hex: '#c8baa8', cat: 'corda' },
-  { id: 'c10', nome: 'Vinho',              codigo: '#70300', hex: '#7a2a38', cat: 'corda' },
-  { id: 'c11', nome: 'Dark Brown',         codigo: '#8804-7', hex: '#3a2010', cat: 'corda' },
-  { id: 'c12', nome: 'Verde Olivia',       codigo: '#83782', hex: '#6b7045', cat: 'corda' },
-  { id: 'c13', nome: 'Pessego',            codigo: '#90035', hex: '#e08050', cat: 'corda' },
-  { id: 'c14', nome: 'Marrom',             codigo: '#70284', hex: '#6b3a20', cat: 'corda' },
-  { id: 'c15', nome: 'Dourada',            codigo: '#73023', hex: '#c8a040', cat: 'corda' },
-  { id: 'c16', nome: 'Bronze',             codigo: '#76125', hex: '#a07030', cat: 'corda' },
-  { id: 'c17', nome: 'Mescla Bronze',      codigo: '#76588', hex: '#b09070', cat: 'corda' },
-  { id: 'c18', nome: 'Rami',               codigo: '#70318', hex: '#d4c8a8', cat: 'corda' },
-  { id: 'c19', nome: 'Mescla Amarelo',     codigo: '#C3A485', hex: '#c8a040', cat: 'corda' },
-  { id: 'c20', nome: 'Mescla Azul',        codigo: '#C3A485', hex: '#4a6080', cat: 'corda' },
-  { id: 'c21', nome: 'Mescla Preto',       codigo: '#C3A485', hex: '#404040', cat: 'corda' },
+  { id: 'c01', nome: 'Verde Musgo', codigo: '#70292', hex: '#4a5e3a', cat: 'corda' },
+  { id: 'c02', nome: 'Azul Marinho', codigo: '#70581', hex: '#1e2f5a', cat: 'corda' },
+  { id: 'c03', nome: 'Mescla Areia', codigo: '#84202', hex: '#c8b89a', cat: 'corda' },
+  { id: 'c04', nome: 'Cinza', codigo: '#70276', hex: '#7a8080', cat: 'corda' },
+  { id: 'c05', nome: 'Atenas', codigo: '#93278', hex: '#d4a017', cat: 'corda' },
+  { id: 'c06', nome: 'Ocre', codigo: '#82354', hex: '#c05a20', cat: 'corda' },
+  { id: 'c07', nome: 'Preto', codigo: '#70268', hex: '#1a1a1a', cat: 'corda' },
+  { id: 'c08', nome: 'Mescla Marrom', codigo: '#76554', hex: '#b0a090', cat: 'corda' },
+  { id: 'c09', nome: 'Mescla Duna', codigo: '#95562', hex: '#c8baa8', cat: 'corda' },
+  { id: 'c10', nome: 'Vinho', codigo: '#70300', hex: '#7a2a38', cat: 'corda' },
+  { id: 'c11', nome: 'Dark Brown', codigo: '#8804-7', hex: '#3a2010', cat: 'corda' },
+  { id: 'c12', nome: 'Verde Olivia', codigo: '#83782', hex: '#6b7045', cat: 'corda' },
+  { id: 'c13', nome: 'Pessego', codigo: '#90035', hex: '#e08050', cat: 'corda' },
+  { id: 'c14', nome: 'Marrom', codigo: '#70284', hex: '#6b3a20', cat: 'corda' },
+  { id: 'c15', nome: 'Dourada', codigo: '#73023', hex: '#c8a040', cat: 'corda' },
+  { id: 'c16', nome: 'Bronze', codigo: '#76125', hex: '#a07030', cat: 'corda' },
+  { id: 'c17', nome: 'Mescla Bronze', codigo: '#76588', hex: '#b09070', cat: 'corda' },
+  { id: 'c18', nome: 'Rami', codigo: '#70318', hex: '#d4c8a8', cat: 'corda' },
+  { id: 'c19', nome: 'Mescla Amarelo', codigo: '#C3A485', hex: '#c8a040', cat: 'corda' },
+  { id: 'c20', nome: 'Mescla Azul', codigo: '#C3A485', hex: '#4a6080', cat: 'corda' },
+  { id: 'c21', nome: 'Mescla Preto', codigo: '#C3A485', hex: '#404040', cat: 'corda' },
   { id: 'c22', nome: 'Mescla Verde Turquesa', codigo: '#C3A485', hex: '#407060', cat: 'corda' },
 ];
 
 // TECIDOS (Karsten Aquablock + Fiama Aquatec + Courino/York)
 const TECIDOS = [
   // Karsten Aquablock (Rdz)
-  { id: 't01', nome: 'Natural/Bege Claro', codigo: 'Rdz: 134480', fabricante: 'Karsten',  hex: '#c8b890', cat: 'tecido' },
-  { id: 't02', nome: 'Verde Escuro',       codigo: 'Rdz: 2357',   fabricante: 'Karsten',  hex: '#3a5028', cat: 'tecido' },
-  { id: 't03', nome: 'Areia/Caramelo',     codigo: 'Rdz: 174291', fabricante: 'Karsten',  hex: '#b09060', cat: 'tecido' },
-  { id: 't04', nome: 'Azul Marinho',       codigo: 'Rdz: 150694', fabricante: 'Karsten',  hex: '#1e2f5a', cat: 'tecido' },
-  { id: 't05', nome: 'Cinza Escuro',       codigo: 'Rdz: 173590', fabricante: 'Karsten',  hex: '#606060', cat: 'tecido' },
-  { id: 't06', nome: 'Cinza Médio',        codigo: 'Rdz: 140738', fabricante: 'Karsten',  hex: '#909090', cat: 'tecido' },
-  { id: 't07', nome: 'Off White',          codigo: 'Rdz: 158580', fabricante: 'Karsten',  hex: '#e0ddd0', cat: 'tecido' },
-  { id: 't08', nome: 'Preto',              codigo: 'Rdz: 139990', fabricante: 'Karsten',  hex: '#202020', cat: 'tecido' },
-  { id: 't09', nome: 'Bege/Caramelo',      codigo: 'Rdz: 110186', fabricante: 'Karsten',  hex: '#c0a070', cat: 'tecido' },
-  { id: 't10', nome: 'Cinza Claro',        codigo: 'Rdz: 116085', fabricante: 'Karsten',  hex: '#b8b8b8', cat: 'tecido' },
-  { id: 't11', nome: 'Marrom Escuro',      codigo: 'Rdz: 4311',   fabricante: 'Karsten',  hex: '#6b4030', cat: 'tecido' },
-  { id: 't12', nome: 'Bege Claro',         codigo: 'Rdz: 91887',  fabricante: 'Karsten',  hex: '#d0c0a0', cat: 'tecido' },
-  { id: 't13', nome: 'Marrom Mesclado',    codigo: 'Rdz: 4314',   fabricante: 'Karsten',  hex: '#786050', cat: 'tecido' },
-  { id: 't14', nome: 'Bege Mesclado',      codigo: 'Rdz: 91888',  fabricante: 'Karsten',  hex: '#c8b898', cat: 'tecido' },
+  { id: 't01', nome: 'Natural/Bege Claro', codigo: 'Rdz: 134480', fabricante: 'Karsten', hex: '#c8b890', cat: 'tecido' },
+  { id: 't02', nome: 'Verde Escuro', codigo: 'Rdz: 2357', fabricante: 'Karsten', hex: '#3a5028', cat: 'tecido' },
+  { id: 't03', nome: 'Areia/Caramelo', codigo: 'Rdz: 174291', fabricante: 'Karsten', hex: '#b09060', cat: 'tecido' },
+  { id: 't04', nome: 'Azul Marinho', codigo: 'Rdz: 150694', fabricante: 'Karsten', hex: '#1e2f5a', cat: 'tecido' },
+  { id: 't05', nome: 'Cinza Escuro', codigo: 'Rdz: 173590', fabricante: 'Karsten', hex: '#606060', cat: 'tecido' },
+  { id: 't06', nome: 'Cinza Médio', codigo: 'Rdz: 140738', fabricante: 'Karsten', hex: '#909090', cat: 'tecido' },
+  { id: 't07', nome: 'Off White', codigo: 'Rdz: 158580', fabricante: 'Karsten', hex: '#e0ddd0', cat: 'tecido' },
+  { id: 't08', nome: 'Preto', codigo: 'Rdz: 139990', fabricante: 'Karsten', hex: '#202020', cat: 'tecido' },
+  { id: 't09', nome: 'Bege/Caramelo', codigo: 'Rdz: 110186', fabricante: 'Karsten', hex: '#c0a070', cat: 'tecido' },
+  { id: 't10', nome: 'Cinza Claro', codigo: 'Rdz: 116085', fabricante: 'Karsten', hex: '#b8b8b8', cat: 'tecido' },
+  { id: 't11', nome: 'Marrom Escuro', codigo: 'Rdz: 4311', fabricante: 'Karsten', hex: '#6b4030', cat: 'tecido' },
+  { id: 't12', nome: 'Bege Claro', codigo: 'Rdz: 91887', fabricante: 'Karsten', hex: '#d0c0a0', cat: 'tecido' },
+  { id: 't13', nome: 'Marrom Mesclado', codigo: 'Rdz: 4314', fabricante: 'Karsten', hex: '#786050', cat: 'tecido' },
+  { id: 't14', nome: 'Bege Mesclado', codigo: 'Rdz: 91888', fabricante: 'Karsten', hex: '#c8b898', cat: 'tecido' },
   // Fiama Aquatec
-  { id: 't15', nome: 'Preto Escuro',       codigo: 'Rdz: 93427',  fabricante: 'Fiama',    hex: '#2a2010', cat: 'tecido' },
-  { id: 't16', nome: 'Verde Oliva',        codigo: 'Rdz: 203876', fabricante: 'Fiama',    hex: '#607030', cat: 'tecido' },
-  { id: 't17', nome: 'Natural',            codigo: 'Cor: 34',     fabricante: 'Fiama',    hex: '#c8b890', cat: 'tecido' },
-  { id: 't18', nome: 'Terra Cota',         codigo: 'Cor: 42',     fabricante: 'Fiama',    hex: '#b84028', cat: 'tecido' },
-  { id: 't19', nome: 'Marrom',             codigo: 'Cor: 14',     fabricante: 'Fiama',    hex: '#7a5030', cat: 'tecido' },
-  { id: 't20', nome: 'Azul Naval',         codigo: 'Cor: 18',     fabricante: 'Fiama',    hex: '#2a3858', cat: 'tecido' },
-  { id: 't21', nome: 'Off White',          codigo: 'Cor: 09',     fabricante: 'Fiama',    hex: '#dcd8c8', cat: 'tecido' },
-  { id: 't22', nome: 'Cinza Claro',        codigo: 'Rozac',       fabricante: 'Fiama',    hex: '#c0c0b8', cat: 'tecido' },
-  { id: 't23', nome: 'Marrom Médio',       codigo: 'Cor: 39',     fabricante: 'Fiama',    hex: '#806040', cat: 'tecido' },
-  { id: 't24', nome: 'Cinza Grafite',      codigo: 'Cor: 07',     fabricante: 'Fiama',    hex: '#484848', cat: 'tecido' },
-  { id: 't25', nome: 'Verde Musgo',        codigo: 'Cor: 47',     fabricante: 'Fiama',    hex: '#506030', cat: 'tecido' },
+  { id: 't15', nome: 'Preto Escuro', codigo: 'Rdz: 93427', fabricante: 'Fiama', hex: '#2a2010', cat: 'tecido' },
+  { id: 't16', nome: 'Verde Oliva', codigo: 'Rdz: 203876', fabricante: 'Fiama', hex: '#607030', cat: 'tecido' },
+  { id: 't17', nome: 'Natural', codigo: 'Cor: 34', fabricante: 'Fiama', hex: '#c8b890', cat: 'tecido' },
+  { id: 't18', nome: 'Terra Cota', codigo: 'Cor: 42', fabricante: 'Fiama', hex: '#b84028', cat: 'tecido' },
+  { id: 't19', nome: 'Marrom', codigo: 'Cor: 14', fabricante: 'Fiama', hex: '#7a5030', cat: 'tecido' },
+  { id: 't20', nome: 'Azul Naval', codigo: 'Cor: 18', fabricante: 'Fiama', hex: '#2a3858', cat: 'tecido' },
+  { id: 't21', nome: 'Off White', codigo: 'Cor: 09', fabricante: 'Fiama', hex: '#dcd8c8', cat: 'tecido' },
+  { id: 't22', nome: 'Cinza Claro', codigo: 'Rozac', fabricante: 'Fiama', hex: '#c0c0b8', cat: 'tecido' },
+  { id: 't23', nome: 'Marrom Médio', codigo: 'Cor: 39', fabricante: 'Fiama', hex: '#806040', cat: 'tecido' },
+  { id: 't24', nome: 'Cinza Grafite', codigo: 'Cor: 07', fabricante: 'Fiama', hex: '#484848', cat: 'tecido' },
+  { id: 't25', nome: 'Verde Musgo', codigo: 'Cor: 47', fabricante: 'Fiama', hex: '#506030', cat: 'tecido' },
   // Courino (York)
-  { id: 't26', nome: 'Couro Grafite',      codigo: 'Courino',     fabricante: 'York',     hex: '#2a2a2a', cat: 'tecido' },
-  { id: 't27', nome: 'Couro Cobre',        codigo: 'Courino',     fabricante: 'York',     hex: '#7a3018', cat: 'tecido' },
-  { id: 't28', nome: 'Couro Marrom',       codigo: 'Courino',     fabricante: 'York',     hex: '#5a3020', cat: 'tecido' },
-  { id: 't29', nome: 'Couro Bege Claro',   codigo: 'Courino',     fabricante: 'York',     hex: '#c8a878', cat: 'tecido' },
+  { id: 't26', nome: 'Couro Grafite', codigo: 'Courino', fabricante: 'York', hex: '#2a2a2a', cat: 'tecido' },
+  { id: 't27', nome: 'Couro Cobre', codigo: 'Courino', fabricante: 'York', hex: '#7a3018', cat: 'tecido' },
+  { id: 't28', nome: 'Couro Marrom', codigo: 'Courino', fabricante: 'York', hex: '#5a3020', cat: 'tecido' },
+  { id: 't29', nome: 'Couro Bege Claro', codigo: 'Courino', fabricante: 'York', hex: '#c8a878', cat: 'tecido' },
 ];
 
 // ─── CONSTANTES DE MESA ───────────────────────────────────────────────────────
@@ -504,7 +506,21 @@ function Carrinho() {
   const produtos = ProdutosAPILocal;
   const [tela, setTela] = useState('lista');
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
-  const [carrinho, setCarrinho] = useState([]);
+
+  const [carrinho, setCarrinho] = useState(() => {
+    try {
+      const carrinhoSalvo = localStorage.getItem('kasaleve_carrinho');
+      return carrinhoSalvo ? JSON.parse(carrinhoSalvo) : [];
+    } catch (e) {
+      console.error("Erro ao ler carrinho:", e);
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('kasaleve_carrinho', JSON.stringify(carrinho));
+  }, [carrinho]);
+
   const [filtroAtivo, setFiltroAtivo] = useState('Todos');
   const [busca, setBusca] = useState('');
   const navigate = useNavigate();

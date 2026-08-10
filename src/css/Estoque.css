@@ -1,0 +1,357 @@
+/* ==========================================================================
+   ESTOQUE.CSS - Estilo específico da página de Estoque
+   ========================================================================== */
+
+.estoque-container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-4);
+    padding-block: var(--space-6);
+}
+
+/* CORREÇÃO PRINCIPAL: Empurra o conteúdo no desktop para não ficar embaixo do menu lateral */
+@media (min-width: 768px) {
+    .estoque-container {
+        padding-left: 280px; /* 260px do menu + 20px de respiro */
+        padding-right: var(--space-6);
+    }
+}
+
+/* ---------- Cards de Visores (Topo) ---------- */
+.cards-dashboard {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Celulares grandes: 2 colunas */
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.card-visores {
+    background: var(--color-surface);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border-light);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-visores.clicavel,
+.card-visores.alerta {
+    cursor: pointer;
+}
+
+.card-visores.clicavel:hover,
+.card-visores.alerta:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.card-titulo {
+    font-family: var(--font-body);
+    font-size: var(--fs-sm);
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.card-valor {
+    font-family: var(--font-heading);
+    font-size: var(--fs-xl);
+    font-weight: 700;
+    color: var(--color-primary-900);
+}
+
+.card-visores.alerta .card-valor {
+    color: var(--color-accent);
+}
+
+.card-acao-texto {
+    font-size: var(--fs-xs);
+    color: var(--color-primary);
+    text-decoration: underline;
+    margin-top: var(--space-1);
+}
+
+/* ---------- Layout Principal (Tabela + Ações) ---------- */
+.estoque-conteudo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+}
+
+.tabela-container {
+    background: var(--color-surface);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border-light);
+    overflow: hidden;
+}
+
+.tabela-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.tabela-cabecalho h2 {
+    font-size: var(--fs-lg);
+    color: var(--color-text);
+    margin: 0;
+}
+
+.input-busca {
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface-alt);
+    outline: none;
+    min-width: 150px;
+}
+
+.input-busca:focus {
+    border-color: var(--color-primary-300);
+    background: var(--color-surface);
+}
+
+/* Wrapper de rolagem - previne o "corte" da tabela em telas menores */
+.tabela-scroll {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Estilos da Tabela (Aplicados apenas no Desktop) */
+@media (min-width: 768px) {
+    .estoque-tabela {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px; /* Reduzido para caber melhor em notebooks */
+    }
+
+    .estoque-tabela thead {
+        background: var(--color-primary-50);
+    }
+
+    .estoque-tabela th {
+        text-align: left;
+        color: var(--color-primary-900);
+        font-size: var(--fs-sm);
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 2px solid var(--color-primary-100);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .estoque-tabela td {
+        padding: var(--space-4);
+        border-bottom: 1px solid var(--color-border-light);
+        color: var(--color-text);
+        font-size: var(--fs-sm);
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .estoque-tabela tbody tr:hover {
+        background: var(--color-surface-alt);
+    }
+}
+
+.estoque-tabela .produto-nome {
+    font-weight: 600;
+    color: var(--gray-900);
+}
+
+.estoque-tabela .texto-suave {
+    color: var(--color-text-muted);
+    font-size: var(--fs-xs);
+}
+
+/* Badges de Status */
+.status-etiqueta {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.status-etiqueta.disponível { background: var(--status-green-bg); color: var(--status-green); }
+.status-etiqueta.estoque-baixo { background: var(--status-orange-bg); color: var(--status-orange); }
+.status-etiqueta.sem-estoque { background: var(--status-red-bg); color: var(--status-red); }
+
+/* Botões de Ação dentro da Tabela */
+.acoes-botoes-tabela {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.btn-acao-tabela {
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    color: var(--gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-acao-tabela:hover {
+    background: var(--color-surface);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.btn-acao-tabela.excluir:hover {
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+/* ---------- Ações Rápidas (Lateral Direita) ---------- */
+.acoes-rapidas {
+    background: var(--color-surface);
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border-light);
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.acoes-rapidas h3 {
+    font-size: var(--fs-md);
+    margin-bottom: var(--space-2);
+    color: var(--color-primary-900);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.btn-acao {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    transition: all 0.2s;
+}
+
+.btn-acao:hover {
+    background: var(--color-primary-100);
+    border-color: var(--color-primary-300);
+    color: var(--color-primary-900);
+}
+
+.btn-acao.primario {
+    background: var(--color-primary);
+    color: var(--color-text-on-primary);
+    border-color: var(--color-primary);
+}
+
+.btn-acao.primario:hover {
+    background: var(--color-primary-700);
+    border-color: var(--color-primary-700);
+}
+
+/* ---------- Modais ---------- */
+.modal-fundo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--shadow-overlay);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: var(--space-4);
+}
+
+.modal-conteudo {
+    background: var(--color-surface);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-conteudo h2 {
+    font-size: var(--fs-lg);
+    color: var(--color-primary-900);
+    margin-bottom: var(--space-4);
+}
+
+.lista-modal {
+    margin-bottom: var(--space-5);
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.lista-modal li {
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--color-border-light);
+    color: var(--color-text);
+}
+
+.btn-fechar {
+    background: var(--color-primary);
+    color: var(--color-text-on-primary);
+    border: none;
+    padding: var(--space-3) var(--space-5);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    width: 100%;
+}
+
+/* ==========================================================================
+   RESPONSIVIDADE
+   ========================================================================== */
+
+/* Celulares pequenos: 1 coluna para os cards */
+@media (max-width: 480px) {
+    .cards-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Telas grandes (Desktops/Notebooks): 4 cards e layout lado a lado */
+@media (min-width: 1024px) {
+    .cards-dashboard {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .estoque-conteudo {
+        /* A tabela agora ocupa 3/4 da tela e os botões 1/4 */
+        grid-template-columns: minmax(0, 3fr) minmax(0, 1fr); 
+    }
+}
+
+/* Telas GIGANTES (Monitores de 24 polegadas para cima / 45cm+) */
+@media (min-width: 1440px) {
+    .estoque-container {
+        max-width: 1600px; /* Permite a página crescer mais em monitores grandes */
+    }
+
+    .estoque-conteudo {
+        /* A tabela ocupa 4/5 da tela, deixando ela bem gigante e os botões compactos */
+        grid-template-columns: minmax(0, 4fr) minmax(0, 1fr); 
+    }
+}

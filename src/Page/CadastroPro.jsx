@@ -1,7 +1,7 @@
 import '../css/CadastroPro.css';
 import React, { useContext, useEffect, useState } from 'react';
-import BTNVolta from '../components/BTNVolta';
 import MenuPage from '../components/MenuPage';
+import MenuDeLado from '../components/MenuDeLado';
 import { AuthContext } from "./Context/AuthContext";
 
 function StatusBadge({ label, type = 'default' }) {
@@ -24,7 +24,7 @@ function SkeletonRow() {
 }
 
 function CradastroPro() {
-    const { loggedin } = useContext(AuthContext);
+    const { loggedin, role } = useContext(AuthContext);
     const [produto, setProduto] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -47,10 +47,26 @@ function CradastroPro() {
         return (
             <div className="cpro-detail-page">
                 <MenuPage />
+                <MenuDeLado />
                 <div className="detail-empty">
                     <span>🔒</span>
                     <p>Você precisa estar logado para acessar esta página.</p>
-                    <BTNVolta />
+                </div>
+            </div>
+        );
+    }
+
+    const cargosPermitidos = ['Programador', 'Chefa', 'GerenteVendas'];
+    const roleFormatado = (role || '').toLowerCase().trim();
+    const cargosFormatados = cargosPermitidos.map(cargo => cargo.toLowerCase().trim());
+
+    if (!cargosFormatados.includes(roleFormatado)) {
+        return (
+            <div className="cpro-detail-page">
+                <MenuPage />
+                <MenuDeLado />
+                <div className="detail-empty">
+                    <p>Acesso Restrito. Você não tem permissão para visualizar esta página.</p>
                 </div>
             </div>
         );
@@ -61,132 +77,133 @@ function CradastroPro() {
         p.category.toLowerCase().includes(search.toLowerCase())
     );
 
-    return (<><MenuPage />
-        <div className="cpro-detail-page">
+    return (
+        <>
+            <MenuPage />
+            <MenuDeLado />
+            <div className="cpro-detail-page">
+                <div className="products-container">
 
-            <div className="products-container">
-
-                {/* ── Header ── */}
-                <div className="page__header">
-                    <div className="page__header-left">
-                        <BTNVolta />
-                        <div className="page__title-group">
-                            <p className="page__eyebrow">Gestão de Produtos</p>
-                            <h1 className="page__title">Produtos</h1>
-                        </div>
-                    </div>
-                    <button className="btn-primary">+ Novo Produto</button>
-                </div>
-
-                {/* ── Stats ── */}
-                <div className="cpro-stats-row">
-                    <div className="stat-card">
-                        <span className="stat-card__icon">📦</span>
-                        <div>
-                            <p className="stat-card__label">Total</p>
-                            <p className="stat-card__value">{produto.length}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <span className="stat-card__icon">🏷️</span>
-                        <div>
-                            <p className="stat-card__label">Categorias</p>
-                            <p className="stat-card__value">{[...new Set(produto.map(p => p.category))].length}</p>
-                        </div>
-                    </div>
-                    <div className="stat-card">
-                        <span className="stat-card__icon">✅</span>
-                        <div>
-                            <p className="stat-card__label">Ativos</p>
-                            <p className="stat-card__value">{produto.length}</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* ── Search ── */}
-                <div className="cpro-toolbar">
-                    <div className="search-box">
-                        <span className="search-box__icon">🔍</span>
-                        <input
-                            className="search-box__input"
-                            type="text"
-                            placeholder="Buscar por nome ou categoria…"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                {/* ── Table ── */}
-                <div className="table-wrap">
-                    <div className="cpro-table-head products-grid">
-                        <span>Produto</span>
-                        <span>Preço</span>
-                        <span>Descrição</span>
-                        <span>Categoria</span>
-                        <span>Ações</span>
-                    </div>
-
-                    {loading ? (
-                        Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-                    ) : filtered.length === 0 ? (
-                        <div className="table-empty">
-                            <span>◎</span>
-                            <p>Nenhum produto encontrado</p>
-                        </div>
-                    ) : (
-                        filtered.map((item, i) => (
-                            <div
-                                className="cpro-table-row products-grid"
-                                key={item.id}
-                                style={{ animationDelay: `${i * 0.03}s` }}
-                            >
-                                {/* Produto */}
-                                <div className="table-row__name">
-                                    <div className="product-img-wrap">
-                                        <img
-                                            src={item.image}
-                                            alt={item.title}
-                                            className="product-img"
-                                            loading="lazy"
-                                        />
-                                    </div>
-                                    <div>
-                                        <p className="table-row__fullname">{item.title}</p>
-                                        <p className="table-row__id">#{item.id}</p>
-                                    </div>
-                                </div>
-
-                                {/* Preço */}
-                                <div className="product-price">
-                                    R$ {item.price.toFixed(2)}
-                                </div>
-
-                                {/* Descrição */}
-                                <div className="product-desc">
-                                    {item.description}
-                                </div>
-
-                                {/* Categoria */}
-                                <div>
-                                    <StatusBadge label={item.category} type="blue" />
-                                </div>
-
-                                {/* Ações */}
-                                <div className="table-row__actions">
-                                    <button className="btn-action btn-action--detail">👁 Detalhes</button>
-                                    <button className="btn-action btn-action--edit">✏️ Editar</button>
-                                    <button className="btn-action btn-action--delete">🗑</button>
-                                </div>
+                    {/* ── Header ── */}
+                    <div className="page__header">
+                        <div className="page__header-left">
+                            <div className="page__title-group">
+                                <p className="page__eyebrow">Gestão de Produtos</p>
+                                <h1 className="page__title">Produtos</h1>
                             </div>
-                        ))
-                    )}
-                </div>
+                        </div>
+                        <button className="btn-primary">+ Novo Produto</button>
+                    </div>
 
-                <p className="table-count">{filtered.length} de {produto.length} produtos</p>
+                    {/* ── Stats ── */}
+                    <div className="cpro-stats-row">
+                        <div className="stat-card">
+                            <span className="stat-card__icon">📦</span>
+                            <div>
+                                <p className="stat-card__label">Total</p>
+                                <p className="stat-card__value">{produto.length}</p>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <span className="stat-card__icon">🏷️</span>
+                            <div>
+                                <p className="stat-card__label">Categorias</p>
+                                <p className="stat-card__value">{[...new Set(produto.map(p => p.category))].length}</p>
+                            </div>
+                        </div>
+                        <div className="stat-card">
+                            <span className="stat-card__icon">✅</span>
+                            <div>
+                                <p className="stat-card__label">Ativos</p>
+                                <p className="stat-card__value">{produto.length}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ── Search ── */}
+                    <div className="cpro-toolbar">
+                        <div className="search-box">
+                            <span className="search-box__icon">🔍</span>
+                            <input
+                                className="search-box__input"
+                                type="text"
+                                placeholder="Buscar por nome ou categoria…"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* ── Table ── */}
+                    <div className="table-wrap">
+                        <div className="cpro-table-head products-grid">
+                            <span>Produto</span>
+                            <span>Preço</span>
+                            <span>Descrição</span>
+                            <span>Categoria</span>
+                            <span>Ações</span>
+                        </div>
+
+                        {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+                        ) : filtered.length === 0 ? (
+                            <div className="table-empty">
+                                <span>◎</span>
+                                <p>Nenhum produto encontrado</p>
+                            </div>
+                        ) : (
+                            filtered.map((item, i) => (
+                                <div
+                                    className="cpro-table-row products-grid"
+                                    key={item.id}
+                                    style={{ animationDelay: `${i * 0.03}s` }}
+                                >
+                                    {/* Produto */}
+                                    <div className="table-row__name">
+                                        <div className="product-img-wrap">
+                                            <img
+                                                src={item.image}
+                                                alt={item.title}
+                                                className="product-img"
+                                                loading="lazy"
+                                            />
+                                        </div>
+                                        <div>
+                                            <p className="table-row__fullname">{item.title}</p>
+                                            <p className="table-row__id">#{item.id}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Preço */}
+                                    <div className="product-price">
+                                        R$ {item.price.toFixed(2)}
+                                    </div>
+
+                                    {/* Descrição */}
+                                    <div className="product-desc">
+                                        {item.description}
+                                    </div>
+
+                                    {/* Categoria */}
+                                    <div>
+                                        <StatusBadge label={item.category} type="blue" />
+                                    </div>
+
+                                    {/* Ações */}
+                                    <div className="table-row__actions">
+                                        <button className="btn-action btn-action--detail">👁 Detalhes</button>
+                                        <button className="btn-action btn-action--edit">✏️ Editar</button>
+                                        <button className="btn-action btn-action--delete">🗑</button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    <p className="table-count">{filtered.length} de {produto.length} produtos</p>
+                </div>
             </div>
-        </div>
-    </>
+        </>
     );
 }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useContext } from 're
 import '../css/Orcamneto.css';
 import BTNVolta from "../components/BTNVolta";
 import { AuthContext } from './Context/AuthContext';
+import MenuDeLado from '../components/MenuDeLado';
 
 // Utils & Helpers
 import { 
@@ -224,6 +225,7 @@ function TelaPrincipal({ clienteInicial, clienteExistente, onVoltar }) {
 
   return (
     <div className="orc-bg">
+      <MenuDeLado/>
       <div className="orc-paper">
         <button className="orc-back-link" onClick={onVoltar}>← Voltar</button>
 

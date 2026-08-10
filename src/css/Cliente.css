@@ -6,12 +6,26 @@
 ════════════════════════════ */
  
 .page {
-  max-width: 1200px;
+  max-width: 1400px; /* Aumentado para ocupar melhor monitores grandes */
   margin: 0 auto;
   padding: 32px 5% 80px;
   display: flex;
   flex-direction: column;
   gap: 28px;
+}
+
+/* CORREÇÃO PRINCIPAL: Empurra o conteúdo no desktop para não ficar embaixo do menu lateral */
+@media (min-width: 768px) {
+  .page {
+    padding-left: 280px; /* 260px do menu + 20px de respiro */
+  }
+}
+
+@media (max-width: 767px) {
+  .page {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
 }
  
 .page__header {
@@ -32,30 +46,39 @@
  
 .page__eyebrow {
   font-size: 11px; letter-spacing: 2.5px;
-  text-transform: uppercase; color: var(--text-muted); font-weight: 500;
+  text-transform: uppercase; color: var(--color-text-muted); font-weight: 500;
 }
  
 .page__title {
-  font-family: var(--font-display);
-  font-size: 36px; font-weight: 500; color: var(--text); line-height: 1;
+  font-family: var(--font-heading);
+  font-size: 36px; font-weight: 700; color: var(--color-text); line-height: 1;
+  margin: 0;
 }
  
-/* Grid da tabela de clientes */
+/* Grid da tabela de clientes - BLINDADO contra quebras de layout */
 .clients-grid {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr 180px;
+  /* minmax(0, Xfr) impede que textos longos (como emails) estiquem a coluna e quebrem a tela */
+  grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) minmax(0, 1fr) minmax(0, 180px);
   align-items: center;
 }
+
+/* Garante que o conteúdo dentro das células não exceda o limite da coluna */
+.clients-grid > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
  
-/* Locked */
+/* Locked (Tela de acesso restrito) */
 .locked__content {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  height: 70vh; gap: 16px; color: var(--text-muted);
+  height: 70vh; gap: 16px; color: var(--color-text-muted);
 }
 .locked__icon { font-size: 48px; }
  
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .clients-grid  { grid-template-columns: 1fr; }
   .cli-table-head    { display: none; }
   .cli-table-row     { gap: 10px; padding: 16px; }
@@ -63,6 +86,73 @@
   .cli-stats-row     { flex-direction: column; }
   .cli-toolbar       { flex-direction: column; align-items: stretch; }
 }
+
+.cli-stats-row {
+  display: grid;
+  /* No desktop: 3 colunas do mesmo tamanho, lado a lado */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card__icon {
+  font-size: 24px;
+  background: var(--color-primary-50);
+  padding: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.stat-card__label {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.stat-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary-900);
+  margin: 0;
+  font-family: var(--font-heading);
+}
+
+/* ── Responsividade dos Cards ── */
+@media (max-width: 768px) {
+  .cli-stats-row {
+    /* No tablet, 2 cards na primeira linha e 1 na segunda */
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .cli-stats-row {
+    /* No celular pequeno, 1 card por linha (um embaixo do outro) */
+    grid-template-columns: 1fr;
+  }
+}
+ 
  
 /*meu codigo anterior, não sei se vou usar, mas vou deixar aqui pra não perder*/
 

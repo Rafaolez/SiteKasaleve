@@ -8,6 +8,8 @@ import MostruarioPintura from '../assets/MostruarioPintura';
 import MostruarioCordas from '../assets/MostruarioCorda';
 import MostruarioTecidos from '../assets/MostruarioTecido';
 
+import MenuDeLado from '../components/MenuDeLado';
+
 const produtos = ProdutosAPILocal;
 const produtosLojista = ProdutosApiLocalLojista;
 
@@ -267,6 +269,7 @@ function ModalSeletorProduto({ aberto, onFechar, onSelecionar, itemInicial, list
 
   return (
     <div className="orc-modal-overlay" onClick={onFechar}>
+      <MenuDeLado/>
       <div className="modal-box" onClick={e => e.stopPropagation()}>
         <div className="orc-modal-header">
           <div>

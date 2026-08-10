@@ -9,15 +9,15 @@ import { AuthContext } from './Context/AuthContext';
 
 // ─── Todos os itens de navegação possíveis ────────────────
 const allNavItems = [
-  { to: "/clienti",              label: "Clientes",             icon: "👥", desc: "Gerencie sua base de clientes",       color: "#E8F4FD", accent: "#2E86AB" },
-  { to: "/Orcamneto",            label: "Orçamento",            icon: "📋", desc: "Crie e acompanhe orçamentos",         color: "#FFF8E7", accent: "#F4A261" },
-  { to: "/Foto",                 label: "Fotos",                icon: "🖼️", desc: "Galeria de projetos e produtos",      color: "#F0FDF4", accent: "#2D9B5A" },
-  { to: "/cadastroPro",          label: "Cadastro de Produto",  icon: "📦", desc: "Gerencie o catálogo de produtos",     color: "#F5F0FF", accent: "#7C3AED" },
-  { to: "/Carrinho",             label: "Carrinho",             icon: "🛒", desc: "Personalize e finalize pedidos",      color: "#FFF1F2", accent: "#E11D48" },
-  { to: "/Monitoramento/IA",     label: "Monitorar IA",         icon: "🤖", desc: "Painel de IA do WhatsApp",            color: "#F0F9FF", accent: "#0369A1" },
-  { to: "/Tarefas",              label: "Tarefas",              icon: "✅", desc: "Agenda e gestão de tarefas",          color: "#FFFBEB", accent: "#D97706" },
-  { to: "/Checklist",            label: "Checklists",           icon: "🗒️", desc: "Crie e acompanhe checklists",         color: "#EEF2FF", accent: "#4338CA" },
-  { to: "/MapaRepresentantes",   label: "Mapa Representantes",  icon: "📍", desc: "Localização dos representantes",      color: "#ECFDF5", accent: "#059669" }, // NOVO ITEM
+  { to: "/Estoque",    label:"Estoque", icon:"", desc:"Gerencie o seu Estoque", color: "#E8F4FD", accent: "#ab2e2e" },
+  { to: "/clienti", label: "Clientes", icon: "👥", desc: "Gerencie sua base de clientes", color: "#E8F4FD", accent: "#2E86AB" },
+  { to: "/Orcamneto", label: "Orçamento", icon: "📋", desc: "Crie e acompanhe orçamentos", color: "#FFF8E7", accent: "#F4A261" },
+  { to: "/Foto", label: "Fotos", icon: "🖼️", desc: "Galeria de projetos e produtos", color: "#F0FDF4", accent: "#2D9B5A" },
+  { to: "/cadastroPro", label: "Cadastro de Produto", icon: "📦", desc: "Gerencie o catálogo de produtos", color: "#F5F0FF", accent: "#7C3AED" },
+  { to: "/Carrinho", label: "Carrinho", icon: "🛒", desc: "Personalize e finalize pedidos", color: "#FFF1F2", accent: "#E11D48" },
+  { to: "/Monitoramento/IA", label: "Monitorar IA", icon: "🤖", desc: "Painel de IA do WhatsApp", color: "#F0F9FF", accent: "#0369A1" },
+  { to: "/Tarefas", label: "Tarefas", icon: "✅", desc: "Agenda e gestão de tarefas", color: "#FFFBEB", accent: "#D97706" },
+  { to: "/Checklist", label: "Checklists", icon: "🗒️", desc: "Crie e acompanhe checklists", color: "#EEF2FF", accent: "#4338CA" },
 ];
 
 // ─── Função que retorna os menus liberados para cada cargo ─
@@ -30,14 +30,14 @@ const getItemsByRole = (role, isLoggedIn) => {
   // Mapeamento de permissões por cargo (usando os "to" dos menus)
   const permissions = {
     "Programador": [
-      "/clienti", "/Orcamneto", "/Foto", "/cadastroPro", "/Carrinho", 
-      "/Monitoramento/IA", "/Tarefas", "/MapaRepresentantes"
+      "/Estoque", "/clienti", "/Orcamneto", "/Foto", "/cadastroPro", "/Carrinho", 
+      "/Monitoramento/IA", "/Tarefas", 
     ],
     "Chefa": [
-      "/cadastroPro", "/clienti", "/Orcamneto", "/Carrinho", "/Foto", 
+      "/cadastroPro", "/clienti", "/Orcamneto", "/Carrinho", "/Foto", "/Estoque" 
     ],
     "GerenteVendas": [
-      "/Orcamneto", "/cadastroPro", "/clienti", "/Carrinho", "/Foto"
+      "/Orcamneto", "/cadastroPro", "/clienti", "/Carrinho", "/Foto", "/Estoque"
     ],
     "Vendedora": [
       "/Orcamneto", "/clienti", "/Foto", "/Carrinho"

@@ -5,6 +5,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from "./Context/AuthContext";
 import { Link } from 'react-router-dom';
 import CadastroDeClienete from '../components/CadastroDeClienete';
+
+import MenuDeLado from '../components/MenuDeLado';
+
 //isso pega as iniciais do cliente para criar o avatar, caso o cliente se chame "João Silva", ele vai pegar "J" e "S" e mostrar no avatar. Se o nome for só "Maria", ele vai mostrar "M". Se o nome for vazio, não mostra nada.
 const initials = (first = '', last = '') =>
   `${first[0] ?? ''}${last[0] ?? ''}`.toUpperCase();
@@ -75,6 +78,7 @@ function Clienti() {
     return (
       <>
         <MenuPage />
+        <MenuDeLado />
         <div className="page">
           <button className="btn-back" onClick={() => setAddMode(false)}>
             ← Voltar
@@ -99,6 +103,7 @@ function Clienti() {
   return (
     <>
       <MenuPage />
+      <MenuDeLado />
       <div className="page">
 
         {/* ── Topo ── */}

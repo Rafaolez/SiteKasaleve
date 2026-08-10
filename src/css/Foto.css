@@ -14,6 +14,13 @@
   gap: 48px;
 }
 
+/* Empurra o conteúdo no desktop para não ficar embaixo do menu lateral */
+@media (min-width: 768px) {
+  .foto-page {
+    padding-left: 280px; 
+  }
+}
+
 .foto-header {
   display: flex;
   align-items: center;
@@ -87,15 +94,8 @@
   width: 100%;
 }
 
-.map-legend__item:hover {
-  background: var(--bg);
-  border-color: var(--border);
-}
-
-.map-legend__item--active {
-  background: var(--bg);
-  border-color: var(--border);
-}
+.map-legend__item:hover { background: var(--bg); border-color: var(--border); }
+.map-legend__item--active { background: var(--bg); border-color: var(--border); }
 
 .map-legend__dot {
   width: 12px;
@@ -124,10 +124,7 @@
   font-family: var(--font-body);
 }
 
-.map-legend__clear:hover {
-  background: var(--bg);
-  color: var(--text);
-}
+.map-legend__clear:hover { background: var(--bg); color: var(--text); }
 
 .map-iframe-wrap {
   min-height: 480px;
@@ -158,13 +155,8 @@
   min-height: 480px;
 }
 
-.map-placeholder:hover {
-  background: var(--bg);
-}
-
-.map-placeholder__icon {
-  font-size: 40px;
-}
+.map-placeholder:hover { background: var(--bg); }
+.map-placeholder__icon { font-size: 40px; }
 
 .foto-map-public {
   background: var(--surface);
@@ -174,50 +166,70 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* ── Galeria ── */
-.foto-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-}
+/* ════════════════════════════
+   GALERIA (GRID BLINDADO)
+════════════════════════════ */
 .CXFotos {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    margin: auto;
-    flex-direction: row;
-
-    width: 90%;
-    flex-wrap: wrap;
+  display: grid;
+  /* minmax(0, 1fr) obriga as colunas a respeitarem o tamanho, 
+     impedindo que imagens ou textos dentro delas quebrem o layout */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 0 auto;
 }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .map-wrap {
-    grid-template-columns: 160px 1fr;
+/* Obriga TUDO que for colocado dentro da galeria a não ultrapassar 100% da coluna */
+.CXFotos > * {
+  min-width: 0 !important; 
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ── RESPONSIVE ── */
+
+/* Telas maiores que 768px (Tablets e Notebooks) -> 3 Colunas */
+@media (min-width: 768px) {
+  .CXFotos {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
+/* Telas gigantes (Monitores grandes, mais de 1600px) -> 4 Colunas */
+@media (min-width: 1600px) {
+  .CXFotos {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Ajustes de Mapa no Celular */
+@media (max-width: 767px) {
+  .foto-page {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
   .map-wrap {
     grid-template-columns: 1fr;
+    overflow: visible; 
   }
 
   .map-legend {
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: center;
     border-right: none;
     border-bottom: 1px solid var(--border);
-    overflow-x: auto;
+    overflow: visible; 
+    max-height: none;
+    padding: 12px;
+    gap: 8px;
   }
 
   .map-legend__item {
     flex-shrink: 0;
-  }
-
-  .foto-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 12px;
+    width: auto;
   }
 
   .foto-title {
@@ -225,77 +237,8 @@
   }
 }
 
-/*.CXConteudoFoto {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: column;
-    flex-wrap: nowrap;
-
+@media (max-width: 900px) {
+  .map-wrap {
+    grid-template-columns: 160px 1fr;
+  }
 }
-
-.CXFotos {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    margin: auto;
-    flex-direction: row;
-
-    width: 90%;
-    flex-wrap: wrap;
-}
-
-.FotoCaixamaior {
-    margin-top: 1rem;
-    margin-bottom: 2rem;
-}
-
-
-.Map {
-    width: 90%;
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-}
-
-.MapDescricao {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 1rem;
-    overflow: auto;
-    height: 27rem;
-}
-
-.MapLegendaCor {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-}
-
-.MapLegendaDeco {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: var(--gray-900);
-    display: block;
-    /* tira esse inherit safado */
-/*}
-
-.MapCaixaDescricao {
-    margin-bottom: 1rem;
-    width: 10rem;
-
-    display: flex;
-    align-items: center;
-    /* alinha vertical */
-/*justify-content: flex-start;
-    /* alinha tudo à esquerda */
-
-/*gap: 8px;
-    /* espaço entre cor e texto */
-/*padding: 6px 10px;
-
-    flex-wrap: nowrap;
-    /* NÃO deixa quebrar linha */
-/*}*/

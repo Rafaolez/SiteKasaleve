@@ -5,6 +5,8 @@ import MenuPage from "../components/MenuPage";
 import { gerarRespostaIA } from "../assets/aiResponder";
 import Toast from "../components/Toast";
 
+import MenuDeLado from '../components/MenuDeLado';
+
 // ═══════════════════════════════════════
 // MOCKS
 // ═══════════════════════════════════════
@@ -187,6 +189,7 @@ export default function GestaoIA() {
   // 1. DASHBOARD
   const renderDashboard = () => (
     <div className="tab-page fade-in">
+      <MenuDeLado/>
       <div className="page-header">
         <div>
           <h2>Visão Geral da IA</h2>
