@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import MenuPage from '../components/MenuPage';
 import MenuDeLado from '../components/MenuDeLado';
 import { AuthContext } from "./Context/AuthContext";
+import CadastroDeProduto from "../components/CadastroDeProduto";
 
 function StatusBadge({ label, type = 'default' }) {
     return <span className={`badge badge--${type}`}><span className="badge__dot" />{label}</span>;
@@ -28,6 +29,7 @@ function CradastroPro() {
     const [produto, setProduto] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [exibirFormulario, setExibirFormulario] = useState(false);
 
     async function getProduto() {
         try {
@@ -72,6 +74,10 @@ function CradastroPro() {
         );
     }
 
+    if (exibirFormulario) {
+        return <CadastroDeProduto />;
+    }
+
     const filtered = produto.filter(p =>
         p.title.toLowerCase().includes(search.toLowerCase()) ||
         p.category.toLowerCase().includes(search.toLowerCase())
@@ -92,7 +98,9 @@ function CradastroPro() {
                                 <h1 className="page__title">Produtos</h1>
                             </div>
                         </div>
-                        <button className="btn-primary">+ Novo Produto</button>
+                        <button className="btn-primary" onClick={() => setExibirFormulario(true)}>
+                            + Novo Produto
+                        </button>
                     </div>
 
                     {/* ── Stats ── */}

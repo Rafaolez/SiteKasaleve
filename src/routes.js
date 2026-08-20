@@ -14,6 +14,7 @@ import IA from './Page/IA.jsx';
 import Tarefas from './Page/Tarefas.jsx';
 import Catalogo from './Page/Catalogo.jsx';
 import Checklist from './Page/Checklist.jsx';
+import CameraTeste from './Page/CameraTeste.jsx';
 
 function AppRautes() {
     return (
@@ -35,6 +36,7 @@ function AppRautes() {
                 <Route path="/Tarefas" element={<Tarefas />} />
                 <Route path="/Carrinho/Catalogo" element={ <Catalogo />} />
                 <Route path="/Checklist" element={<Checklist />} />
+                <Route path="/CameraTeste" element={<CameraTeste />} />
                 
             </Routes>
         </BrowserRouter>

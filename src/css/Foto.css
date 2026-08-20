@@ -179,6 +179,10 @@
   margin: 0 auto;
 }
 
+h3{ /*isso é o título da foto/Descricao*/
+  color: white;
+}
+
 /* Obriga TUDO que for colocado dentro da galeria a não ultrapassar 100% da coluna */
 .CXFotos > * {
   min-width: 0 !important; 

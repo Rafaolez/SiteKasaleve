@@ -18,6 +18,7 @@ const allNavItems = [
   { to: "/Monitoramento/IA", label: "Monitorar IA", icon: "🤖", desc: "Painel de IA do WhatsApp", color: "#F0F9FF", accent: "#0369A1" },
   { to: "/Tarefas", label: "Tarefas", icon: "✅", desc: "Agenda e gestão de tarefas", color: "#FFFBEB", accent: "#D97706" },
   { to: "/Checklist", label: "Checklists", icon: "🗒️", desc: "Crie e acompanhe checklists", color: "#EEF2FF", accent: "#4338CA" },
+  { to: "/CameraTeste", label: "Camera Teste", icon: "📷", desc: "Teste a câmera do dispositivo", color: "#FDF2F8", accent: "#DB2777" },
 ];
 
 // ─── Função que retorna os menus liberados para cada cargo ─
@@ -31,7 +32,7 @@ const getItemsByRole = (role, isLoggedIn) => {
   const permissions = {
     "Programador": [
       "/Estoque", "/clienti", "/Orcamneto", "/Foto", "/cadastroPro", "/Carrinho", 
-      "/Monitoramento/IA", "/Tarefas", 
+      "/Monitoramento/IA", "/Tarefas", "/CameraTeste",
     ],
     "Chefa": [
       "/cadastroPro", "/clienti", "/Orcamneto", "/Carrinho", "/Foto", "/Estoque" 

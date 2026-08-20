@@ -1,0 +1,285 @@
+@import './MaeDtodos.css';
+
+/* ════════════════════════════
+   CadastroDeCliente.css & CadastroDeProduto.css
+   Estilo compartilhado para formulários de cadastro
+════════════════════════════ */
+
+.cadastro-cliente {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+  font-family: var(--font-body, system-ui, sans-serif);
+  color: var(--color-text, #1f2937);
+}
+
+/* ─── Toast (Notificação) ─── */
+.cdcli-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface, #fff);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgba(0,0,0,0.1));
+  border-left: 5px solid #ccc;
+  z-index: 1000;
+  opacity: 0;
+  transform: translateX(120%);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cdcli-toast--visible { opacity: 1; transform: translateX(0); }
+.cdcli-toast--success { border-left-color: #10b981; }
+.cdcli-toast--error { border-left-color: #ef4444; }
+.cdcli-toast__icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: 50%;
+  font-weight: bold; color: #fff; font-size: 14px;
+}
+.cdcli-toast--success .cdcli-toast__icon { background: #10b981; }
+.cdcli-toast--error .cdcli-toast__icon { background: #ef4444; }
+.cdcli-toast__msg { font-size: 14px; font-weight: 500; }
+
+/* ─── Header do Formulário ─── */
+.cc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.cc-header__title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+}
+.cc-header__sub {
+  font-size: 14px;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0;
+}
+
+/* Badge de Status no Header */
+.cc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+.cc-status--ativo { background: #dcfce7; color: #15803d; }
+.cc-status--inativo { background: #fee2e2; color: #b91c1c; }
+.cc-status__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor;
+}
+
+/* ─── Estrutura do Formulário ─── */
+.cc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cc-section {
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  padding: 24px;
+  background: var(--color-surface, #fff);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0,0,0,0.05));
+}
+.cc-section__legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary-900, #111827);
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+.cc-section__legend svg { color: var(--color-primary, #4f46e5); }
+
+/* ─── Grid das Linhas de Inputs ─── */
+.cc-row {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+.cc-row--1 { grid-template-columns: 1fr; }
+.cc-row--2 { grid-template-columns: repeat(2, 1fr); }
+.cc-row--3 { grid-template-columns: repeat(3, 1fr); }
+.cc-row--narrow { max-width: 300px; }
+
+/* Responsividade do Grid */
+@media (max-width: 768px) {
+  .cc-row--2, .cc-row--3 { grid-template-columns: 1fr; }
+  .cc-row--narrow { max-width: 100%; }
+}
+
+/* ─── Inputs, Labels e Erros ─── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cc-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted, #374151);
+}
+.cc-req { color: #ef4444; }
+
+.cc-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-light, #d1d5db);
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-text, #111827);
+  background: #fff;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.cc-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+.cc-input::placeholder { color: #9ca3af; }
+
+/* Selects */
+.cc-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Textarea (usado na tela de Produto) */
+textarea.cc-input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Estado de Erro */
+.form-group--error .cc-input {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+.form-group--error .cc-input:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+.cc-err {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ─── Inputs com Indicadores (CEP, CPF) ─── */
+.cc-input-wrap {
+  position: relative;
+}
+.cc-input--has-indicator {
+  padding-right: 40px;
+}
+.doc-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.doc-indicator--valid { color: #10b981; }
+.doc-indicator--invalid { color: #ef4444; }
+.doc-indicator--typing { color: #3b82f6; }
+
+.doc-hint {
+  font-size: 11px;
+  color: var(--color-text-muted, #6b7280);
+}
+.doc-hint--valid { color: #10b981; font-weight: 500; }
+.doc-hint--invalid { color: #ef4444; font-weight: 500; }
+
+/* Spinner de Loading do CEP */
+.cep-spinner {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: var(--color-primary, #4f46e5);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+/* ─── Botões e Ações ─── */
+.cc-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 24px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border-light, #e5e7eb);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-sm, 0 1px 2px 0 rgba(0,0,0,0.05));
+}
+
+.cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+.cc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.cc-btn--primary {
+  background: var(--color-primary, #4f46e5);
+  color: #fff;
+}
+.cc-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-dark, #4338ca);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+.cc-btn--ghost {
+  background: transparent;
+  color: var(--color-text-muted, #4b5563);
+  border-color: var(--color-border-light, #d1d5db);
+}
+.cc-btn--ghost:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+/* Ajuste mobile para botões */
+@media (max-width: 480px) {
+  .cc-actions { flex-direction: column-reverse; }
+  .cc-btn { width: 100%; }
+}

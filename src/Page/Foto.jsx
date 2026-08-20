@@ -22,6 +22,7 @@ const mapLegends = [
 
 const fotos = [
     { categoria: "mesas", link: "https://photos.app.goo.gl/KMZRi2ByHVrPhSra6", img: "/Imagens/IMG_Foto_Mesa.jpg", titulo: "Mesas e Cadeiras" },
+    { categoria: "Mesa de Centro e de Canto", link: "https://photos.app.goo.gl/x3wKN2t681UL1Xob6", img: "/Imagens/IMG_MesaCentroedeCanto.webp", titulo: "Mesa de Centro e de Canto" },
     { categoria: "sofas", link: "https://photos.app.goo.gl/FPz2LaJ85cn3tH1H8", img: "/Imagens/IMG_Foto_Sofa.jpg", titulo: "Sofás" },
     { categoria: "chaise", link: "https://photos.app.goo.gl/iPPVpmTTGoM9gNb56", img: "/Imagens/IMG_Foto_Chaise.jpg", titulo: "Chaise" },
     { categoria: "espreguisadeira", link: "https://photos.app.goo.gl/ywdRuDY7oa4g7u5B6", img: "/Imagens/IMG_Foto_Espreguisadeira.jpg", titulo: "Espreguiçadeira" },
@@ -30,10 +31,12 @@ const fotos = [
     { categoria: "balanco", link: "https://photos.app.goo.gl/9PbsepbP2kuCEeQN6", img: "/Imagens/IMG_Foto_Balanco.jpg", titulo: "Balanço" },
     { categoria: "obrelone", link: "https://photos.app.goo.gl/KVFnPaBfQ4PJqmpy5", img: "/Imagens/IMG_Foto_Ombrelone.jpg", titulo: "Ombrelone" },
     { categoria: "assesoriofino", link: "https://photos.app.goo.gl/4jX17aRoqtA3nEjK8", img: "/Imagens/IMG_Foto_AssesorioFino.jpg", titulo: "Acessório Fino" },
+    { categoria: "Decorações", link: "https://photos.app.goo.gl/PTtSRdnBcJzVticp6", img: "/Imagens/IMG_Decorações.jpeg", titulo: "Decorações" },
     { categoria: "tapete", link: "https://photos.app.goo.gl/yrzQtSNRqp6pdk34A", img: "/Imagens/IMG_Foto_Tapete.png", titulo: "Tapete" },
     { categoria: "camapet", link: "https://photos.app.goo.gl/xkAWstynDKChhRPfA", img: "/Imagens/IMG_Foto_CamaPet.jpg", titulo: "Cama Pet" },
     { categoria: "projetoCorporativo", link: "https://photos.app.goo.gl/TJ7qekib4xXzNp639", img: "/Imagens/IMG_Foto_ProjetoFino.png", titulo: "Projeto Corporativo" },
     { categoria: "projetoEspecial", link: "https://photos.app.goo.gl/xkAWstynDKChhRPfA", img: "/Imagens/IMG_Foto_ProjetoEspecial.png", titulo: "Projeto Especial" },
+    { categoria: "Capas", link: "https://photos.app.goo.gl/x3wKN2t681UL1Xob6", img: "/Imagens/IMG_Capas.jpeg", titulo: "Capas" },
     { categoria: "video", link: "https://photos.app.goo.gl/oSZ2mfRgmpJRna5c8", img: "/Imagens/LogoKasaLeveBranca.png", titulo: "Vídeo Kasaleve" },
     { categoria: "cores", link: "https://photos.app.goo.gl/WXJPijzaF2DeDRhr7", img: "/Imagens/IMG_Foto_Cores.jpg", titulo: "Cores" },
     { categoria: "tipoTampo", link: "https://photos.app.goo.gl/NSPgDKANAfSBQQn18", img: "/Imagens/IMG_Foto_TipoDeTampo.jpg", titulo: "Tipo de Tampo" },
@@ -156,7 +159,7 @@ function Foto() {
                 <div className="CXFotos">
                     {fotos.map(foto => (
                         <FTList
-                            key={foto.categoria}
+                            key={foto.categoria}className="foto-item"
                             {...foto}
                             hovered={hovered}
                             setHovered={setHovered}
