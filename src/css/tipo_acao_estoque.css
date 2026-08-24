@@ -1,0 +1,24 @@
+.ContainerEscolhaAcaoEstoque{
+    
+}
+
+.tipo-acao-estoque-container{
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    background-color: #00d544;
+}
+
+.VertodasVariacaoestoque, .Cadastroestoque, .CadastroNovoestoque{
+    width: 40rem;
+    height: 40rem;
+    background-color: #eb0000;
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
